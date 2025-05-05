@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { UserSquare } from 'lucide-react';
 import Image from 'next/image';
+import { cn } from '@/lib/utils'; // Import cn function
 
 // Extracted from the image provided
 // NOTE: In a real app, this data would come from a database (e.g., Firestore)
@@ -48,10 +49,12 @@ const footMapping: { [key: string]: string } = {
   'L': 'Left',
 };
 
+// Define HSL based classes using Tailwind utilities
+// Example: Define HSL colors in globals.css first
 const categoryColors: { [key: string]: string } = {
-  '5★': 'bg-blue-100 text-blue-800 border-blue-300',
-  '4★': 'bg-purple-100 text-purple-800 border-purple-300',
-  '3★': 'bg-orange-100 text-orange-800 border-orange-300',
+    '5★': 'border-blue-300 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-700',
+    '4★': 'border-purple-300 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 dark:border-purple-700',
+    '3★': 'border-orange-300 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 dark:border-orange-700',
 }
 
 function formatPosition(positions: string[]): string {
