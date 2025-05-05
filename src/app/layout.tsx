@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/header';
+import { cn } from '@/lib/utils'; // Import cn
 import { Toaster } from "@/components/ui/toaster"
 
 const geistSans = Geist({
@@ -24,10 +25,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Combine static and dynamic classes using cn for better handling
+  const bodyClassName = cn(
+    geistSans.variable,
+    geistMono.variable,
+    'antialiased min-h-screen flex flex-col'
+  );
+
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={bodyClassName}
       >
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
