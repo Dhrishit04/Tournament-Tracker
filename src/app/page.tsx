@@ -34,7 +34,7 @@ export default function Home() {
             height={32}
             className="rounded-full"
             data-ai-hint="football league logo soccer"
-            priority
+            priority="true" // Changed from `priority` to `priority="true"`
           />
           Dongre Football Premier League
         </h1>
