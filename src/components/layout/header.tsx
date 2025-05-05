@@ -8,14 +8,22 @@ export function Header() {
     <header className="bg-card shadow-sm sticky top-0 z-50">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
-           {/* Added Image component for the logo */}
+           {/*
+             ********************************************************************
+             * IMPORTANT: Replace the placeholder 'src' below with the actual path
+             * to your logo file located in the /public directory.
+             * For example, if your logo is named 'logo.png' and placed directly
+             * inside the /public folder, the src should be '/logo.png'.
+             ********************************************************************
+           */}
            <Image
-              src="https://picsum.photos/seed/dpl-logo/32/32" // Placeholder, actual logo path needed
+              src="https://picsum.photos/seed/dpl-logo/32/32" // <<< REPLACE THIS with your logo path, e.g., '/logo.png'
               alt="Dongre Premier League Logo"
               width={32} // Adjust size as needed
               height={32}
               className="rounded-full" // Optional: if the logo should be circular
               data-ai-hint="football league logo soccer" // Hint for finding the actual logo
+              priority // Prioritize loading the logo image
             />
           Dongre Football Premier League
         </Link>
