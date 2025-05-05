@@ -1,24 +1,36 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Calendar, UserSquare } from 'lucide-react'; // Removed Trophy
+import { Users, Calendar, UserSquare, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 export default function Home() {
+  const { setTheme, theme } = useTheme();
+
   return (
     <div className="space-y-8">
-      <section className="text-center py-12 bg-card rounded-lg shadow">
-        {/* Removed Trophy icon */}
+      <section className="text-center py-12 bg-card rounded-lg shadow relative">
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
           Dongre Football Premier League
         </h1>
         <p className="text-lg text-muted-foreground">
           Welcome to the official tracker for the Dongre Football Premier League!
         </p>
+        <div className="absolute top-4 right-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+          >
+            {theme === 'light' ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+        </div>
       </section>
 
       <section>
         <h2 className="text-2xl font-semibold mb-4 text-center">Explore the League</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> {/* Changed to 3 cols */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -47,7 +59,7 @@ export default function Home() {
               </Button>
             </CardContent>
           </Card>
-           <Card>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <UserSquare className="w-5 h-5 text-primary" />
@@ -61,7 +73,6 @@ export default function Home() {
               </Button>
             </CardContent>
           </Card>
-          {/* Add cards for Standings, Statistics later */}
         </div>
       </section>
 
@@ -71,3 +82,4 @@ export default function Home() {
     </div>
   );
 }
+
