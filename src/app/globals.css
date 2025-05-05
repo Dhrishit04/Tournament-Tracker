@@ -37,6 +37,9 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Define font variable */
+    --font-sans: "Inter", sans-serif; /* Default to Inter if variable not set */
   }
 
   /* Keep dark theme as is for now, user only specified light theme */
@@ -80,8 +83,11 @@
   * {
     @apply border-border;
   }
+  html {
+     @apply h-full scroll-smooth;
+   }
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-geist-sans), sans-serif; /* Ensure consistent font */
+    @apply bg-background text-foreground h-full;
+    font-family: var(--font-sans); /* Use CSS variable for font */
   }
 }

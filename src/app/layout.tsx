@@ -1,23 +1,21 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter } from 'next/font/google'; // Using Inter as a standard sans-serif font
 import './globals.css';
 import { Header } from '@/components/layout/header';
-import { cn } from '@/lib/utils'; // Import cn
+import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+// Using Inter font as a default sans-serif. Geist might have issues in some setups.
+// If Geist is required, ensure its setup matches Next.js recommendations exactly.
+const inter = Inter({
   subsets: ['latin'],
+  variable: '--font-sans', // Using a standard variable name
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
-  title: 'Dongre Football Premier League', // Updated title
-  description: 'Track the Dongre Football Premier League - Teams, Matches, Players, and Stats.', // Updated description
+  title: 'Dongre Football Premier League',
+  description: 'Track the Dongre Football Premier League - Teams, Matches, Players, and Stats.',
 };
 
 export default function RootLayout({
@@ -25,17 +23,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Combine static and dynamic classes using cn for better handling and to prevent hydration errors
-  const bodyClassName = cn(
-    geistSans.variable,
-    geistMono.variable,
-    'antialiased min-h-screen flex flex-col'
-  );
-
+  // Apply font variable to html tag, static classes directly to body
   return (
-    <html lang="en">
+    <html lang="en" className={cn(inter.variable, 'h-full')} suppressHydrationWarning>
       <body
-        className={bodyClassName}
+        className={cn(
+          'antialiased min-h-screen flex flex-col font-sans' // Apply font-sans here
+        )}
       >
         <Header />
         <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
