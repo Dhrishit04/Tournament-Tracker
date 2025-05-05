@@ -1,13 +1,22 @@
 import Link from 'next/link';
-import { Trophy, Users, Calendar, UserSquare } from 'lucide-react'; // Added UserSquare
+import { Users, Calendar, UserSquare } from 'lucide-react'; // Removed Trophy icon
 import { Button } from '@/components/ui/button';
+import Image from 'next/image'; // Import Image component
 
 export function Header() {
   return (
     <header className="bg-card shadow-sm sticky top-0 z-50">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
-          <Trophy className="w-6 h-6" />
+           {/* Added Image component for the logo */}
+           <Image
+              src="https://picsum.photos/seed/dpl-logo/32/32" // Placeholder, actual logo path needed
+              alt="Dongre Premier League Logo"
+              width={32} // Adjust size as needed
+              height={32}
+              className="rounded-full" // Optional: if the logo should be circular
+              data-ai-hint="football league logo soccer" // Hint for finding the actual logo
+            />
           Dongre Football Premier League
         </Link>
         <div className="flex items-center gap-1 md:gap-2">

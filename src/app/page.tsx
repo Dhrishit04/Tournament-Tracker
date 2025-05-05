@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trophy, Users, Calendar, UserSquare } from 'lucide-react'; // Added UserSquare
+import { Users, Calendar, UserSquare } from 'lucide-react'; // Removed Trophy
 
 export default function Home() {
   return (
     <div className="space-y-8">
       <section className="text-center py-12 bg-card rounded-lg shadow">
+        {/* Removed Trophy icon */}
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
-          <Trophy className="w-10 h-10 text-primary" />
           Dongre Football Premier League
         </h1>
         <p className="text-lg text-muted-foreground">
