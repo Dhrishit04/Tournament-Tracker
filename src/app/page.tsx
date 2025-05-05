@@ -1,30 +1,48 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Calendar, UserSquare, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 
-export default function Home() {
+function ThemeSwitcher() {
   const { setTheme, theme } = useTheme();
 
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+    >
+      {theme === 'light' ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
+      <span className="sr-only">Toggle theme</span>
+    </Button>
+  );
+}
+
+export default function Home() {
   return (
     <div className="space-y-8">
       <section className="text-center py-12 bg-card rounded-lg shadow relative">
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
+          <img
+            src="https://picsum.photos/seed/dpl-logo/32/32"
+            alt="Dongre Premier League Logo"
+            width={32}
+            height={32}
+            className="rounded-full"
+            data-ai-hint="football league logo soccer"
+            priority
+          />
           Dongre Football Premier League
         </h1>
         <p className="text-lg text-muted-foreground">
           Welcome to the official tracker for the Dongre Football Premier League!
         </p>
         <div className="absolute top-4 right-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-          >
-            {theme === 'light' ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+          <ThemeSwitcher />
         </div>
       </section>
 
@@ -82,4 +100,3 @@ export default function Home() {
     </div>
   );
 }
-
