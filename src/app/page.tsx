@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trophy, Users, Calendar } from 'lucide-react';
+import { Trophy, Users, Calendar, UserSquare } from 'lucide-react'; // Added UserSquare
 
 export default function Home() {
   return (
@@ -9,16 +9,16 @@ export default function Home() {
       <section className="text-center py-12 bg-card rounded-lg shadow">
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
           <Trophy className="w-10 h-10 text-primary" />
-          Welcome to Tournament Tracker Lite!
+          Dongre Football Premier League
         </h1>
         <p className="text-lg text-muted-foreground">
-          Your simple solution for tracking tournament progress.
+          Welcome to the official tracker for the Dongre Football Premier League!
         </p>
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-4 text-center">Explore the Tournament</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <h2 className="text-2xl font-semibold mb-4 text-center">Explore the League</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> {/* Changed to 3 cols */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -47,12 +47,26 @@ export default function Home() {
               </Button>
             </CardContent>
           </Card>
-          {/* Add cards for Players, Standings, Statistics later */}
+           <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserSquare className="w-5 h-5 text-primary" />
+                Players
+              </CardTitle>
+              <CardDescription>Browse player profiles and season info.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild>
+                <Link href="/players">Go to Players</Link>
+              </Button>
+            </CardContent>
+          </Card>
+          {/* Add cards for Standings, Statistics later */}
         </div>
       </section>
 
       <section className="text-center text-muted-foreground text-sm">
-        <p>This is a simplified version. Future updates may include player profiles, detailed standings, and statistics.</p>
+        <p>Currently tracking Season 3. Stay tuned for live updates, standings, and detailed statistics!</p>
       </section>
     </div>
   );

@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Tournament Tracker Lite',
-  description: 'A simple tournament tracker app.',
+  title: 'Dongre Football Premier League', // Updated title
+  description: 'Track the Dongre Football Premier League - Teams, Matches, Players, and Stats.', // Updated description
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Combine static and dynamic classes using cn for better handling
+  // Combine static and dynamic classes using cn for better handling and to prevent hydration errors
   const bodyClassName = cn(
     geistSans.variable,
     geistMono.variable,
