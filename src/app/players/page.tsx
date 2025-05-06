@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { UserSquare, TrendingUp, Shield, Zap, Star, CalendarDays, CheckCircle, XCircle } from 'lucide-react';
+import { UserSquare, TrendingUp, Shield, Zap, Star, CalendarDays, CheckCircle, XCircle, Users } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -80,21 +80,28 @@ const accordionContentVariants = {
 
 export default function PlayersPage() {
   return (
-    <motion.div 
+    <motion.div
       className="space-y-6"
       initial="hidden"
       animate="visible"
       variants={pageVariants}
     >
-      <div className="flex justify-between items-center">
+      <motion.div
+        className="flex justify-between items-center"
+        variants={pageVariants}
+      >
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <UserSquare className="w-8 h-8 text-primary" />
           Players (Season 3)
         </h1>
-      </div>
-      <p className="text-muted-foreground">
+      </motion.div>
+      <motion.p
+        className="text-muted-foreground"
+        variants={pageVariants}
+        transition={{ delay: 0.1 }}
+      >
         List of players participating in the current season. Click on a player to view detailed stats.
-      </p>
+      </motion.p>
       <motion.div variants={tableVariants}>
         <Card>
           <CardContent className="p-0">
@@ -128,7 +135,10 @@ export default function PlayersPage() {
                                     height={40}
                                     className="rounded-full object-cover"
                                     data-ai-hint="player portrait soccer"
-                                    onError={(e) => e.currentTarget.src = `https://picsum.photos/seed/${player.id}/40/40`} // Fallback
+                                    onError={(e) => {
+                                        e.currentTarget.onerror = null; // prevent infinite loop
+                                        e.currentTarget.src = `https://picsum.photos/seed/${player.id}/40/40`;
+                                    }}
                                    />
                                 <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                               </Avatar>
@@ -154,12 +164,12 @@ export default function PlayersPage() {
                         </TableRow>
                       </AccordionTrigger>
                       <AccordionContent asChild>
-                        <motion.tr 
+                        <motion.tr
                           className="bg-muted/20 dark:bg-muted/10"
                           variants={accordionContentVariants}
                           initial="hidden"
                           animate="visible"
-                          exit="hidden" // Added exit for smoother closing animation
+                          exit="hidden"
                         >
                           <TableCell colSpan={8} className="p-0">
                             <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -199,7 +209,7 @@ export default function PlayersPage() {
           </CardContent>
         </Card>
       </motion.div>
-       <motion.div 
+       <motion.div
         className="mt-4 p-4 border rounded-lg bg-muted/50"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
