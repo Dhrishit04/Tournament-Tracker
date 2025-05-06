@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Users, Calendar, UserSquare, Menu as MenuIcon } from 'lucide-react'; // Added MenuIcon
+import { Users, Calendar, UserSquare, Menu as MenuIcon, ShieldAlert } from 'lucide-react'; // Added ShieldAlert
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import {
@@ -7,6 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 export function Header() {
@@ -21,7 +22,6 @@ export function Header() {
               height={32}
               className="rounded-full"
               data-ai-hint="football league logo soccer"
-              priority // Keep priority as boolean for next/image
             />
           Dongre Football Premier League
         </Link>
@@ -50,6 +50,13 @@ export function Header() {
                 <Link href="/players" className="flex items-center gap-2 cursor-pointer">
                   <UserSquare className="w-4 h-4" />
                   Players
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/admin" className="flex items-center gap-2 cursor-pointer">
+                  <ShieldAlert className="w-4 h-4" />
+                  Admin Access
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>

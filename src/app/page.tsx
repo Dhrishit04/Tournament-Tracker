@@ -7,7 +7,6 @@ import { Users, Calendar, UserSquare, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import AdminSignIn from '@/components/admin-sign-in';
 
 
 function ThemeSwitcher() {
@@ -48,9 +47,9 @@ export default function Home() {
         </div>
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
            <Image
-              src="https://picsum.photos/seed/dpl-logo/40/40" 
+              src="https://picsum.photos/seed/dpl-logo/40/40"
               alt="Dongre Premier League Logo"
-              width={40} 
+              width={40}
               height={40}
               className="rounded-full"
               data-ai-hint="football league logo soccer"
@@ -112,13 +111,6 @@ export default function Home() {
       
       <section className="text-center text-muted-foreground text-sm">
         <p>Currently tracking Season 3. Stay tuned for live updates, standings, and detailed statistics!</p>
-      </section>
-
-      <section className="mt-12 p-6 bg-card rounded-lg shadow">
-        <h2 className="text-2xl font-semibold mb-4 text-center">Admin Access</h2>
-        <div className="max-w-md mx-auto">
-          <AdminSignIn />
-        </div>
       </section>
     </div>
   );
