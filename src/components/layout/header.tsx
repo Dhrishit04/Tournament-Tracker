@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Users, Calendar, UserSquare, Menu as MenuIcon, ShieldAlert } from 'lucide-react'; // Added ShieldAlert
+import { Users, Calendar, UserSquare, Menu as MenuIcon, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import {
@@ -54,14 +54,13 @@ export function Header() {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/admin" className="flex items-center gap-2 cursor-pointer">
+                <Link href="/admin-auth" className="flex items-center gap-2 cursor-pointer">
                   <ShieldAlert className="w-4 h-4" />
                   Admin Access
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          {/* Future links can be added here (e.g., Standings, Statistics) */}
         </div>
       </nav>
     </header>
