@@ -7,6 +7,8 @@ import { Users, Calendar, UserSquare, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import AdminSignIn from '@/components/admin-sign-in';
+
 
 function ThemeSwitcher() {
   const { setTheme, theme } = useTheme();
@@ -17,7 +19,12 @@ function ThemeSwitcher() {
   }, []);
 
   if (!mounted) {
-    return null; 
+    // Render a placeholder or null to avoid hydration mismatch
+    return (
+      <Button variant="outline" size="icon" disabled aria-label="Loading theme switcher">
+        <Sun className="h-[1.2rem] w-[1.2rem]" /> {/* Or a generic loading icon */}
+      </Button>
+    );
   }
 
   return (
@@ -36,15 +43,23 @@ export default function Home() {
   return (
     <div className="space-y-8">
       <section className="text-center py-12 bg-card rounded-lg shadow relative">
+        <div className="absolute top-4 right-4">
+          <ThemeSwitcher />
+        </div>
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
+           <Image
+              src="https://picsum.photos/seed/dpl-logo/40/40" 
+              alt="Dongre Premier League Logo"
+              width={40} 
+              height={40}
+              className="rounded-full"
+              data-ai-hint="football league logo soccer"
+            />
           Dongre Football Premier League
         </h1>
         <p className="text-lg text-muted-foreground">
           Welcome to the official tracker for the Dongre Football Premier League!
         </p>
-        <div className="absolute top-4 right-4">
-          <ThemeSwitcher />
-        </div>
       </section>
 
       <section>
@@ -97,6 +112,13 @@ export default function Home() {
       
       <section className="text-center text-muted-foreground text-sm">
         <p>Currently tracking Season 3. Stay tuned for live updates, standings, and detailed statistics!</p>
+      </section>
+
+      <section className="mt-12 p-6 bg-card rounded-lg shadow">
+        <h2 className="text-2xl font-semibold mb-4 text-center">Admin Access</h2>
+        <div className="max-w-md mx-auto">
+          <AdminSignIn />
+        </div>
       </section>
     </div>
   );

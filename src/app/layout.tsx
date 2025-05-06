@@ -4,6 +4,10 @@ import { Header } from '@/components/layout/header';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
 import { ReactNode } from 'react';
+import { ThemeProvider } from "@/components/theme-provider"; // Import ThemeProvider
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: 'Dongre Football Premier League',
@@ -17,8 +21,10 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
 
+  // Firebase script loading - should ideally be in a client component with useEffect
   if (typeof window !== 'undefined') {
-    if (!window.firebaseLoaded) {
+    const globalWindow = window as any;
+    if (!globalWindow.firebaseLoaded) {
       const scriptApp = document.createElement('script');
       scriptApp.src = 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
       scriptApp.async = true;
@@ -28,28 +34,35 @@ export default function RootLayout({
       scriptAuth.async = true;
       document.body.appendChild(scriptAuth);
       scriptAuth.onload = () => {
-        if ((window as any).firebase) {
-          const firebase = (window as any).firebase;
+        if (globalWindow.firebase) {
+          const firebase = globalWindow.firebase;
           const auth = firebase.auth();
-          window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+          globalWindow.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
             'recaptcha-container', {});
         }
       }
-      window.firebaseLoaded = true;
+      globalWindow.firebaseLoaded = true;
     }
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={cn(inter.variable, 'h-full')} suppressHydrationWarning>
       <body
         className={cn(
-          'antialiased min-h-screen flex flex-col'
+          'antialiased min-h-screen flex flex-col font-sans'
         )}
         suppressHydrationWarning={true}
       >
-        <Header />
-        <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Header />
+          <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
