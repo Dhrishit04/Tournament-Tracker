@@ -17,7 +17,7 @@ function ThemeSwitcher() {
   }, []);
 
   if (!mounted) {
-    return null;
+    return null; 
   }
 
   return (
@@ -37,15 +37,6 @@ export default function Home() {
     <div className="space-y-8">
       <section className="text-center py-12 bg-card rounded-lg shadow relative">
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
-          <Image
-            src="/logo.png" 
-            alt="Dongre Premier League Logo"
-            width={32}
-            height={32}
-            className="rounded-full"
-            data-ai-hint="football league logo soccer"
-            priority={true} 
-          />
           Dongre Football Premier League
         </h1>
         <p className="text-lg text-muted-foreground">
@@ -104,8 +95,6 @@ export default function Home() {
         </div>
       </section>
       
-      {/* AdminSignIn component removed from here */}
-
       <section className="text-center text-muted-foreground text-sm">
         <p>Currently tracking Season 3. Stay tuned for live updates, standings, and detailed statistics!</p>
       </section>
