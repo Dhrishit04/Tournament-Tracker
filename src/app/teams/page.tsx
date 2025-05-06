@@ -1,11 +1,10 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'; // Removed AvatarImage as we are using Next Image
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'; 
 import { Users, Crown } from 'lucide-react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
-// Mock data - replace with actual data fetching from Firestore later
 const teams = [
   { id: 't1', name: 'Alpha Eagles', owner: 'Mr. Alpha', logo: '/images/teams/alpha-eagles.jpg', players: ['Player A1', 'Player A2', 'Player A3'] },
   { id: 't2', name: 'Bravo Bears', owner: 'Ms. Bravo', logo: '/images/teams/bravo-bears.jpg', players: ['Player B1', 'Player B2'] },
@@ -47,7 +46,7 @@ export default function TeamsPage() {
       </motion.h1>
       <motion.div 
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-        variants={containerVariants} // Use containerVariants for staggering children
+        variants={containerVariants} 
       >
         {teams.map((team) => (
           <motion.div key={team.id} variants={itemVariants}>
@@ -55,12 +54,13 @@ export default function TeamsPage() {
               <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
                   <Avatar className="h-12 w-12">
                     <Image
-                      src={team.logo} // Use actual logo path from team data
+                      src={team.logo} 
                       alt={`${team.name} Logo`}
                       width={48}
                       height={48}
-                      className="rounded-full object-cover" // Added object-cover for better image display
+                      className="rounded-full object-cover" 
                       data-ai-hint="team logo sport crest"
+                      priority={true}
                     />
                     <AvatarFallback>{team.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>

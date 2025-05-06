@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { UserSquare, TrendingUp, Shield, Zap, Star, CalendarDays, CheckCircle, XCircle, Users } from 'lucide-react';
+import { UserSquare, TrendingUp, Shield, Zap, Star, CalendarDays, CheckCircle, XCircle, Users } from 'lucide-react'; // Added Users here
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -121,9 +121,9 @@ export default function PlayersPage() {
                 </TableHeader>
                 <TableBody>
                   {players.map((player, index) => (
-                    <AccordionItem value={`item-${index}`} key={player.id} className="border-b-0">
-                      <AccordionTrigger asChild>
-                        <TableRow className="cursor-pointer hover:bg-muted/50 data-[state=open]:bg-muted/60">
+                    <AccordionItem value={`item-${index}`} key={player.id} className="border-b">
+                      <AccordionTrigger>
+                        <TableRow className="w-full hover:bg-muted/50 data-[state=open]:bg-muted/60">
                           <TableCell className="font-medium pl-4">{player.id}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-3">
@@ -135,8 +135,9 @@ export default function PlayersPage() {
                                     height={40}
                                     className="rounded-full object-cover"
                                     data-ai-hint="player portrait soccer"
+                                    priority={true}
                                     onError={(e) => {
-                                        e.currentTarget.onerror = null; // prevent infinite loop
+                                        e.currentTarget.onerror = null; 
                                         e.currentTarget.src = `https://picsum.photos/seed/${player.id}/40/40`;
                                     }}
                                    />
@@ -163,43 +164,41 @@ export default function PlayersPage() {
                           </TableCell>
                         </TableRow>
                       </AccordionTrigger>
-                      <AccordionContent asChild>
-                        <motion.tr
-                          className="bg-muted/20 dark:bg-muted/10"
+                      <AccordionContent>
+                        <motion.div
+                          className="bg-muted/20 dark:bg-muted/10 p-0"
                           variants={accordionContentVariants}
                           initial="hidden"
                           animate="visible"
                           exit="hidden"
                         >
-                          <TableCell colSpan={8} className="p-0">
-                            <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                              <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                                <h4 className="font-semibold text-sm flex items-center gap-1"><Users className="w-4 h-4 text-primary"/>Team</h4>
-                                <p className="text-muted-foreground">{player.team}</p>
-                              </div>
-                              <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                                <h4 className="font-semibold text-sm flex items-center gap-1"><TrendingUp className="w-4 h-4 text-primary"/>Goals</h4>
-                                <p className="text-muted-foreground">{player.goals}</p>
-                              </div>
-                              <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                                <h4 className="font-semibold text-sm flex items-center gap-1"><Zap className="w-4 h-4 text-primary"/>Assists</h4>
-                                <p className="text-muted-foreground">{player.assists}</p>
-                              </div>
-                              <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                                <h4 className="font-semibold text-sm flex items-center gap-1"><CalendarDays className="w-4 h-4 text-primary"/>Matches Played</h4>
-                                <p className="text-muted-foreground">{player.matchesPlayed}</p>
-                              </div>
-                              <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                                <h4 className="font-semibold text-sm flex items-center gap-1"><CheckCircle className="w-4 h-4 text-green-500"/>Matches Won</h4>
-                                <p className="text-muted-foreground">{player.matchesWon}</p>
-                              </div>
-                              <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                                <h4 className="font-semibold text-sm flex items-center gap-1"><XCircle className="w-4 h-4 text-red-500"/>Matches Lost</h4>
-                                <p className="text-muted-foreground">{player.matchesLost}</p>
-                              </div>
+                          <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                              <h4 className="font-semibold text-sm flex items-center gap-1"><Users className="w-4 h-4 text-primary"/>Team</h4>
+                              <p className="text-muted-foreground">{player.team}</p>
                             </div>
-                          </TableCell>
-                        </motion.tr>
+                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                              <h4 className="font-semibold text-sm flex items-center gap-1"><TrendingUp className="w-4 h-4 text-primary"/>Goals</h4>
+                              <p className="text-muted-foreground">{player.goals}</p>
+                            </div>
+                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                              <h4 className="font-semibold text-sm flex items-center gap-1"><Zap className="w-4 h-4 text-primary"/>Assists</h4>
+                              <p className="text-muted-foreground">{player.assists}</p>
+                            </div>
+                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                              <h4 className="font-semibold text-sm flex items-center gap-1"><CalendarDays className="w-4 h-4 text-primary"/>Matches Played</h4>
+                              <p className="text-muted-foreground">{player.matchesPlayed}</p>
+                            </div>
+                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                              <h4 className="font-semibold text-sm flex items-center gap-1"><CheckCircle className="w-4 h-4 text-green-500"/>Matches Won</h4>
+                              <p className="text-muted-foreground">{player.matchesWon}</p>
+                            </div>
+                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                              <h4 className="font-semibold text-sm flex items-center gap-1"><XCircle className="w-4 h-4 text-red-500"/>Matches Lost</h4>
+                              <p className="text-muted-foreground">{player.matchesLost}</p>
+                            </div>
+                          </div>
+                        </motion.div>
                       </AccordionContent>
                     </AccordionItem>
                   ))}

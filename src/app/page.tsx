@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
+
 function ThemeSwitcher() {
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = useState(false);
