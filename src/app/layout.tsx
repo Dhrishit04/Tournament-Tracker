@@ -3,8 +3,8 @@ import './globals.css';
 import { Header } from '@/components/layout/header';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
-import { ReactNode } from 'react';
-import { ThemeProvider } from "@/components/theme-provider"; // Import ThemeProvider
+import type { ReactNode } from 'react';
+import { ThemeProvider } from "@/components/theme-provider";
 import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -22,6 +22,7 @@ export default function RootLayout({
 }>) {
 
   // Firebase script loading - should ideally be in a client component with useEffect
+  // Minimal Firebase setup for auth. Specific services (like Firestore) would be initialized elsewhere or as needed.
   if (typeof window !== 'undefined') {
     const globalWindow = window as any;
     if (!globalWindow.firebaseLoaded) {
@@ -29,30 +30,22 @@ export default function RootLayout({
       scriptApp.src = 'https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js';
       scriptApp.async = true;
       document.body.appendChild(scriptApp);
+
       const scriptAuth = document.createElement('script');
       scriptAuth.src = 'https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js';
       scriptAuth.async = true;
       document.body.appendChild(scriptAuth);
-      scriptAuth.onload = () => {
-        if (globalWindow.firebase) {
-          const firebase = globalWindow.firebase;
-          const auth = firebase.auth();
-          globalWindow.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
-            'recaptcha-container', {});
-        }
-      }
+      
+      // Removed RecaptchaVerifier initialization as it's not used for email/password auth.
+      // Firestore, Database, etc. scripts would be added here if needed globally.
+
       globalWindow.firebaseLoaded = true;
     }
   }
 
   return (
     <html lang="en" className={cn(inter.variable, 'h-full')} suppressHydrationWarning>
-      <body
-        className={cn(
-          'antialiased min-h-screen flex flex-col font-sans'
-        )}
-        suppressHydrationWarning={true}
-      >
+      <body className={cn('antialiased min-h-screen flex flex-col font-sans')} suppressHydrationWarning={true}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -1,92 +1,93 @@
 import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 const AdminSignIn: React.FC = () => {
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [showVerificationCodeForm, setShowVerificationCodeForm] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-
-  const handleSendCode = async (e:any) => {
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
+
     if (typeof window !== 'undefined' && (window as any).firebase) {
       const firebase = (window as any).firebase;
       const auth = firebase.auth();
-      const appVerifier = window.recaptchaVerifier;
 
       try {
-        const confirmationResult = await firebase.auth().signInWithPhoneNumber(
-          phoneNumber,
-          appVerifier
-        );
-        setConfirmationResult(confirmationResult);
-        setShowVerificationCodeForm(true);
-      } catch (error) {
-        console.error('Error sending verification code:', error);
-      }
-    }
-  };
+        await auth.signInWithEmailAndPassword(email, password);
+        // User signed in successfully.
+        // Check for admin role before redirecting (implementation depends on how roles are stored)
+        // For now, directly redirecting.
+        // Add a small delay to allow Firebase to propagate auth state
+        toast({
+          title: 'Login Successful',
+          description: 'Redirecting to admin dashboard...',
+        });
+        setTimeout(() => {
+          window.location.href = '/admin'; // Redirect to the admin page
+        }, 1000);
 
-  const handleVerifyCode = async (e:any) => {
-    e.preventDefault();
-    try {
-      await confirmationResult.confirm(verificationCode);
-      // User signed in successfully.
-      window.location.href = '/admin'; // Redirect to the admin page
-    } catch (error) {
-      console.error('Error verifying code:', error);
+      } catch (error: any) {
+        console.error('Error signing in:', error);
+        toast({
+          title: 'Login Failed',
+          description: error.message || 'Invalid credentials or network error.',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+      }
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Firebase is not available. Please try again later.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className='space-y-4'>
-      <div id="recaptcha-container"></div>
-
-      {!showVerificationCodeForm ? (
-        <form onSubmit={handleSendCode} className='space-y-4'>
-          <div className='space-y-2'>
-            <label htmlFor="phoneNumber">Phone Number</label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              required
-              className='border border-gray-300 rounded-md px-3 py-2 w-full'
-              placeholder='+1 123-456-7890'
-            />
-          </div>
-          <button
-            type="submit"
-            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-          >
-            Send Code
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleVerifyCode} className='space-y-4'>
-          <div className='space-y-2'>
-            <label htmlFor="verificationCode">Verification Code</label>
-            <input
-              type="text"
-              id="verificationCode"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              required
-              className='border border-gray-300 rounded-md px-3 py-2 w-full'
-            />
-          </div>
-          <button
-            type="submit"
-            className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
-          >
-            Verify Code
-          </button>
-        </form>
-      )}
+    <div className="space-y-6">
+      <form onSubmit={handleSignIn} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email (Username)</Label>
+          <Input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="admin@example.com"
+            disabled={isLoading}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            placeholder="••••••••"
+            disabled={isLoading}
+          />
+        </div>
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? 'Signing In...' : 'Sign In'}
+        </Button>
+      </form>
+       <p className="text-xs text-muted-foreground text-center">
+        Note: Ensure Email/Password sign-in is enabled in your Firebase project and an admin user exists.
+      </p>
     </div>
   );
 };
-AdminSignIn.displayName = 'AdminSignIn'
+AdminSignIn.displayName = 'AdminSignIn';
 
 export default AdminSignIn;

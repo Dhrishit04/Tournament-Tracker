@@ -1,38 +1,60 @@
 'use client';
-import { ShieldCheck } from 'lucide-react';
-import { useEffect, useState } from 'react'; // Required for client-side auth checks if implemented later
+import { ShieldCheck, ShieldAlert } from 'lucide-react'; // Added ShieldAlert
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 // This is a placeholder for the actual admin dashboard.
 // In a real application, you would add a check here to ensure the user is authenticated as an admin.
-// For example, using Firebase Auth state and custom claims.
-// If not authenticated, you might redirect them to /admin-auth.
+// For example, using Firebase Auth state and custom claims or checking a role in Firestore.
 
 export default function AdminDashboardPage() {
-  // Placeholder: In a real app, you'd fetch admin-specific data or show admin tools.
-  // For now, we just show a welcome message.
-  // You might also want to check authentication status here.
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false); // Placeholder for auth check
 
   useEffect(() => {
-    // Simulate an auth check. Replace with actual Firebase auth check.
-    // For example, check firebase.auth().currentUser and their custom claims.
     const checkAuth = async () => {
-      // const user = firebase.auth().currentUser;
-      // if (user) {
-      //   const idTokenResult = await user.getIdTokenResult();
-      //   if (idTokenResult.claims.admin) {
-      //     setIsAdmin(true);
-      //   } else {
-      //     // Not an admin, redirect or show error
-      //     // window.location.href = '/admin-auth'; 
-      //   }
+      // Simulate an auth check. Replace with actual Firebase auth check.
+      // Example:
+      // const firebase = (window as any).firebase;
+      // if (firebase) {
+      //   const auth = firebase.auth();
+      //   auth.onAuthStateChanged(async (user) => {
+      //     if (user) {
+      //       // User is signed in, now check their role (e.g., from Firestore or custom claims)
+      //       // const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+      //       // if (userDoc.exists && userDoc.data()?.role === 'admin') {
+      //       //   setIsAdmin(true);
+      //       // } else {
+      //       //   setIsAdmin(false);
+      //       //   // Optional: redirect to login if not admin
+      //       //   // window.location.href = '/admin-auth'; 
+      //       // }
+      //       setIsAdmin(true); // For now, assume admin if logged in.
+      //     } else {
+      //       // No user signed in.
+      //       setIsAdmin(false);
+      //       window.location.href = '/admin-auth'; // Redirect to admin login
+      //     }
+      //     setIsLoading(false);
+      //   });
       // } else {
-      //   // Not logged in, redirect
-      //   // window.location.href = '/admin-auth';
+      //   // Firebase not loaded yet
+      //   setTimeout(checkAuth, 100); // Retry after a short delay
       // }
-      setIsAdmin(true); // For now, assume admin if they reach this page.
-      setIsLoading(false);
+      
+      // Simplified check for demonstration
+      const firebase = (window as any).firebase;
+      if (firebase && firebase.auth().currentUser) {
+         // In a real app, you'd verify the role here. For now, if logged in, assume admin.
+        setIsAdmin(true);
+      } else if (firebase) { // Firebase loaded, but no user
+        window.location.href = '/admin-auth';
+      }
+      // Keep retrying if firebase is not loaded yet
+      if(!firebase) setTimeout(checkAuth, 200); else setIsLoading(false);
+
+
     };
     checkAuth();
   }, []);
@@ -46,13 +68,14 @@ export default function AdminDashboardPage() {
   }
 
   if (!isAdmin) {
-     // This part might be handled by routing rules or a higher-order component in a full setup.
     return (
-      <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <ShieldAlert className="w-12 h-12 text-destructive" />
-        <h1 className="text-2xl font-bold">Access Denied</h1>
-        <p className="text-muted-foreground">You do not have permission to view this page.</p>
-        <a href="/admin-auth" className="text-primary hover:underline">Go to Admin Login</a>
+      <div className="flex flex-col items-center justify-center h-screen space-y-4">
+        <ShieldAlert className="w-16 h-16 text-destructive" />
+        <h1 className="text-3xl font-bold">Access Denied</h1>
+        <p className="text-lg text-muted-foreground">You do not have permission to view this page.</p>
+        <Button asChild>
+          <Link href="/admin-auth">Go to Admin Login</Link>
+        </Button>
       </div>
     );
   }
@@ -73,6 +96,18 @@ export default function AdminDashboardPage() {
           {/* - Forms to add/edit teams, matches, players */}
           {/* - Tables displaying data with edit/delete buttons */}
           {/* - User management (if applicable) */}
+          <div className="mt-6 text-center">
+            <Button variant="outline" onClick={() => {
+              const firebase = (window as any).firebase;
+              if (firebase) {
+                firebase.auth().signOut().then(() => {
+                  window.location.href = '/';
+                });
+              }
+            }}>
+              Sign Out
+            </Button>
+          </div>
         </div>
       </section>
     </div>
