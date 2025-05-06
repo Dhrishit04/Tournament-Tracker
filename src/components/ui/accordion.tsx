@@ -34,6 +34,8 @@ const AccordionTrigger = React.forwardRef<
       {...props}
     >
       {children}
+      {/* Conditionally render ChevronDown if children is not a single React element to avoid hydration errors in specific scenarios like usage within a TableRow */}
+      {!(React.Children.count(children) === 1 && React.isValidElement(children))}
       <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
