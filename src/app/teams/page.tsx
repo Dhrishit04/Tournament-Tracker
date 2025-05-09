@@ -6,11 +6,11 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 const teams = [
-  { id: 't1', name: 'Alpha Eagles', owner: 'Mr. Alpha', logo: '/images/teams/alpha-eagles.jpg', players: ['Player A1', 'Player A2', 'Player A3'] },
-  { id: 't2', name: 'Bravo Bears', owner: 'Ms. Bravo', logo: '/images/teams/bravo-bears.jpg', players: ['Player B1', 'Player B2'] },
-  { id: 't3', name: 'Charlie Cheetahs', owner: 'Dr. Charlie', logo: '/images/teams/charlie-cheetahs.jpg', players: ['Player C1', 'Player C2', 'Player C3'] },
-  { id: 't4', name: 'Delta Dragons', owner: 'Prof. Delta', logo: '/images/teams/delta-dragons.jpg', players: ['Player D1', 'Player D2'] },
-  { id: 't5', name: 'Echo Foxes', owner: 'Capt. Echo', logo: '/images/teams/echo-foxes.jpg', players: ['Player E1', 'Player E2', 'Player E3'] },
+  { id: 't1', name: 'Dongre Super Kicks', owner: 'Amol Panchangane', logo: '/images/teams/alpha-eagles.jpg', players: ['Player A1', 'Player A2', 'Player A3'] },
+  { id: 't2', name: 'Red Devils', owner: 'Jayesh | Gaurav', logo: '/images/teams/bravo-bears.jpg', players: ['Player B1', 'Player B2'] },
+  { id: 't3', name: 'Shadow Hawks', owner: 'Abhijeet | Akhil', logo: '/images/teams/charlie-cheetahs.jpg', players: ['Player C1', 'Player C2', 'Player C3'] },
+  { id: 't4', name: 'White Knights FC', owner: 'Pushpinder | Prateek', logo: '/images/teams/delta-dragons.jpg', players: ['Player D1', 'Player D2'] },
+  { id: 't5', name: 'Real Pawcelona', owner: 'Atharva | Jordan | Ansh', logo: '/images/teams/echo-foxes.jpg', players: ['Player E1', 'Player E2', 'Player E3'] },
 ];
 
 const containerVariants = {

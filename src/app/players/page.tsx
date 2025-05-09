@@ -3,11 +3,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { UserSquare, TrendingUp, Shield, Zap, Star, CalendarDays, CheckCircle, XCircle, Users } from 'lucide-react'; // Added Users here
+import { UserSquare, TrendingUp, Shield, Zap, Star, CalendarDays, CheckCircle, XCircle, Users, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react'; // Ensure useEffect is imported if used, useState is used
 
 // Mock data - replace with actual data fetching from Firestore later
 const players = [
@@ -79,6 +79,9 @@ const accordionContentVariants = {
 
 
 export default function PlayersPage() {
+  const [openAccordionItem, setOpenAccordionItem] = useState<string | null>(null);
+  const numberOfColumns = 8; // Sr.No, Name, Cat, Price, Pos, Foot, Age, Action
+
   return (
     <motion.div
       className="space-y-6"
@@ -100,121 +103,127 @@ export default function PlayersPage() {
         variants={pageVariants}
         transition={{ delay: 0.1 }}
       >
-        List of players participating in the current season. Click on a player to view detailed stats.
+        List of players participating in the current season. Click on a player row to view detailed stats.
       </motion.p>
       <motion.div variants={tableVariants}>
         <Card>
           <CardContent className="p-0">
-            <Accordion type="single" collapsible className="w-full">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[80px] pl-4">Sr. No.</TableHead>
-                    <TableHead>Player Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Base Price</TableHead>
-                    <TableHead>Position</TableHead>
-                    <TableHead>Foot</TableHead>
-                    <TableHead>Age</TableHead>
-                    <TableHead className="pr-4">Remarks</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {players.map((player, index) => (
-                    <AccordionItem value={`item-${index}`} key={player.id} className="border-b">
-                      <AccordionTrigger>
-                        <TableRow className="w-full hover:bg-muted/50 data-[state=open]:bg-muted/60">
-                          <TableCell className="font-medium pl-4">{player.id}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-9 w-9">
-                                  <Image
-                                    src={`/images/players/player-${player.id}.jpg`}
-                                    alt={`${player.name} avatar`}
-                                    width={40}
-                                    height={40}
-                                    className="rounded-full object-cover"
-                                    data-ai-hint="player portrait soccer"
-                                    priority={true}
-                                    onError={(e) => {
-                                        e.currentTarget.onerror = null; 
-                                        e.currentTarget.src = `https://picsum.photos/seed/${player.id}/40/40`;
-                                    }}
-                                   />
-                                <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                              </Avatar>
-                              <span className="font-medium">{player.name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={cn("font-bold", categoryColors[player.category] ?? '')}>
-                              {player.category}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{player.basePrice}</TableCell>
-                          <TableCell>{formatPosition(player.preferredPosition)}</TableCell>
-                          <TableCell>{footMapping[player.preferredFoot] ?? player.preferredFoot}</TableCell>
-                          <TableCell>{player.age ?? 'N/A'}</TableCell>
-                          <TableCell className="pr-4">
-                            <div className="flex flex-wrap gap-1">
-                              {player.remarks.map((remark, idx) => (
-                                <Badge key={idx} variant="secondary">{remark}</Badge>
-                              ))}
-                            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[80px] pl-4">Sr. No.</TableHead>
+                  <TableHead>Player Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Base Price</TableHead>
+                  <TableHead>Position</TableHead>
+                  <TableHead>Foot</TableHead>
+                  <TableHead>Age</TableHead>
+                  <TableHead className="text-right pr-4">Details</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {players.map((player) => {
+                  const itemId = `player-stats-${player.id}`;
+                  const isOpen = openAccordionItem === itemId;
+                  return (
+                    <React.Fragment key={player.id}>
+                      <TableRow
+                        className="hover:bg-muted/50 data-[state=open]:bg-muted/60 cursor-pointer"
+                        onClick={() => setOpenAccordionItem(isOpen ? null : itemId)}
+                        data-state={isOpen ? "open" : "closed"}
+                        aria-expanded={isOpen}
+                        aria-controls={itemId}
+                      >
+                        <TableCell className="font-medium pl-4">{player.id}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-9 w-9">
+                                <Image
+                                  src={`/images/players/player-${player.id}.jpg`}
+                                  alt={`${player.name} avatar`}
+                                  width={40}
+                                  height={40}
+                                  className="rounded-full object-cover"
+                                  data-ai-hint="player portrait soccer"
+                                  priority={false} // Changed to false, as many images are loaded. True for only LCP.
+                                  onError={(e) => {
+                                      e.currentTarget.onerror = null; 
+                                      e.currentTarget.src = `https://picsum.photos/seed/${player.id}/40/40`;
+                                  }}
+                                 />
+                              <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium">{player.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={cn("font-bold", categoryColors[player.category] ?? '')}>
+                            {player.category}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{player.basePrice}</TableCell>
+                        <TableCell>{formatPosition(player.preferredPosition)}</TableCell>
+                        <TableCell>{footMapping[player.preferredFoot] ?? player.preferredFoot}</TableCell>
+                        <TableCell>{player.age ?? 'N/A'}</TableCell>
+                        <TableCell className="text-right pr-4">
+                          {isOpen ? <ChevronUpIcon className="h-5 w-5 inline-block" /> : <ChevronDownIcon className="h-5 w-5 inline-block" />}
+                        </TableCell>
+                      </TableRow>
+                      {isOpen && (
+                        <TableRow id={itemId} className="bg-muted/5 dark:bg-muted/10">
+                          <TableCell colSpan={numberOfColumns} className="p-0">
+                            <motion.div
+                              className="p-4"
+                              variants={accordionContentVariants}
+                              initial="hidden"
+                              animate="visible"
+                              exit="hidden"
+                            >
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                                  <h4 className="font-semibold text-sm flex items-center gap-1"><Users className="w-4 h-4 text-primary"/>Team</h4>
+                                  <p className="text-muted-foreground">{player.team}</p>
+                                </div>
+                                <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                                  <h4 className="font-semibold text-sm flex items-center gap-1"><TrendingUp className="w-4 h-4 text-primary"/>Goals</h4>
+                                  <p className="text-muted-foreground">{player.goals}</p>
+                                </div>
+                                <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                                  <h4 className="font-semibold text-sm flex items-center gap-1"><Zap className="w-4 h-4 text-primary"/>Assists</h4>
+                                  <p className="text-muted-foreground">{player.assists}</p>
+                                </div>
+                                <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                                  <h4 className="font-semibold text-sm flex items-center gap-1"><CalendarDays className="w-4 h-4 text-primary"/>Matches Played</h4>
+                                  <p className="text-muted-foreground">{player.matchesPlayed}</p>
+                                </div>
+                                <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                                  <h4 className="font-semibold text-sm flex items-center gap-1"><CheckCircle className="w-4 h-4 text-green-500"/>Matches Won</h4>
+                                  <p className="text-muted-foreground">{player.matchesWon}</p>
+                                </div>
+                                <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
+                                  <h4 className="font-semibold text-sm flex items-center gap-1"><XCircle className="w-4 h-4 text-red-500"/>Matches Lost</h4>
+                                  <p className="text-muted-foreground">{player.matchesLost}</p>
+                                </div>
+                              </div>
+                            </motion.div>
                           </TableCell>
                         </TableRow>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <motion.div
-                          className="bg-muted/20 dark:bg-muted/10 p-0"
-                          variants={accordionContentVariants}
-                          initial="hidden"
-                          animate="visible"
-                          exit="hidden"
-                        >
-                          <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                              <h4 className="font-semibold text-sm flex items-center gap-1"><Users className="w-4 h-4 text-primary"/>Team</h4>
-                              <p className="text-muted-foreground">{player.team}</p>
-                            </div>
-                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                              <h4 className="font-semibold text-sm flex items-center gap-1"><TrendingUp className="w-4 h-4 text-primary"/>Goals</h4>
-                              <p className="text-muted-foreground">{player.goals}</p>
-                            </div>
-                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                              <h4 className="font-semibold text-sm flex items-center gap-1"><Zap className="w-4 h-4 text-primary"/>Assists</h4>
-                              <p className="text-muted-foreground">{player.assists}</p>
-                            </div>
-                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                              <h4 className="font-semibold text-sm flex items-center gap-1"><CalendarDays className="w-4 h-4 text-primary"/>Matches Played</h4>
-                              <p className="text-muted-foreground">{player.matchesPlayed}</p>
-                            </div>
-                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                              <h4 className="font-semibold text-sm flex items-center gap-1"><CheckCircle className="w-4 h-4 text-green-500"/>Matches Won</h4>
-                              <p className="text-muted-foreground">{player.matchesWon}</p>
-                            </div>
-                            <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
-                              <h4 className="font-semibold text-sm flex items-center gap-1"><XCircle className="w-4 h-4 text-red-500"/>Matches Lost</h4>
-                              <p className="text-muted-foreground">{player.matchesLost}</p>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </TableBody>
-              </Table>
-            </Accordion>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </motion.div>
        <motion.div
-        className="mt-4 p-4 border rounded-lg bg-muted/50"
+        className="mt-4 p-4 border rounded-lg bg-card" // Changed bg-muted/50 to bg-card for consistency
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
        >
-          <h3 className="font-semibold mb-2">Key Abbreviations:</h3>
+          <h3 className="font-semibold mb-2 text-card-foreground">Key Abbreviations:</h3>
           <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
             <li><span className="font-medium">Over the field:</span> All playing positions</li>
             <li><span className="font-medium">FW:</span> Forward/Attacking</li>

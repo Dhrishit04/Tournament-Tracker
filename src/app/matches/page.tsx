@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 
 // Mock data - replace with actual data fetching from Firestore later
 const matches = [
-  { id: 'm1', team1: 'Alpha Eagles', team2: 'Bravo Bears', date: new Date(2024, 7, 15, 14, 0), score1: 2, score2: 1, status: 'Finished' },
+  { id: 'm1', team1: 'Dongre Super Kicks', team2: 'Bravo Bears', date: new Date(2024, 7, 15, 14, 0), score1: 2, score2: 1, status: 'Finished' },
   { id: 'm2', team1: 'Charlie Cheetahs', team2: 'Delta Dragons', date: new Date(2024, 7, 15, 16, 0), status: 'Upcoming' },
   { id: 'm3', team1: 'Alpha Eagles', team2: 'Charlie Cheetahs', date: new Date(2024, 7, 17, 14, 0), status: 'Upcoming' },
   { id: 'm4', team1: 'Bravo Bears', team2: 'Delta Dragons', date: new Date(2024, 7, 17, 16, 0), score1: 0, score2: 0, status: 'Live' },
