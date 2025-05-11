@@ -76,10 +76,10 @@ export default function Home() {
         </div>
         <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
            <Image
-              src="/images/league/league-logo.jpg"
+              src="/images/logos/League.png"
               alt="Dongre Premier League Logo"
-              width={40}
-              height={40}
+              width={50}
+              height={50}
               className="rounded-full"
               data-ai-hint="football league logo soccer"
               priority={true}

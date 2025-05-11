@@ -16,7 +16,7 @@ export function Header() {
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg text-primary">
            <Image
-              src="/images/league/league-logo.jpg" 
+              src="/images/logos/League.png" 
               alt="Dongre Football Premier League Logo"
               width={32}
               height={32}
