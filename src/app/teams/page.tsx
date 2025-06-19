@@ -42,7 +42,7 @@ const teams: Team[] = [
     id: 't1', 
     name: 'Dongre Super Kicks', 
     owner: 'Amol Panchangane', 
-    logo: '/images/teams/dsk.jpg', // Corrected to .jpg as per previous fixes
+    logo: '/images/teams/dsk.png', 
     players: [
       { id: '13', name: 'Amey Kawle' }, 
       { id: '6', name: 'Arjun Desai' }, 
@@ -59,7 +59,7 @@ const teams: Team[] = [
     id: 't2', 
     name: 'Red Devils', 
     owner: 'Jayesh | Gaurav', 
-    logo: '/images/teams/rd.jpg', // Corrected to .jpg
+    logo: '/images/teams/rd.png', 
     players: [
       { id: '22', name: 'Harshvardhan Jadwani' }, 
       { id: '14', name: 'Krish Mistry' }, 
@@ -76,7 +76,7 @@ const teams: Team[] = [
     id: 't3', 
     name: 'Shadow Hawks', 
     owner: 'Abhijeet | Akhil', 
-    logo: '/images/teams/sh.jpg', // Corrected to .jpg
+    logo: '/images/teams/sh.png',
     players: [
       { id: '5', name: 'Aaron Dsouza' }, 
       { id: '15', name: 'Arnav Chaudhary' }, 
@@ -93,7 +93,7 @@ const teams: Team[] = [
     id: 't4', 
     name: 'White Knights FC', 
     owner: 'Pushpinder | Prateek', 
-    logo: '/images/teams/wk.jpg', // Corrected to .jpg
+    logo: '/images/teams/wk.png', 
     players: [
       { id: '21', name: 'Anish' }, 
       { id: '10', name: 'Atharva Sawant' }, 
@@ -110,7 +110,7 @@ const teams: Team[] = [
     id: 't5', 
     name: 'Real Pawcelona', 
     owner: 'Atharva | Jordan | Ansh', 
-    logo: '/images/teams/rp.jpg', // Corrected to .jpg
+    logo: '/images/teams/RP.png', 
     players: [
       { id: '2', name: 'Aarya Kawle' }, 
       { id: '24', name: 'Ayaan Ansaari' }, 

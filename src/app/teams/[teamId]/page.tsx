@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
+import React from 'react';
 import Image from 'next/image';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -37,28 +38,23 @@ const itemVariants = {
 
 
 export default function TeamDetailPage({ params }: TeamPageProps) {
-  const [team, setTeam] = useState<TeamType | null>(null);
-  const [teamPlayers, setTeamPlayers] = useState<PlayerStats[]>([]);
+  // Use React.use to unwrap the params promise
+  const teamId = React.use(params).teamId;
 
-  useEffect(() => {
-    const teams = getTeamsData();
-    const currentTeam = teams.find((t) => t.id === params.teamId);
-    if (currentTeam) {
-      setTeam(currentTeam);
-      // Filter allPlayersData for players belonging to the current team
-      // This assumes player objects in allPlayersData have a 'team' property matching team.name
-      const playersOfCurrentTeam = allPlayersData.filter(p => p.team === currentTeam.name)
-        .map(p => ({
-          ...p, 
-          // Add mock card data if not present
-          yellowCards: p.yellowCards ?? Math.floor(Math.random() * 5), 
-          redCards: p.redCards ?? Math.floor(Math.random() * 1) 
-        }));
-      setTeamPlayers(playersOfCurrentTeam);
-    } else {
-      notFound();
-    }
-  }, [params.teamId]);
+  const teams = getTeamsData();
+  const team = teams.find((t) => t.id === teamId);
+
+  if (!team) {
+    notFound();
+  }
+
+  const teamPlayers = allPlayersData.filter(p => p.team === team.name)
+    .map(p => ({
+      ...p,
+      // Add mock card data if not present
+      yellowCards: p.yellowCards ?? Math.floor(Math.random() * 5),
+      redCards: p.redCards ?? Math.floor(Math.random() * 1)
+    }));
 
   if (!team) {
     return (

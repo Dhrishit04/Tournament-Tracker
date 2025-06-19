@@ -146,44 +146,46 @@ export default function PlayersPage() {
               <TableBody>
                 {players.map((player, index) => (
                   <AccordionItem value={`player-${player.id}`} key={player.id} className="border-b last:border-b-0">
-                    <AccordionTrigger asChild>
-                      <TableRow className="hover:bg-muted/50 cursor-pointer w-full">
-                        <TableCell className="font-medium pl-4">{player.id}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-9 w-9">
-                                <Image
-                                  src={`/images/players/player-${player.id}.jpg`}
-                                  alt={`${player.name} avatar`}
-                                  width={40}
-                                  height={40}
-                                  className="rounded-full object-cover"
-                                  data-ai-hint="player portrait soccer"
-                                  priority={index < 5} 
-                                  onError={(e) => {
-                                      e.currentTarget.onerror = null; 
-                                      e.currentTarget.src = `https://picsum.photos/seed/${player.id}/40/40`;
-                                  }}
-                                 />
-                              <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                            </Avatar>
-                            <span className="font-medium">{player.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={cn("font-bold", categoryColors[player.category] ?? '')}>
-                            {player.category}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{player.basePrice}</TableCell>
-                        <TableCell>{formatPosition(player.preferredPosition)}</TableCell>
-                        <TableCell>{footMapping[player.preferredFoot] ?? player.preferredFoot}</TableCell>
-                        <TableCell>{player.age ?? 'N/A'}</TableCell>
-                        <TableCell className="text-right pr-4">
-                           {/* Chevron will be part of AccordionTrigger */}
-                        </TableCell>
-                      </TableRow>
-                    </AccordionTrigger>
+                    <TableRow className="hover:bg-muted/50 cursor-pointer w-full">
+                      <AccordionTrigger asChild>
+                        <> {/* Use a fragment to wrap the table cells */}
+                          <TableCell className="font-medium pl-4">{player.id}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-9 w-9">
+                                  <Image
+                                    src={`/images/players/player-${player.id}.jpg`}
+                                    alt={`${player.name} avatar`}
+                                    width={40}
+                                    height={40}
+                                    className="rounded-full object-cover"
+                                    data-ai-hint="player portrait soccer"
+                                    priority={index < 5}
+                                    onError={(e) => {
+                                        e.currentTarget.onerror = null;
+                                        e.currentTarget.src = `https://picsum.photos/seed/${player.id}/40/40`;
+                                    }}
+                                   />
+                                <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium">{player.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={cn("font-bold", categoryColors[player.category] ?? '')}>
+                              {player.category}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{player.basePrice}</TableCell>
+                          <TableCell>{formatPosition(player.preferredPosition)}</TableCell>
+                          <TableCell>{footMapping[player.preferredFoot] ?? player.preferredFoot}</TableCell>
+                          <TableCell>{player.age ?? 'N/A'}</TableCell>
+                          <TableCell className="text-right pr-4">
+                             {/* Chevron will be part of AccordionTrigger */}
+                          </TableCell>
+                        </>
+                      </AccordionTrigger>
+                    </TableRow>
                     <AccordionContent asChild>
                      <TableRow className="bg-muted/5 dark:bg-muted/10">
                       <TableCell colSpan={8} className="p-0"> {/* Ensure colSpan matches number of columns */}
