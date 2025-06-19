@@ -145,16 +145,6 @@ const itemVariants = {
 const TeamCardContent: FC<{ team: Team }> = ({ team }) => (
   <div className="w-full text-left p-4 relative"> {/* Added padding and relative positioning */}
     <Link href={`/teams/${team.id}`} passHref legacyBehavior>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-2 right-2 text-muted-foreground hover:text-primary"
-        aria-label={`View details for ${team.name}`}
-      >
-        <ExternalLink className="w-5 h-5" />
-      </Button>
-    </Link>
-    <div className="flex items-center gap-4">
       <Avatar className="h-12 w-12">
         <Image
           src={team.logo}
@@ -171,7 +161,16 @@ const TeamCardContent: FC<{ team: Team }> = ({ team }) => (
         />
         <AvatarFallback>{team.name.substring(0, 2).toUpperCase()}</AvatarFallback>
       </Avatar>
-      <div className="flex flex-col">
+    </Link>
+    <div className="flex items-center gap-4">
+       <Avatar Link href={`/teams/${team.id}`} passHref legacyBehavior>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 text-muted-foreground hover:text-primary"
+          aria-label={`View details for ${team.name}`}
+        > <ExternalLink className="w-5 h-5" /></Button>
+      </Avatar>
         <CardTitle className="text-lg font-semibold">{team.name}</CardTitle> {/* Adjusted font size */}
         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1"> {/* Adjusted font size */}
           <Crown className="w-3 h-3" /> {/* Adjusted icon size */}
@@ -179,7 +178,6 @@ const TeamCardContent: FC<{ team: Team }> = ({ team }) => (
         </div>
       </div>
     </div>
-  </div>
 );
 
 export default function TeamsPage() {
@@ -202,10 +200,30 @@ export default function TeamsPage() {
           <motion.div key={team.id} variants={itemVariants}>
             <Card className="overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
               <AccordionItem value={team.id} className="border-b-0 w-full">
-                <AccordionTrigger className="p-0 hover:no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg w-full">
-                  {/* TeamCardContent now handles its own padding */}
-                  <TeamCardContent team={team} />
-                </AccordionTrigger>
+                 <div className="w-full text-left p-4 relative"> {/* Added padding and relative positioning */}
+                    <Link href={`/teams/${team.id}`} passHref legacyBehavior>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-2 right-2 text-muted-foreground hover:text-primary"
+                        aria-label={`View details for ${team.name}`}
+                      >
+                        <ExternalLink className="w-5 h-5" />
+                      </Button>
+                    </Link>
+                     <AccordionTrigger className="p-0 hover:no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg w-full">
+                      <div className="flex items-center gap-4">
+                           <Avatar className="h-12 w-12">
+                            <Image src={team.logo} alt={`${team.name} Logo`} width={48} height={48} className="rounded-full object-cover" data-ai-hint="team logo sport crest" priority={false} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `https://picsum.photos/seed/${team.id}/48/48`; }} />
+                            <AvatarFallback>{team.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                          </Avatar>
+                        <div className="flex flex-col">
+                          <CardTitle className="text-lg font-semibold">{team.name}</CardTitle>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1"><Crown className="w-3 h-3" /><span>{team.owner}</span></div>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                  </div>
                 <AccordionContent>
                   <div className="p-4 border-t bg-card">
                     <h4 className="font-semibold mb-2 text-card-foreground text-sm">Team Roster ({team.players.length} Players):</h4>
