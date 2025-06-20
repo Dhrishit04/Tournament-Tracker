@@ -21,6 +21,8 @@ export default function RootLayout({
       <body className={cn('antialiased min-h-screen flex flex-col font-sans')} suppressHydrationWarning={true}>
         <ThemeProvider
           attribute="class"
+          defaultTheme="system"
+          enableSystem
         > <Header />
           <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
            <Toaster />
