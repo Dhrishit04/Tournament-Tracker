@@ -33,8 +33,8 @@ interface Match {
 const matches: Match[] = [
   {
     id: 'm1',
-    team1Name: 'Red Devils', team2Name: 'Real Pawcelona',
-    date: new Date(2024, 7, 15, 14, 0), score1: 2, score2: 1, status: 'Finished',
+    team1Name: 'Shadow Hawks', team2Name: 'White Knights FC',
+    date: new Date(2025, 5, 24, 16, 0), score1: 0, score2: 0, status: 'Finished',
     stage: 'Qualifiers',
     events: [
       { type: 'goal', player: 'Shlok Desai', teamName: 'Red Devils', minute: 23 },
@@ -45,41 +45,100 @@ const matches: Match[] = [
   },
   {
     id: 'm2',
-    team1Name: 'Shadow Hawks', team2Name: 'White Knights FC',
-    date: new Date(2024, 7, 15, 16, 0), status: 'Upcoming',
+    team1Name: 'Real Pawcelona', team2Name: 'Dongre Super Kicks',
+    date: new Date(2025, 5, 24, 16, 30), score1: 0, score2: 0, status: 'Finished',
     stage: 'Qualifiers',
     events: []
   },
   {
     id: 'm3',
-    team1Name: 'Dongre Super Kicks', team2Name: 'Red Devils',
-    date: new Date(2024, 7, 17, 14, 0), status: 'Upcoming',
-    stage: 'Playoffs',
+    team1Name: 'Shadow Hawks', team2Name: 'Red Devils',
+    date: new Date(2025, 5, 24, 17, 0), score1: 0, score2: 0, status: 'Finished',
+    stage: 'Qualifiers',
     events: []
   },
   {
     id: 'm4',
-    team1Name: 'Real Pawcelona', team2Name: 'Shadow Hawks',
-    date: new Date(2024, 7, 17, 16, 0), score1: 0, score2: 0, status: 'Live',
-    stage: 'Finals',
-    events: [
-      { type: 'yellow_card', player: 'Aaron Dsouza', teamName: 'Shadow Hawks', minute: 30 },
-      { type: 'red_card', player: 'Deep Patel', teamName: 'Shadow Hawks', minute: 65 },
-    ]
+    team1Name: 'White Knights FC', team2Name: 'Real Pawcelona',
+    date: new Date(2025, 5, 24, 17, 30), score1: 0, score2: 0, status: 'Finished',
+    stage: 'Qualifiers',
+    events: []
   },
   {
     id: 'm5',
-    team1Name: 'White Knights FC', team2Name: 'Dongre Super Kicks',
-    date: new Date(2024, 7, 18, 14, 0), status: 'Upcoming',
+    team1Name: 'Dongre Super Kicks', team2Name: 'Red Devils',
+    date: new Date(2025, 5, 24, 18, 0), score1: 0, score2: 0, status: 'Finished',
     stage: 'Qualifiers',
     events: []
   },
   {
     id: 'm6',
-    team1Name: 'Red Devils', team2Name: 'Shadow Hawks',
-    date: new Date(2024, 7, 19, 16, 0), status: 'Upcoming',
+    team1Name: 'Real Pawcelona', team2Name: 'Shadow Hawks',
+    date: new Date(2025, 5, 24, 18, 30), score1: 0, score2: 0, status: 'Finished',
+    stage: 'Qualifiers',
+    events: []
+  },
+  {
+    id: 'm7',
+    team1Name: 'Dongre Super Kicks', team2Name: 'White Knights FC',
+    date: new Date(2025, 5, 24, 19, 0), score1: 0, score2: 0, status: 'Finished',
+    stage: 'Qualifiers',
+    events: []
+  },
+  {
+    id: 'm8',
+    team1Name: 'Red Devils', team2Name: 'Real Pawcelona',
+    date: new Date(2025, 5, 24, 19, 30), score1: 0, score2: 0, status: 'Finished',
+    stage: 'Qualifiers',
+    events: []
+  },
+  {
+    id: 'm9',
+    team1Name: 'Shadow Hawks', team2Name: 'Dongre Super Kicks',
+    date: new Date(2025, 5, 24, 20, 0), score1: 0, score2: 0, status: 'Finished',
+    stage: 'Qualifiers',
+    events: []
+  },
+  {
+    id: 'm10',
+    team1Name: 'White Knights FC', team2Name: 'Dongre Super Kicks',
+    date: new Date(2025, 5, 24, 20, 30), score1: 0, score2: 0, status: 'Finished',
+    stage: 'Qualifiers',
+    events: []
+  },
+
+
+
+
+
+
+  {
+    id: 'm11',
+    team1Name: 'White Knights FC', team2Name: 'Shadow Hawks',
+    date: new Date(2025, 5, 24, 21, 0), status: 'Upcoming',
     stage: 'Playoffs',
     events: []
+  },
+  {
+    id: 'm12',
+    team1Name: 'Dongre Super Kicks', team2Name: 'Red Devils',
+    date: new Date(2025, 5, 24, 21, 30), score1: 0, score2: 0, status: 'Finished',
+    stage: 'Playoffs',
+    events: []
+  },
+
+
+
+
+  {
+    id: 'm13',
+    team1Name: 'Dongre Super Kicks', team2Name: 'Shadow Hawks',
+    date: new Date(2025, 5, 24, 22, 0), score1: 0, score2: 0, status: 'Live',
+    stage: 'Finals',
+    events: [
+      { type: 'yellow_card', player: 'Aaron Dsouza', teamName: 'Shadow Hawks', minute: 30 },
+      { type: 'red_card', player: 'Deep Patel', teamName: 'Shadow Hawks', minute: 65 },
+    ]
   },
 ];
 
