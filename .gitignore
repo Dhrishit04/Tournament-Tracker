@@ -38,6 +38,7 @@ next-env.d.ts
 .genkit/*
 .env*
 
-.gitignore
-.idx/
-.vscode/
+.idx
+   node_modules
+   .vscode
+
