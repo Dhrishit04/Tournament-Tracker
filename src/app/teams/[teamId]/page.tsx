@@ -63,21 +63,21 @@ export default function TeamDetailPage({ params }: TeamPageProps) {
       </div>
     );
   }
-  
+
   // Aggregate team stats from players if not directly available on team object
   const aggregatedTeamStats = {
     totalGoals: team.totalGoals ?? teamPlayers.reduce((sum, p) => sum + (p.goals || 0), 0),
     totalAssists: team.totalAssists ?? teamPlayers.reduce((sum, p) => sum + (p.assists || 0), 0),
-    matchesPlayed: team.matchesPlayed ?? teamPlayers.reduce((max, p) => Math.max(max, p.matchesPlayed || 0), 0), // Simplistic, assumes all players played team matches
-    matchesWon: team.matchesWon ?? teamPlayers.reduce((sum, p) => sum + (p.matchesWon || 0), 0) / (teamPlayers.length || 1), // Average, needs better logic
-    matchesLost: team.matchesLost ?? teamPlayers.reduce((sum, p) => sum + (p.matchesLost || 0), 0) / (teamPlayers.length || 1), // Average, needs better logic
+    matchesPlayed: team.matchesPlayed ?? teamPlayers.reduce((max, p) => Math.max(max, p.matchesPlayed || 0), 0),
+    matchesWon: team.matchesWon ?? teamPlayers.reduce((sum, p) => sum + (p.matchesWon || 0), 0) / (teamPlayers.length || 1),
+    matchesLost: team.matchesLost ?? teamPlayers.reduce((sum, p) => sum + (p.matchesLost || 0), 0) / (teamPlayers.length || 1),
     yellowCards: team.yellowCards ?? teamPlayers.reduce((sum, p) => sum + (p.yellowCards || 0), 0),
     redCards: team.redCards ?? teamPlayers.reduce((sum, p) => sum + (p.redCards || 0), 0),
   };
 
 
   return (
-    <motion.div 
+    <motion.div
       className="container mx-auto px-4 py-8 space-y-8"
       initial="hidden"
       animate="visible"
@@ -91,7 +91,7 @@ export default function TeamDetailPage({ params }: TeamPageProps) {
         </Button>
       </motion.div>
 
-      <motion.header 
+      <motion.header
         className="flex flex-col md:flex-row items-center gap-6 p-6 bg-card rounded-lg shadow-lg"
         variants={itemVariants}
       >
@@ -105,7 +105,7 @@ export default function TeamDetailPage({ params }: TeamPageProps) {
             data-ai-hint="team logo sport crest"
             priority
              onError={(e) => {
-                e.currentTarget.onerror = null; 
+                e.currentTarget.onerror = null;
                 e.currentTarget.src = `https://picsum.photos/seed/${team.id}/96/96`;
               }}
           />
@@ -182,28 +182,30 @@ export default function TeamDetailPage({ params }: TeamPageProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Player</TableHead>
-                  <TableHead className="text-center">Goals</TableHead>
-                  <TableHead className="text-center">Assists</TableHead>
-                  <TableHead className="text-center">Yellow Cards</TableHead>
-                  <TableHead className="text-center">Red Cards</TableHead>
+                  {/* Applied text-left and py-3 px-4 classes similar to the standings table header */}
+                  <TableHead className="py-3 px-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Player</TableHead>
+                  <TableHead className="py-3 px-4 text-center text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Goals</TableHead>
+                  <TableHead className="py-3 px-4 text-center text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Assists</TableHead>
+                  <TableHead className="py-3 px-4 text-center text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Yellow Cards</TableHead>
+                  <TableHead className="py-3 px-4 text-center text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Red Cards</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {teamPlayers.map((player) => (
                   <TableRow key={player.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
+                    {/* Applied text-left and py-4 px-4 classes similar to the standings table data cells */}
+                    <TableCell className="py-4 px-4 text-left text-sm text-gray-800 dark:text-gray-200">
+                      <div className="flex items-center gap-3 justify-start">
                         <Avatar className="h-9 w-9">
-                           <Image
-                              src={`/images/players/player-${player.id}.jpg`}
+                          <Image
+                              src={`/images/players/player-${player.id}.png`}
                               alt={`${player.name} avatar`}
                               width={36}
                               height={36}
                               className="rounded-full object-cover"
                               data-ai-hint="player portrait soccer"
                               onError={(e) => {
-                                  e.currentTarget.onerror = null; 
+                                  e.currentTarget.onerror = null;
                                   e.currentTarget.src = `https://picsum.photos/seed/${player.id}/36/36`;
                               }}
                             />
@@ -212,10 +214,10 @@ export default function TeamDetailPage({ params }: TeamPageProps) {
                         <span className="font-medium">{player.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-center">{player.goals ?? 0}</TableCell>
-                    <TableCell className="text-center">{player.assists ?? 0}</TableCell>
-                    <TableCell className="text-center">{player.yellowCards ?? 0}</TableCell>
-                    <TableCell className="text-center">{player.redCards ?? 0}</TableCell>
+                    <TableCell className="py-4 px-4 text-center text-sm text-gray-800 dark:text-gray-200">{player.goals ?? 0}</TableCell>
+                    <TableCell className="py-4 px-4 text-center text-sm text-gray-800 dark:text-gray-200">{player.assists ?? 0}</TableCell>
+                    <TableCell className="py-4 px-4 text-center text-sm text-gray-800 dark:text-gray-200">{player.yellowCards ?? 0}</TableCell>
+                    <TableCell className="py-4 px-4 text-center text-sm text-gray-800 dark:text-gray-200">{player.redCards ?? 0}</TableCell>
                   </TableRow>
                 ))}
                 {teamPlayers.length === 0 && (

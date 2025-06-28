@@ -248,16 +248,22 @@ export default function MatchesPage() {
                                   {match.status}
                                 </span>
                               </div>
-                              <div className="flex justify-between items-center">
-                                <span className="font-medium">{match.team1Name}</span>
+                              {/* Modified layout for scores */}
+                              <div className="grid grid-cols-3 items-center w-full">
+                                {/* Team 1 */}
+                                <span className="font-medium text-left pr-2">{match.team1Name}</span>
+
+                                {/* Score/VS - Centered */}
                                 {match.status !== 'Upcoming' ? (
-                                  <span className="text-xl font-bold text-primary">
+                                  <span className="text-xl font-bold text-primary text-center">
                                     {match.score1 ?? '-'} : {match.score2 ?? '-'}
                                   </span>
                                 ) : (
-                                  <span className="text-lg font-semibold text-muted-foreground">vs</span>
+                                  <span className="text-lg font-semibold text-muted-foreground text-center">vs</span>
                                 )}
-                                <span className="font-medium text-right">{match.team2Name}</span>
+
+                                {/* Team 2 */}
+                                <span className="font-medium text-right pl-2">{match.team2Name}</span>
                               </div>
                             </div>
                           </AccordionTrigger>

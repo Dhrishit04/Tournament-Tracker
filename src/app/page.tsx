@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Calendar, UserSquare, Moon, Sun } from 'lucide-react';
+import { Users, Calendar, UserSquare, Moon, Sun, Instagram, Mail, ListOrdered, Image as ImageIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -33,7 +33,7 @@ function ThemeSwitcher() {
       onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
       aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
     >
-      {theme === 'light' ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
+      {theme === 'light' ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem] अवकाश" />}
     </Button>
   );
 }
@@ -61,13 +61,13 @@ const containerVariants = {
 
 export default function Home() {
   return (
-    <motion.div 
+    <motion.div
       className="space-y-8"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
-      <motion.section 
+      <motion.section
         className="text-center py-12 bg-card rounded-lg shadow relative"
         variants={sectionVariants}
       >
@@ -93,11 +93,11 @@ export default function Home() {
 
       <motion.section variants={sectionVariants}>
         <h2 className="text-2xl font-semibold mb-4 text-center">Explore the League</h2>
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center md:justify-items-stretch"
           variants={containerVariants}
         >
-          <motion.div variants={cardVariants}>
+          <motion.div variants={cardVariants} className="w-full max-w-sm md:max-w-none aspect-[4/3] md:aspect-auto">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -113,7 +113,7 @@ export default function Home() {
               </CardContent>
             </Card>
           </motion.div>
-          <motion.div variants={cardVariants}>
+          <motion.div variants={cardVariants} className="w-full max-w-sm md:max-w-none aspect-[4/3] md:aspect-auto">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export default function Home() {
               </CardContent>
             </Card>
           </motion.div>
-          <motion.div variants={cardVariants}>
+          <motion.div variants={cardVariants} className="w-full max-w-sm md:max-w-none aspect-[4/3] md:aspect-auto">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -145,14 +145,45 @@ export default function Home() {
               </CardContent>
             </Card>
           </motion.div>
+          <motion.div variants={cardVariants} className="w-full max-w-sm md:max-w-none aspect-[4/3] md:aspect-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ListOrdered className="w-5 h-5 text-primary" />
+                  Table Standings
+                </CardTitle>
+                <CardDescription>View the current league standings.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild>
+                  <Link href="/standings">Go to Standings</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         </motion.div>
       </motion.section>
-      
-      <motion.section 
+
+      <motion.section
         className="text-center text-muted-foreground text-sm"
         variants={sectionVariants}
       >
         <p>Currently tracking Season 3. Stay tuned for live updates, standings, and detailed statistics!</p>
+      </motion.section>
+
+      <motion.section
+        className="text-center py-12"
+        variants={sectionVariants}
+      >
+        <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
+        <div className="flex justify-center gap-6">
+          <a href="https://www.instagram.com/dongrefootballclub/?hl=en" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <Instagram className="w-8 h-8 text-primary hover:opacity-80 transition-opacity" />
+          </a>
+          <a href="mailto:dfplowners@gmail.com" aria-label="Email">
+            <Mail className="w-8 h-8 text-primary hover:opacity-80 transition-opacity" />
+          </a>
+        </div>
       </motion.section>
     </motion.div>
   );
