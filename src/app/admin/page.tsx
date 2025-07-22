@@ -88,7 +88,10 @@ export default function AdminDashboardPage() {
           <p className="text-lg text-center">
             Welcome, Admin! This is where you can manage the tournament.
           </p>
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-x-4">
+            <Button asChild>
+              <Link href="/admin/teams">Manage Teams</Link>
+            </Button>
             <Button variant="outline" onClick={() => {
               const firebase = (window as any).firebase;
               if (firebase) {
