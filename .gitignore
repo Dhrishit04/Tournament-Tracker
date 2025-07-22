@@ -41,4 +41,10 @@ next-env.d.ts
 .idx
    node_modules
    .vscode
-
+   
+.next/app-build-manifest.json
+.next/build-manifest.json
+.next/fallback-build-manifest.json
+.next/server/app-paths-manifest.json
+.next/server/middleware-build-manifest.js
+.next/server/pages-manifest.json
