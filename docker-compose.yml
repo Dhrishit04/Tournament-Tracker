@@ -9,9 +9,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # The container will run in the background unless you attach to it.
-    # We will use "docker-compose up" which attaches by default.
-    detach: false
     # Forward port 3000 on your local machine to port 3000 in the container.
     ports:
       - "3000:3000"
