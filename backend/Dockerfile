@@ -19,9 +19,8 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Stage 2: Create the final, lean production image
-# We use a slim OpenJDK image that only contains the JRE (Java Runtime Environment),
-# which is all we need to run the compiled application.
-FROM openjdk:17-jre-slim
+# We use a slim, secure, and widely-used OpenJDK image from the Eclipse Temurin project.
+FROM eclipse-temurin:17-jre-alpine
 
 # Set the working directory
 WORKDIR /app
