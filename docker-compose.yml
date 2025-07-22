@@ -26,13 +26,17 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      # FIX 1: Target the 'builder' stage, which has Maven and the full JDK.
+      target: builder
     # Name the container.
     container_name: tournament-tracker-backend
     # Forward local port 8080 to the container's port 8080.
     ports:
       - "8080:8080"
-    # Mount the backend source code for potential live reloading with spring-boot-devtools.
+    # Mount the backend source code for live reloading with spring-boot-devtools.
     volumes:
       - ./backend:/app
-    # Set the working directory for the backend service.
-    working_dir: /app
+      # Cache maven dependencies to speed up subsequent builds
+      - ~/.m2:/root/.m2
+    # FIX 2: Override the Dockerfile's ENTRYPOINT and run the development server.
+    command: mvn spring-boot:run
