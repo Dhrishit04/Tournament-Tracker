@@ -1,28 +1,41 @@
-# Use version 3.8 of the Docker-Compose file format for full feature compatibility.
+# Use version 3.8 of the Docker-Compose file format.
 version: '3.8'
 
-# Define the services (containers) that make up your application.
+# Define the services (containers) for the application.
 services:
-  # Name of our service. You can call it anything.
-  web:
-    # Build the Docker image from the Dockerfile in the current directory ('.').
+  # The Next.js Frontend Service
+  frontend:
+    # Build the image using the Dockerfile in the root directory.
     build:
       context: .
       dockerfile: Dockerfile
-      # THIS IS THE FIX: Tell Docker to build and run the 'deps' stage, which
-      # contains all the node_modules needed for development.
+      # Target the 'deps' stage for a development environment with all node_modules.
       target: deps
-    # Forward port 3000 on your local machine to port 3000 in the container.
+    # Name the container for easier identification.
+    container_name: tournament-tracker-frontend
+    # Forward local port 3000 to the container's port 3000.
     ports:
       - "3000:3000"
-    # This is the key for live reloading.
-    # It maps the current directory on your host machine to the /app directory in the container.
+    # Mount the local directory into the container for live reloading.
     volumes:
       - .:/app
-      # This is an important optimization. It tells Docker to use a separate,
-      # managed volume for node_modules. This prevents your local node_modules
-      # (or lack thereof) from overwriting the one installed inside the container.
       - /app/node_modules
-    # Override the default command from the Dockerfile.
-    # Instead of running the production server, we run the development server.
+    # Use the development command to run the Next.js dev server.
     command: npm run dev
+
+  # The Java Spring Boot Backend Service
+  backend:
+    # Build the image using the Dockerfile inside the 'backend' directory.
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # Name the container.
+    container_name: tournament-tracker-backend
+    # Forward local port 8080 to the container's port 8080.
+    ports:
+      - "8080:8080"
+    # Mount the backend source code for potential live reloading with spring-boot-devtools.
+    volumes:
+      - ./backend:/app
+    # Set the working directory for the backend service.
+    working_dir: /app
