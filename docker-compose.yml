@@ -1,0 +1,28 @@
+# Use version 3.8 of the Docker-Compose file format for full feature compatibility.
+version: '3.8'
+
+# Define the services (containers) that make up your application.
+services:
+  # Name of our service. You can call it anything.
+  web:
+    # Build the Docker image from the Dockerfile in the current directory ('.').
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # The container will run in the background unless you attach to it.
+    # We will use "docker-compose up" which attaches by default.
+    detach: false
+    # Forward port 3000 on your local machine to port 3000 in the container.
+    ports:
+      - "3000:3000"
+    # This is the key for live reloading.
+    # It maps the current directory on your host machine to the /app directory in the container.
+    volumes:
+      - .:/app
+      # This is an important optimization. It tells Docker to use a separate,
+      # managed volume for node_modules. This prevents your local node_modules
+      # (or lack thereof) from overwriting the one installed inside the container.
+      - /app/node_modules
+    # Override the default command from the Dockerfile.
+    # Instead of running the production server, we run the development server.
+    command: npm run dev
