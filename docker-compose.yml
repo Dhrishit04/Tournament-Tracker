@@ -9,6 +9,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      # THIS IS THE FIX: Tell Docker to build and run the 'deps' stage, which
+      # contains all the node_modules needed for development.
+      target: deps
     # Forward port 3000 on your local machine to port 3000 in the container.
     ports:
       - "3000:3000"
