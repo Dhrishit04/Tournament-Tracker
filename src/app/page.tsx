@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Calendar, UserSquare, Moon, Sun, Instagram, Mail, ListOrdered, Image as ImageIcon } from 'lucide-react';
+import { Users, Calendar, UserSquare, Moon, Sun, Instagram, Mail, ListOrdered } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -33,7 +33,7 @@ function ThemeSwitcher() {
       onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
       aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
     >
-      {theme === 'light' ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem] अवकाश" />}
+      {theme === 'light' ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
     </Button>
   );
 }
@@ -62,100 +62,109 @@ const containerVariants = {
 export default function Home() {
   return (
     <motion.div
-      className="space-y-8"
+      className="space-y-8 py-8 px-4 sm:px-6 lg:px-8"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
       <motion.section
-        className="text-center py-12 bg-card rounded-lg shadow relative"
+        className="text-center py-12 bg-card rounded-lg shadow-lg relative"
         variants={sectionVariants}
       >
         <div className="absolute top-4 right-4">
           <ThemeSwitcher />
         </div>
-        <h1 className="text-4xl font-bold mb-2 flex items-center justify-center gap-3">
+        <div className="flex justify-center items-center mb-4">
            <Image
               src="/images/logos/League.png"
               alt="Dongre Premier League Logo"
-              width={50}
-              height={50}
+              width={60}
+              height={60}
               className="rounded-full"
-              data-ai-hint="football league logo soccer"
-              priority={true}
+              priority
             />
+        </div>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-2 tracking-tight">
           Dongre Football Premier League
         </h1>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-md sm:text-lg text-muted-foreground max-w-2xl mx-auto">
           Welcome to the official tracker for the Dongre Football Premier League!
         </p>
       </motion.section>
 
       <motion.section variants={sectionVariants}>
-        <h2 className="text-2xl font-semibold mb-4 text-center">Explore the League</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center">Explore the League</h2>
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center md:justify-items-stretch"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           variants={containerVariants}
         >
-          <motion.div variants={cardVariants} className="w-full max-w-sm md:max-w-none aspect-[4/3] md:aspect-auto">
-            <Card>
+          <motion.div variants={cardVariants}>
+            <Card className="h-full hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-primary" />
-                  Teams
+                <CardTitle className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    <Users className="w-6 h-6 text-primary" />
+                  </div>
+                  <span className="text-xl font-semibold">Teams</span>
                 </CardTitle>
                 <CardDescription>View participating teams and their details.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button asChild>
+                <Button asChild className="w-full">
                   <Link href="/teams">Go to Teams</Link>
                 </Button>
               </CardContent>
             </Card>
           </motion.div>
-          <motion.div variants={cardVariants} className="w-full max-w-sm md:max-w-none aspect-[4/3] md:aspect-auto">
-            <Card>
+          <motion.div variants={cardVariants}>
+            <Card className="h-full hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  Matches
+                <CardTitle className="flex items-center gap-3">
+                   <div className="bg-primary/10 p-2 rounded-full">
+                    <Calendar className="w-6 h-6 text-primary" />
+                  </div>
+                  <span className="text-xl font-semibold">Matches</span>
                 </CardTitle>
                 <CardDescription>Check the schedule and results of matches.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button asChild>
+                <Button asChild className="w-full">
                   <Link href="/matches">Go to Matches</Link>
                 </Button>
               </CardContent>
             </Card>
           </motion.div>
-          <motion.div variants={cardVariants} className="w-full max-w-sm md:max-w-none aspect-[4/3] md:aspect-auto">
-            <Card>
+          <motion.div variants={cardVariants}>
+            <Card className="h-full hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <UserSquare className="w-5 h-5 text-primary" />
-                  Players
+                <CardTitle className="flex items-center gap-3">
+                   <div className="bg-primary/10 p-2 rounded-full">
+                    <UserSquare className="w-6 h-6 text-primary" />
+                  </div>
+                  <span className="text-xl font-semibold">Players</span>
                 </CardTitle>
                 <CardDescription>Browse player profiles and season info.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button asChild>
+                <Button asChild className="w-full">
                   <Link href="/players">Go to Players</Link>
                 </Button>
               </CardContent>
             </Card>
           </motion.div>
-          <motion.div variants={cardVariants} className="w-full max-w-sm md:max-w-none aspect-[4/3] md:aspect-auto">
-            <Card>
+          <motion.div variants={cardVariants}>
+            <Card className="h-full hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ListOrdered className="w-5 h-5 text-primary" />
-                  Table Standings
+                <CardTitle className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    <ListOrdered className="w-6 h-6 text-primary" />
+                   </div>
+                  <span className="text-xl font-semibold">Standings</span>
                 </CardTitle>
                 <CardDescription>View the current league standings.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button asChild>
+                <Button asChild className="w-full">
                   <Link href="/standings">Go to Standings</Link>
                 </Button>
               </CardContent>
@@ -165,23 +174,24 @@ export default function Home() {
       </motion.section>
 
       <motion.section
-        className="text-center text-muted-foreground text-sm"
+        className="text-center text-muted-foreground text-md py-8"
         variants={sectionVariants}
       >
         <p>Currently tracking Season 3. Stay tuned for live updates, standings, and detailed statistics!</p>
       </motion.section>
 
       <motion.section
-        className="text-center py-12"
+        className="text-center py-12 bg-card rounded-lg shadow-lg"
         variants={sectionVariants}
       >
-        <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
-        <div className="flex justify-center gap-6">
-          <a href="https://www.instagram.com/dongrefootballclub/?hl=en" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-            <Instagram className="w-8 h-8 text-primary hover:opacity-80 transition-opacity" />
+        <h2 className="text-3xl font-bold mb-4">Connect With Us</h2>
+        <p className="text-muted-foreground mb-6">Follow us on social media and get in touch.</p>
+        <div className="flex justify-center gap-8">
+          <a href="https://www.instagram.com/dongrefootballclub/?hl=en" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-primary hover:text-primary/80 transition-colors">
+            <Instagram className="w-10 h-10" />
           </a>
-          <a href="mailto:dfplowners@gmail.com" aria-label="Email">
-            <Mail className="w-8 h-8 text-primary hover:opacity-80 transition-opacity" />
+          <a href="mailto:dfplowners@gmail.com" aria-label="Email" className="text-primary hover:text-primary/80 transition-colors">
+            <Mail className="w-10 h-10" />
           </a>
         </div>
       </motion.section>
