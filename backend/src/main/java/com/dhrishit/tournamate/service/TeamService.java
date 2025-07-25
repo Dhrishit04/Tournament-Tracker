@@ -16,7 +16,6 @@ public class TeamService {
     private final DatabaseReference databaseReference;
 
     public TeamService() {
-        // Get a reference to the 'teams' node in your Firebase Realtime Database.
         this.databaseReference = FirebaseDatabase.getInstance().getReference("teams");
     }
 
@@ -64,7 +63,6 @@ public class TeamService {
     }
 
     public Team addTeam(Team team) throws ExecutionException, InterruptedException {
-        // Use push() to generate a unique key for the new team.
         String newTeamId = databaseReference.push().getKey();
         if (newTeamId == null) {
             throw new IllegalStateException("Could not generate a new team ID.");
@@ -78,52 +76,57 @@ public class TeamService {
                 future.complete(null);
             }
         });
-        future.get(); // Wait for the operation to complete
+        future.get();
         return team;
     }
 
     public Optional<Team> updateTeam(String id, Team updatedTeam) throws ExecutionException, InterruptedException {
-        CompletableFuture<Optional<Team>> future = new CompletableFuture<>();
-        // First, check if the team exists
-        getTeamById(id).thenAccept(existingTeam -> {
-            if (existingTeam.isPresent()) {
-                updatedTeam.setId(id); // Ensure the ID is not changed
+        CompletableFuture<Optional<Team>> resultFuture = new CompletableFuture<>();
+
+        getTeamById(id).thenCompose(existingTeamOptional -> {
+            if (existingTeamOptional.isPresent()) {
+                updatedTeam.setId(id);
+                CompletableFuture<Void> setValueFuture = new CompletableFuture<>();
                 databaseReference.child(id).setValue(updatedTeam, (databaseError, databaseReference) -> {
                     if (databaseError != null) {
-                        future.completeExceptionally(databaseError.toException());
+                        setValueFuture.completeExceptionally(databaseError.toException());
                     } else {
-                        future.complete(Optional.of(updatedTeam));
+                        setValueFuture.complete(null);
                     }
                 });
+                return setValueFuture.thenApply(v -> Optional.of(updatedTeam));
             } else {
-                future.complete(Optional.empty());
+                return CompletableFuture.completedFuture(Optional.empty());
             }
         }).exceptionally(ex -> {
-            future.completeExceptionally(ex);
+            resultFuture.completeExceptionally(ex);
             return null;
         });
-        return future.get();
+
+        return resultFuture.get();
     }
 
     public boolean deleteTeam(String id) throws ExecutionException, InterruptedException {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        // Check if the team exists before trying to delete
-        getTeamById(id).thenAccept(existingTeam -> {
-            if (existingTeam.isPresent()) {
+        CompletableFuture<Boolean> resultFuture = new CompletableFuture<>();
+
+        getTeamById(id).thenCompose(existingTeamOptional -> {
+            if (existingTeamOptional.isPresent()) {
+                CompletableFuture<Void> removeValueFuture = new CompletableFuture<>();
                 databaseReference.child(id).removeValue((databaseError, databaseReference) -> {
                     if (databaseError != null) {
-                        future.completeExceptionally(databaseError.toException());
+                        removeValueFuture.completeExceptionally(databaseError.toException());
                     } else {
-                        future.complete(true);
+                        removeValueFuture.complete(null);
                     }
                 });
+                return removeValueFuture.thenApply(v -> true);
             } else {
-                future.complete(false); // Team not found, so can't delete
+                return CompletableFuture.completedFuture(false);
             }
         }).exceptionally(ex -> {
-            future.completeExceptionally(ex);
+            resultFuture.completeExceptionally(ex);
             return null;
         });
-        return future.get();
+        return resultFuture.get();
     }
 }
