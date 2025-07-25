@@ -16,6 +16,7 @@ public class TeamService {
     private final DatabaseReference databaseReference;
 
     public TeamService() {
+        // Get a reference to the 'teams' node in your Firebase Realtime Database.
         this.databaseReference = FirebaseDatabase.getInstance().getReference("teams");
     }
 
@@ -76,57 +77,48 @@ public class TeamService {
                 future.complete(null);
             }
         });
-        future.get();
+        future.get(); // Wait for the operation to complete
         return team;
     }
 
     public Optional<Team> updateTeam(String id, Team updatedTeam) throws ExecutionException, InterruptedException {
-        CompletableFuture<Optional<Team>> resultFuture = new CompletableFuture<>();
-
-        getTeamById(id).thenCompose(existingTeamOptional -> {
-            if (existingTeamOptional.isPresent()) {
-                updatedTeam.setId(id);
-                CompletableFuture<Void> setValueFuture = new CompletableFuture<>();
-                databaseReference.child(id).setValue(updatedTeam, (databaseError, databaseReference) -> {
-                    if (databaseError != null) {
-                        setValueFuture.completeExceptionally(databaseError.toException());
-                    } else {
-                        setValueFuture.complete(null);
-                    }
-                });
-                return setValueFuture.thenApply(v -> Optional.of(updatedTeam));
-            } else {
-                return CompletableFuture.completedFuture(Optional.empty());
-            }
-        }).exceptionally(ex -> {
-            resultFuture.completeExceptionally(ex);
-            return null;
-        });
-
-        return resultFuture.get();
+        // First, synchronously check if the team exists.
+        Optional<Team> existingTeamOptional = getTeamById(id);
+        
+        if (existingTeamOptional.isPresent()) {
+            updatedTeam.setId(id); // Ensure the ID is not changed
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            databaseReference.child(id).setValue(updatedTeam, (databaseError, databaseReference) -> {
+                if (databaseError != null) {
+                    future.completeExceptionally(databaseError.toException());
+                } else {
+                    future.complete(null);
+                }
+            });
+            future.get(); // Wait for the update to complete
+            return Optional.of(updatedTeam);
+        } else {
+            return Optional.empty(); // Team not found
+        }
     }
 
     public boolean deleteTeam(String id) throws ExecutionException, InterruptedException {
-        CompletableFuture<Boolean> resultFuture = new CompletableFuture<>();
+        // First, synchronously check if the team exists.
+        Optional<Team> existingTeamOptional = getTeamById(id);
 
-        getTeamById(id).thenCompose(existingTeamOptional -> {
-            if (existingTeamOptional.isPresent()) {
-                CompletableFuture<Void> removeValueFuture = new CompletableFuture<>();
-                databaseReference.child(id).removeValue((databaseError, databaseReference) -> {
-                    if (databaseError != null) {
-                        removeValueFuture.completeExceptionally(databaseError.toException());
-                    } else {
-                        removeValueFuture.complete(null);
-                    }
-                });
-                return removeValueFuture.thenApply(v -> true);
-            } else {
-                return CompletableFuture.completedFuture(false);
-            }
-        }).exceptionally(ex -> {
-            resultFuture.completeExceptionally(ex);
-            return null;
-        });
-        return resultFuture.get();
+        if (existingTeamOptional.isPresent()) {
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            databaseReference.child(id).removeValue((databaseError, databaseReference) -> {
+                if (databaseError != null) {
+                    future.completeExceptionally(databaseError.toException());
+                } else {
+                    future.complete(null);
+                }
+            });
+            future.get(); // Wait for the deletion to complete
+            return true;
+        } else {
+            return false; // Team not found
+        }
     }
 }
