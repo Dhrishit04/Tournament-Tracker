@@ -1,7 +1,9 @@
 package com.dhrishit.tournamate.service;
 
 import com.dhrishit.tournamate.model.Team;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,9 +17,12 @@ public class TeamService {
 
     private final DatabaseReference databaseReference;
 
-    public TeamService() {
-        // Get a reference to the 'teams' node in your Firebase Realtime Database.
-        this.databaseReference = FirebaseDatabase.getInstance().getReference("teams");
+    // By adding FirebaseApp to the constructor, we tell Spring: "You must create
+    // the FirebaseApp bean from FirebaseConfig *before* you create this service."
+    @Autowired
+    public TeamService(FirebaseApp firebaseApp) {
+        // Now it's safe to get the database instance because firebaseApp is guaranteed to be initialized.
+        this.databaseReference = FirebaseDatabase.getInstance(firebaseApp).getReference("teams");
     }
 
     public List<Team> getAllTeams() throws ExecutionException, InterruptedException {
