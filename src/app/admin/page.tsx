@@ -1,9 +1,12 @@
+// src/app/admin/page.tsx
 'use client';
 import { ShieldCheck, ShieldAlert } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/components/firebase/AuthProvider'; // Import the useAuth hook
+import { useRouter } from 'next/navigation';
+import { getAuth, signOut } from 'firebase/auth';
 
 const containerVariants = {
   hidden: { opacity: 0, scale: 0.95 },
@@ -16,23 +19,21 @@ const itemVariants = {
 };
 
 export default function AdminDashboardPage() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false); 
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const auth = getAuth();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const firebase = (window as any).firebase;
-      if (firebase && firebase.auth().currentUser) {
-        setIsAdmin(true);
-      } else if (firebase) { 
-        window.location.href = '/admin-auth';
-      }
-      if(!firebase) setTimeout(checkAuth, 200); else setIsLoading(false);
-    };
-    checkAuth();
-  }, []);
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      // Redirect to home or login page after sign out
+      router.push('/');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <motion.div 
         className="flex justify-center items-center h-64"
@@ -45,28 +46,13 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (!isAdmin) {
-    return (
-      <motion.div 
-        className="flex flex-col items-center justify-center h-screen space-y-4 text-center p-4"
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
-        <motion.div variants={itemVariants}>
-            <ShieldAlert className="w-16 h-16 text-destructive" />
-        </motion.div>
-        <motion.h1 className="text-3xl font-bold" variants={itemVariants}>Access Denied</motion.h1>
-        <motion.p className="text-lg text-muted-foreground" variants={itemVariants}>
-            You do not have permission to view this page.
-        </motion.p>
-        <motion.div variants={itemVariants}>
-            <Button asChild>
-            <Link href="/admin-auth">Go to Admin Login</Link>
-            </Button>
-        </motion.div>
-      </motion.div>
-    );
+  if (!user) {
+    // Redirect to the login page if the user is not authenticated
+    // We do this in an effect to avoid server-side rendering issues with redirects
+    if (typeof window !== 'undefined') {
+      router.push('/admin-auth');
+    }
+    return null; // Render nothing while redirecting
   }
 
   return (
@@ -86,20 +72,13 @@ export default function AdminDashboardPage() {
             variants={itemVariants}
         >
           <p className="text-lg text-center">
-            Welcome, Admin! This is where you can manage the tournament.
+            Welcome, {user.email}! This is where you can manage the tournament.
           </p>
           <div className="mt-6 text-center space-x-4">
             <Button asChild>
               <Link href="/admin/teams">Manage Teams</Link>
             </Button>
-            <Button variant="outline" onClick={() => {
-              const firebase = (window as any).firebase;
-              if (firebase) {
-                firebase.auth().signOut().then(() => {
-                  window.location.href = '/';
-                });
-              }
-            }}>
+            <Button variant="outline" onClick={handleSignOut}>
               Sign Out
             </Button>
           </div>

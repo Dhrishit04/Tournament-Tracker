@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import React from 'react';
-import FirebaseInitializer from '@/components/firebase/FirebaseInitializer'; // Import the new component
+import { AuthProvider } from '@/components/firebase/AuthProvider'; // Import the AuthProvider
 
 export const metadata = {
   title: 'Dongre Football Premier League',
@@ -21,15 +21,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn('antialiased min-h-screen flex flex-col font-sans')} suppressHydrationWarning={true}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-        > <Header />
-          <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
-           <Toaster />
-        </ThemeProvider>
-        <FirebaseInitializer />{/* Add the Firebase Initializer component here */}
+        <AuthProvider> {/* Wrap the entire application with AuthProvider */}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+          >
+            <Header />
+            <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
+            <Toaster />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
