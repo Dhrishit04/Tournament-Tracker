@@ -1,0 +1,222 @@
+{
+  "teams": {
+    "rd": {
+      "id": "rd",
+      "logoUrl": "/images/teams/rd.png",
+      "name": "Red Devils",
+      "owner": "Ayush Dongre",
+      "players": [
+        {
+          "age": 24,
+          "assists": 3,
+          "basePrice": "10pts",
+          "category": "5★",
+          "goals": 12,
+          "id": "1",
+          "matchesLost": 0,
+          "matchesPlayed": 5,
+          "matchesWon": 4,
+          "name": "Ayush Dongre",
+          "preferredFoot": "R",
+          "preferredPosition": [
+            "FWD",
+            "MID"
+          ],
+          "redCards": 0,
+          "remarks": [
+            "Finishing",
+            "Captain"
+          ],
+          "team": "Red Devils",
+          "yellowCards": 0
+        },
+        {
+          "id": "8",
+          "name": "Player B",
+          "team": "Red Devils"
+        }
+      ],
+      "stats": {
+        "matchesPlayed": 25,
+        "matchesWon": 18,
+        "matchesLost": 5,
+        "matchesDrawn": 2,
+        "totalGoals": 50,
+        "totalAssists": 30,
+        "cleanSheets": 10,
+        "totalYellowCards": 15,
+        "totalRedCards": 1
+      }
+    },
+    "sh": {
+      "id": "sh",
+      "logoUrl": "/images/teams/sh.png",
+      "name": "Shadow Hawks",
+      "owner": "Nilesh Dongre",
+      "players": [
+        {
+          "age": 24,
+          "assists": 1,
+          "basePrice": "10pts",
+          "category": "5★",
+          "goals": 9,
+          "id": "2",
+          "matchesLost": 2,
+          "matchesPlayed": 6,
+          "matchesWon": 3,
+          "name": "Nilesh Dongre",
+          "preferredFoot": "R",
+          "preferredPosition": [
+            "FWD",
+            "MID"
+          ],
+          "redCards": 0,
+          "remarks": [
+            "Finishing",
+            "Captain"
+          ],
+          "team": "Shadow Hawks",
+          "yellowCards": 1
+        },
+        {
+          "id": "10",
+          "name": "Player C",
+          "team": "Shadow Hawks"
+        }
+      ],
+      "stats": {
+        "matchesPlayed": 26,
+        "matchesWon": 15,
+        "matchesLost": 7,
+        "matchesDrawn": 4,
+        "totalGoals": 45,
+        "totalAssists": 28,
+        "cleanSheets": 8,
+        "totalYellowCards": 12,
+        "totalRedCards": 0
+      }
+    },
+    "wk": {
+      "id": "wk",
+      "logoUrl": "/images/teams/wk.png",
+      "name": "White Knights FC",
+      "owner": "Manash",
+      "players": [
+        {
+          "id": "11",
+          "name": "Player D",
+          "team": "White Knights FC"
+        },
+        {
+          "id": "12",
+          "name": "Player E",
+          "team": "White Knights FC"
+        }
+      ],
+      "stats": {
+        "matchesPlayed": 0,
+        "matchesWon": 0,
+        "matchesLost": 0,
+        "matchesDrawn": 0,
+        "totalGoals": 0,
+        "totalAssists": 0,
+        "cleanSheets": 0,
+        "totalYellowCards": 0,
+        "totalRedCards": 0
+      }
+    },
+    "dsk": {
+      "id": "dsk",
+      "logoUrl": "/images/teams/dsk.png",
+      "name": "Dongre Super Kicks",
+      "owner": "Prathamesh",
+      "players": [
+        {
+          "assists": 0,
+          "goals": 0,
+          "id": "3",
+          "name": "Vikram",
+          "redCards": 0,
+          "team": "Dongre Super Kicks",
+          "yellowCards": 0
+        },
+        {
+          "assists": 0,
+          "goals": 0,
+          "id": "4",
+          "name": "Arjun Desai",
+          "redCards": 0,
+          "team": "Dongre Super Kicks",
+          "yellowCards": 0
+        },
+        {
+          "assists": 0,
+          "goals": 0,
+          "id": "5",
+          "name": "Amey Kawle",
+          "redCards": 0,
+          "team": "Dongre Super Kicks",
+          "yellowCards": 0
+        },
+        {
+          "assists": 0,
+          "goals": 0,
+          "id": "6",
+          "name": "Shubham Parulkar",
+          "redCards": 0,
+          "team": "Dongre Super Kicks",
+          "yellowCards": 0
+        },
+        {
+          "assists": 0,
+          "goals": 0,
+          "id": "7",
+          "name": "Satej Dhaiphule",
+          "redCards": 0,
+          "team": "Dongre Super Kicks",
+          "yellowCards": 0
+        },
+        {
+          "id": "13",
+          "name": "Player F",
+          "team": "Dongre Super Kicks"
+        }
+      ],
+      "stats": {
+        "matchesPlayed": 0,
+        "matchesWon": 0,
+        "matchesLost": 0,
+        "matchesDrawn": 0,
+        "totalGoals": 0,
+        "totalAssists": 0,
+        "cleanSheets": 0,
+        "totalYellowCards": 0,
+        "totalRedCards": 0
+      }
+    },
+    "rp": {
+      "id": "rp",
+      "logoUrl": "/images/teams/RP.png",
+      "name": "Real Pawcelona",
+      "owner": "Rohan",
+      "players": [
+        {
+          "id": "14",
+          "name": "Player G",
+          "team": "Real Pawcelona"
+        }
+      ],
+      "stats": {
+        "matchesPlayed": 0,
+        "matchesWon": 0,
+        "matchesLost": 0,
+        "matchesDrawn": 0,
+        "totalGoals": 0,
+        "totalAssists": 0,
+        "cleanSheets": 0,
+        "totalYellowCards": 0,
+        "totalRedCards": 0
+      }
+    }
+  }
+}
