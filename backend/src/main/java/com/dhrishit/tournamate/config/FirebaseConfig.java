@@ -5,6 +5,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,9 +15,14 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
-        // This path points to the service account key file within the container.
-        // Docker Compose mounts your local file to this location.
-        String serviceAccountPath = "serviceAccountKey.json";
+        // A more robust way to handle the service account key.
+        // It first checks for an environment variable, which is standard for production.
+        // If not found, it falls back to a local file path for easier development.
+        String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+
+        if (!StringUtils.hasText(serviceAccountPath)) {
+            serviceAccountPath = "serviceAccountKey.json";
+        }
 
         FileInputStream serviceAccount = new FileInputStream(serviceAccountPath);
 
@@ -25,7 +31,6 @@ public class FirebaseConfig {
                 .setDatabaseUrl("https://tournament-tracker-lite-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .build();
 
-        // Initialize the app if it hasn't been initialized yet.
         if (FirebaseApp.getApps().isEmpty()) {
             return FirebaseApp.initializeApp(options);
         } else {

@@ -26,7 +26,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      # FIX 1: Target the 'builder' stage, which has Maven and the full JDK.
+      # Target the 'builder' stage, which has Maven and the full JDK.
       target: builder
     # Name the container.
     container_name: tournament-tracker-backend
@@ -38,5 +38,8 @@ services:
       - ./backend:/app
       # Cache maven dependencies to speed up subsequent builds
       - ~/.m2:/root/.m2
-    # FIX 2: Override the Dockerfile's ENTRYPOINT and run the development server.
+    # Set the environment variable to point to the service account key.
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/serviceAccountKey.json
+    # Override the Dockerfile's ENTRYPOINT and run the development server.
     command: mvn spring-boot:run
