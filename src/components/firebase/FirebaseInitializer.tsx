@@ -8,12 +8,12 @@ import { getAuth } from 'firebase/auth';
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY", // Replace with your actual Firebase API Key
-  authDomain: "YOUR_AUTH_DOMAIN", // Replace with your actual Firebase Auth Domain
-  projectId: "YOUR_PROJECT_ID", // Replace with your actual Firebase Project ID
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDeQuDfuXPbnOwxO7ARnNTpBk09YBZpW70", 
+  authDomain: "tournament-tracker-lite.firebaseapp.com", 
+  projectId: "tournament-tracker-lite", 
+  storageBucket: "tournament-tracker-lite.firebasestorage.app",
+  messagingSenderId: "690015229898",
+  appId: "1:690015229898:web:f8a293af78ff83930ae133"
 };
 
 export default function FirebaseInitializer() {
