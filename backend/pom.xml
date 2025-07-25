@@ -43,7 +43,7 @@
         <plugins>
             <!-- This plugin packages the application into an executable JAR file -->
             <plugin>
-                <groupId>org.springframework.boot</g-roupId>
+                <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
