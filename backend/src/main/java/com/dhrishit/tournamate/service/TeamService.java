@@ -1,64 +1,129 @@
 package com.dhrishit.tournamate.service;
 
-import com.dhrishit.tournamate.model.Player;
 import com.dhrishit.tournamate.model.Team;
-import com.dhrishit.tournamate.model.TeamStats;
+import com.google.firebase.database.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class TeamService {
 
-    private final ConcurrentHashMap<String, Team> teams = new ConcurrentHashMap<>();
+    private final DatabaseReference databaseReference;
 
     public TeamService() {
-        // Initialize with some mock data
-        Player player1 = new Player("p1", "Player One", "Team Alpha", "Forward", "100000", Arrays.asList("ST", "LW"), "Right", 25, Arrays.asList("Fast", "Good Finisher"), 10, 5, 20, 15, 3, 2, 0);
-        Player player2 = new Player("p2", "Player Two", "Team Alpha", "Midfielder", "80000", Arrays.asList("CM", "CDM"), "Left", 28, Arrays.asList("Good Passer"), 3, 12, 18, 12, 4, 1, 0);
-        Player player3 = new Player("p3", "Player Three", "Team Beta", "Defender", "70000", Arrays.asList("CB", "LB"), "Right", 22, Arrays.asList("Strong Tackler"), 1, 2, 22, 10, 8, 3, 1);
-
-        TeamStats stats1 = new TeamStats(50, 30, 25, 18, 5, 2, 10, 15, 1);
-        TeamStats stats2 = new TeamStats(45, 28, 26, 15, 7, 4, 8, 12, 0);
-
-        Team team1 = new Team(UUID.randomUUID().toString(), "Team Alpha", "Owner A", "/images/teams/dsk.png", Arrays.asList(player1, player2), stats1);
-        Team team2 = new Team(UUID.randomUUID().toString(), "Team Beta", "Owner B", "/images/teams/sh.png", Arrays.asList(player3), stats2);
-
-        teams.put(team1.getId(), team1);
-        teams.put(team2.getId(), team2);
+        // Get a reference to the 'teams' node in your Firebase Realtime Database.
+        this.databaseReference = FirebaseDatabase.getInstance().getReference("teams");
     }
 
-    public List<Team> getAllTeams() {
-        return new ArrayList<>(teams.values());
+    public List<Team> getAllTeams() throws ExecutionException, InterruptedException {
+        CompletableFuture<List<Team>> future = new CompletableFuture<>();
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                List<Team> teams = new ArrayList<>();
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        Team team = snapshot.getValue(Team.class);
+                        teams.add(team);
+                    }
+                }
+                future.complete(teams);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                future.completeExceptionally(databaseError.toException());
+            }
+        });
+        return future.get();
     }
 
-    public Optional<Team> getTeamById(String id) {
-        return Optional.ofNullable(teams.get(id));
+    public Optional<Team> getTeamById(String id) throws ExecutionException, InterruptedException {
+        CompletableFuture<Optional<Team>> future = new CompletableFuture<>();
+        databaseReference.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    future.complete(Optional.ofNullable(dataSnapshot.getValue(Team.class)));
+                } else {
+                    future.complete(Optional.empty());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                future.completeExceptionally(databaseError.toException());
+            }
+        });
+        return future.get();
     }
 
-    public Team addTeam(Team team) {
-        if (team.getId() == null || team.getId().isEmpty()) {
-            team.setId(UUID.randomUUID().toString());
+    public Team addTeam(Team team) throws ExecutionException, InterruptedException {
+        // Use push() to generate a unique key for the new team.
+        String newTeamId = databaseReference.push().getKey();
+        if (newTeamId == null) {
+            throw new IllegalStateException("Could not generate a new team ID.");
         }
-        teams.put(team.getId(), team);
+        team.setId(newTeamId);
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        databaseReference.child(newTeamId).setValue(team, (databaseError, databaseReference) -> {
+            if (databaseError != null) {
+                future.completeExceptionally(databaseError.toException());
+            } else {
+                future.complete(null);
+            }
+        });
+        future.get(); // Wait for the operation to complete
         return team;
     }
 
-    public Optional<Team> updateTeam(String id, Team updatedTeam) {
-        if (teams.containsKey(id)) {
-            updatedTeam.setId(id); // Ensure the ID remains the same
-            teams.put(id, updatedTeam);
-            return Optional.of(updatedTeam);
-        }
-        return Optional.empty();
+    public Optional<Team> updateTeam(String id, Team updatedTeam) throws ExecutionException, InterruptedException {
+        CompletableFuture<Optional<Team>> future = new CompletableFuture<>();
+        // First, check if the team exists
+        getTeamById(id).thenAccept(existingTeam -> {
+            if (existingTeam.isPresent()) {
+                updatedTeam.setId(id); // Ensure the ID is not changed
+                databaseReference.child(id).setValue(updatedTeam, (databaseError, databaseReference) -> {
+                    if (databaseError != null) {
+                        future.completeExceptionally(databaseError.toException());
+                    } else {
+                        future.complete(Optional.of(updatedTeam));
+                    }
+                });
+            } else {
+                future.complete(Optional.empty());
+            }
+        }).exceptionally(ex -> {
+            future.completeExceptionally(ex);
+            return null;
+        });
+        return future.get();
     }
 
-    public boolean deleteTeam(String id) {
-        return teams.remove(id) != null;
+    public boolean deleteTeam(String id) throws ExecutionException, InterruptedException {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        // Check if the team exists before trying to delete
+        getTeamById(id).thenAccept(existingTeam -> {
+            if (existingTeam.isPresent()) {
+                databaseReference.child(id).removeValue((databaseError, databaseReference) -> {
+                    if (databaseError != null) {
+                        future.completeExceptionally(databaseError.toException());
+                    } else {
+                        future.complete(true);
+                    }
+                });
+            } else {
+                future.complete(false); // Team not found, so can't delete
+            }
+        }).exceptionally(ex -> {
+            future.completeExceptionally(ex);
+            return null;
+        });
+        return future.get();
     }
 }
