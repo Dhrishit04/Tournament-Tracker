@@ -1,21 +1,24 @@
 // src/types/index.ts
 
-// Basic Player information, can be extended
+// A comprehensive Player interface that matches the Firebase data model
 export interface Player {
   id: string;
   name: string;
+  team: string;
+  category: string;
+  basePrice: string;
+  preferredPosition: string[];
+  preferredFoot: string;
+  age?: number;
+  remarks: string[];
+  goals?: number;
+  assists?: number;
+  matchesPlayed?: number;
+  matchesWon?: number;
+  matchesLost?: number;
+  yellowCards?: number;
+  redCards?: number;
   avatarUrl?: string; // Optional avatar URL
-  // Add other common player properties if needed, e.g., jersey number
-}
-
-// Detailed Player Statistics, extending basic Player info
-export interface PlayerStats extends Player {
-  goals: number;
-  assists: number;
-  yellowCards: number;
-  redCards: number;
-  matchesPlayed: number;
-  // Potentially other stats like minutes played, pass accuracy, etc.
 }
 
 // Team Statistics
@@ -25,11 +28,10 @@ export interface TeamStats {
   matchesPlayed: number;
   matchesWon: number;
   matchesLost: number;
-  matchesDrawn: number; // Added for completeness
-  cleanSheets?: number; // Optional
+  matchesDrawn: number;
+  cleanSheets?: number;
   totalYellowCards: number;
   totalRedCards: number;
-  // Other team-level stats like possession average, shots on target, etc.
 }
 
 // Full Team Information, including roster and stats
@@ -37,24 +39,22 @@ export interface Team {
   id: string;
   name: string;
   owner: string;
-  logoUrl: string; // URL for the team logo
-  players: Player[]; // Roster of players (basic info)
-  stats: TeamStats; // Aggregated team statistics
-  // Optional: team formation, home ground, etc.
+  logoUrl: string; // URL for the team logo, renamed from 'logo' for consistency
+  players: Player[]; // Roster of players uses the new comprehensive Player type
+  stats: TeamStats;
 }
 
 // Match Information
 export interface Match {
   id: string;
-  date: string | Date; // Could be ISO string or Date object
+  date: string | Date;
   time: string;
-  homeTeam: Pick<Team, 'id' | 'name' | 'logoUrl'>; // Reference to home team
-  awayTeam: Pick<Team, 'id' | 'name' | 'logoUrl'>; // Reference to away team
+  homeTeam: Pick<Team, 'id' | 'name' | 'logoUrl'>;
+  awayTeam: Pick<Team, 'id' | 'name' | 'logoUrl'>;
   homeScore?: number;
   awayScore?: number;
   status: 'UPCOMING' | 'LIVE' | 'FINISHED' | 'POSTPONED';
   venue?: string;
-  // Optional: match events (goals, cards, substitutions), referee, etc.
 }
 
 // League Standings Entry
@@ -69,5 +69,5 @@ export interface Standing {
   goalsAgainst: number;
   goalDifference: number;
   points: number;
-  form?: ('W' | 'D' | 'L')[]; // Last 5 matches form, e.g., ['W', 'W', 'L', 'D', 'W']
+  form?: ('W' | 'D' | 'L')[];
 }

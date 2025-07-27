@@ -2,64 +2,19 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { UserSquare, TrendingUp, Shield, Zap, Star, CalendarDays, CheckCircle, XCircle, Users, ChevronDownIcon, ChevronUpIcon, Goal } from 'lucide-react';
+import { UserSquare, TrendingUp, Shield, Star, CalendarDays, Users } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-export interface PlayerType {
-  id: string;
-  category: string;
-  basePrice: string;
-  name: string;
-  preferredPosition: string[];
-  preferredFoot: string;
-  age?: number;
-  remarks: string[];
-  team: string;
-  goals?: number;
-  assists?: number;
-  matchesPlayed?: number;
-  matchesWon?: number;
-  matchesLost?: number;
-  yellowCards?: number;
-  redCards?: number;
-}
-
-export const players: PlayerType[] = [
-  { id: '1', category: '5★', basePrice: '10pts', name: 'Shlok Desai', preferredPosition: ['Over the field'], preferredFoot: 'R', age: 24, remarks: ['Captaincy', 'Physcial Strength'], team: 'Red Devils', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '2', category: '5★', basePrice: '10pts', name: 'Aarya Kawle', preferredPosition: ['Over the field'], preferredFoot: 'R', age: 21, remarks: ['Captaincy', 'Game Sense'], team: 'Real Pawcelona', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '3', category: '5★', basePrice: '10pts', name: 'Dhrishit Seal', preferredPosition: ['MF', 'DEF'], preferredFoot: 'R', age: 20, remarks: ['Playmaking', 'Team player'], team: 'White Knights FC', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '4', category: '5★', basePrice: '10pts', name: 'Vikram', preferredPosition: ['MF', 'DEF'], preferredFoot: 'R', age: 40, remarks: ['Playmaking', 'Captaincy'], team: 'Dongre Super Kicks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '5', category: '5★', basePrice: '10pts', name: 'Aaron Dsouza', preferredPosition: ['FW'], preferredFoot: 'R', age: 23, remarks: ['Finishing', 'Skills'], team: 'Shadow Hawks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '6', category: '4★', basePrice: '6pts', name: 'Arjun Desai', preferredPosition: ['Over the field'], preferredFoot: 'R', age: 17, remarks: ['All rounder'], team: 'Dongre Super Kicks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '7', category: '4★', basePrice: '6pts', name: 'Hridant Sood', preferredPosition: ['Over the field'], preferredFoot: 'R', age: 17, remarks: ['Dribbling', 'Passing'], team: 'Real Pawcelona', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '8', category: '4★', basePrice: '6pts', name: 'Deep Patel', preferredPosition: ['Over the field'], preferredFoot: 'R', age: 22, remarks: ['Positioning', 'Long passing'], team: 'Shadow Hawks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '9', category: '4★', basePrice: '6pts', name: 'Nirvaan Sood', preferredPosition: ['Over the field'], preferredFoot: 'R', age: 22, remarks: ['Captaincy', 'Team player'], team: 'Red Devils', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '10', category: '4★', basePrice: '6pts', name: 'Atharva Sawant', preferredPosition: ['FW', 'MF'], preferredFoot: 'R', age: 17, remarks: ['Game Sense', 'Dribbling'], team: 'White Knights FC', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '11', category: '3★', basePrice: '2pts', name: 'Tanish Gawade', preferredPosition: ['FW'], preferredFoot: 'R', age: 19, remarks: ['Finishing (in the box)'], team: 'Shadow Hawks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '12', category: '3★', basePrice: '2pts', name: 'Sarthak Sharma', preferredPosition: ['MF', 'DEF'], preferredFoot: 'R', age: 15, remarks: ['Long passing'], team: 'White Knights FC', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '13', category: '3★', basePrice: '2pts', name: 'Amey Kawle', preferredPosition: ['FW'], preferredFoot: 'L', age: 15, remarks: ['Finishing (in the box)'], team: 'Dongre Super Kicks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '14', category: '3★', basePrice: '2pts', name: 'Krish Mistry', preferredPosition: ['FW'], preferredFoot: 'R', age: 18, remarks: ['Dribbling', 'Finishing'], team: 'Red Devils', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '15', category: '3★', basePrice: '2pts', name: 'Arnav Chaudhary', preferredPosition: ['DEF'], preferredFoot: 'R', age: 19, remarks: ['Passing', 'Wall'], team: 'Shadow Hawks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '16', category: '3★', basePrice: '2pts', name: 'Shubham Parulkar', preferredPosition: ['FW'], preferredFoot: 'R', age: 18, remarks: ['Dribbling', 'Speed'], team: 'Dongre Super Kicks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '17', category: '3★', basePrice: '2pts', name: 'Paras Patil', preferredPosition: ['MF', 'DEF'], preferredFoot: 'R', age: 18, remarks: ['Game Sense', 'Passing'], team: 'White Knights FC', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '18', category: '3★', basePrice: '2pts', name: 'Parth Jadwani', preferredPosition: ['FW', 'DEF'], preferredFoot: 'R', age: 15, remarks: ['Passing', 'In the box'], team: 'Real Pawcelona', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '19', category: '3★', basePrice: '2pts', name: 'Satej Dhaiphule', preferredPosition: ['DEF'], preferredFoot: 'L', age: 20, remarks: ['Passing'], team: 'Dongre Super Kicks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '20', category: '3★', basePrice: '2pts', name: 'Shreyas K', preferredPosition: ['DEF'], preferredFoot: 'R', age: 18, remarks: ['Passing'], team: 'Red Devils', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '21', category: '3★', basePrice: '2pts', name: 'Anish', preferredPosition: ['DEF'], preferredFoot: 'R', age: 16, remarks: ['Wall'], team: 'White Knights FC', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '22', category: '3★', basePrice: '2pts', name: 'Harshvardhan Jadwani', preferredPosition: ['DEF'], preferredFoot: 'R', age: 22, remarks: ['Physcial Strength', 'Long passing'], team: 'Red Devils', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '23', category: '3★', basePrice: '2pts', name: 'Ansh Bhardwaj', preferredPosition: ['Over the field'], preferredFoot: 'R', age: 21, remarks: ['Passing', 'Game'], team: 'Real Pawcelona', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '24', category: '3★', basePrice: '2pts', name: 'Ayaan Ansaari', preferredPosition: ['FW', 'MF'], preferredFoot: 'R', age: 19, remarks: ['Dribbling', 'Positioning'], team: 'Real Pawcelona', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-  { id: '25', category: '3★', basePrice: '2pts', name: 'Harsh Daware', preferredPosition: ['DEF'], preferredFoot: 'L', age: 23, remarks: ['Passing'], team: 'Shadow Hawks', goals: 0, assists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, yellowCards: 0, redCards: 0 },
-];
+import { Player } from '@/types'; // Import the central Player type
+import { fetchPlayers } from '@/lib/api'; // Import the fetch function
 
 const positionMapping: { [key: string]: string } = {
   'FW': 'Forward',
@@ -99,6 +54,41 @@ const itemVariants = {
 };
 
 export default function PlayersPage() {
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getPlayers = async () => {
+      try {
+        const data = await fetchPlayers();
+        setPlayers(data);
+      } catch (err) {
+        setError("Failed to load players.");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getPlayers();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-muted-foreground">Loading players...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-red-500">Error: {error}</p>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className="space-y-6"
@@ -124,21 +114,12 @@ export default function PlayersPage() {
       <motion.div variants={tableVariants}>
         <Card>
           <CardContent className="p-0">
-            {/* Accordion as the main container */}
             <Accordion type="single" collapsible className="w-full">
               {players.map((player, index) => (
                 <AccordionItem value={`player-${player.id}`} key={player.id} className="border-b last:border-b-0">
-                  {/* Accordion Trigger will contain the player's summary */}
-                  {/* Use flexbox for the entire trigger content */}
-                  {/* Added justify-between to space out the content and the chevron */}
                   <AccordionTrigger className="hover:bg-muted/50 cursor-pointer flex items-center justify-between py-4 px-4 gap-4">
-                    {/* Left section: ID, Avatar, Name, Team */}
                     <div className="flex items-center gap-4">
-                      {/* ID */}
-                      <div className="font-medium w-[80px]">{player.id}</div> {/* Fixed width for ID */}
-
-                      {/* Avatar and Name/Team */}
-                      {/* Use flex to align avatar and name/team horizontally */}
+                      <div className="font-medium w-[80px]">{player.id}</div>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
                           <Image
@@ -147,7 +128,6 @@ export default function PlayersPage() {
                             width={40}
                             height={40}
                             className="rounded-full object-cover"
-                            data-ai-hint="player portrait soccer"
                             priority={index < 5}
                             onError={(e) => {
                                 e.currentTarget.onerror = null;
@@ -156,25 +136,18 @@ export default function PlayersPage() {
                           />
                           <AvatarFallback>{player.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                         </Avatar>
-                        {/* Name and Team stacked vertically */}
                         <div className="flex flex-col items-start">
-                          <span className="font-medium">{player.name}</span> {/* Player name */}
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground"> {/* Team Name */}
-                             <Users className="w-3 h-3 text-muted-foreground"/> {/* Adjusted icon size */}
+                          <span className="font-medium">{player.name}</span>
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                             <Users className="w-3 h-3 text-muted-foreground"/>
                             <span>{player.team}</span>
                           </div>
                         </div>
                       </div>
                     </div>
-
-                    {/* Right section: Chevron (handled by AccordionTrigger) */}
-                    {/* No explicit element needed here, AccordionTrigger handles the chevron */}
-
                   </AccordionTrigger>
-
-                  {/* Accordion Content will contain Age, Category, Base Price, Position, Foot, and Remarks */}
                   <AccordionContent>
-                   <div className="bg-muted/5 dark:bg-muted/10 p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"> {/* Layout for detailed stats */}
+                   <div className="bg-muted/5 dark:bg-muted/10 p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
                         <h4 className="font-semibold text-sm flex items-center gap-1"><CalendarDays className="w-4 h-4 text-primary"/>Age</h4>
                         <p className="text-muted-foreground">{player.age ?? 'N/A'}</p>
