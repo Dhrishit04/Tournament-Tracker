@@ -1,9 +1,8 @@
 // src/app/admin/players/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { PlusCircle, UserSquare } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState, useCallback } from "react";
+import { UserSquare } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlayerTable } from "@/components/admin/player-table";
 import { fetchPlayers } from "@/lib/api";
@@ -14,8 +13,8 @@ export default function PlayersAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Combined function to fetch and set players
-  const getPlayers = async () => {
+  // Use useCallback to memoize the fetch function
+  const getPlayers = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await fetchPlayers();
@@ -27,11 +26,11 @@ export default function PlayersAdminPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     getPlayers();
-  }, []); // Empty dependency array to run only on mount
+  }, [getPlayers]);
 
   if (isLoading) {
     return (
@@ -56,10 +55,7 @@ export default function PlayersAdminPage() {
           <UserSquare className="w-6 h-6" />
           Player Management
         </h1>
-        <Button className="ml-auto" size="sm" onClick={getPlayers}>
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Player
-        </Button>
+        {/* The "Add Player" button is now managed within the PlayerTable component */}
       </div>
 
       <Card>
@@ -70,7 +66,7 @@ export default function PlayersAdminPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <PlayerTable players={players} />
+          <PlayerTable players={players} onPlayerAdded={getPlayers} />
         </CardContent>
       </Card>
     </main>

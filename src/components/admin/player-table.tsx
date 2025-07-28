@@ -28,10 +28,10 @@ import { AddPlayerDialog } from "./add-player-dialog";
 
 interface PlayerTableProps {
   players: Player[];
+  onPlayerAdded: () => void; // Callback to refresh the player list
 }
 
-export function PlayerTable({ players }: PlayerTableProps) {
-  const [currentPlayers, setCurrentPlayers] = useState<Player[]>(players);
+export function PlayerTable({ players, onPlayerAdded }: PlayerTableProps) {
   const [showAddPlayerDialog, setShowAddPlayerDialog] = useState(false);
 
   // Placeholder for future edit functionality
@@ -43,17 +43,18 @@ export function PlayerTable({ players }: PlayerTableProps) {
   // Placeholder for future delete functionality
   const handleDelete = (playerId: string) => {
     console.log("Delete player with ID:", playerId);
-    // Here you would call the API to delete the player
-    // For now, we just filter it out of the local state
-    setCurrentPlayers((prevPlayers) => prevPlayers.filter((p) => p.id !== playerId));
+    // Implement actual deletion logic, then update state
   };
 
   return (
     <div>
-        <Button onClick={() => setShowAddPlayerDialog(true)}
-        className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary/50"
-        ><PlusCircle className="h-4 w-4 mr-2" /> Add Player</Button>
-      <AddPlayerDialog open={showAddPlayerDialog} setOpen={setShowAddPlayerDialog} />
+      <div className="flex justify-end mb-4">
+        <Button onClick={() => setShowAddPlayerDialog(true)}>
+          <PlusCircle className="h-4 w-4 mr-2" />
+          Add Player
+        </Button>
+      </div>
+      <AddPlayerDialog open={showAddPlayerDialog} setOpen={setShowAddPlayerDialog} onPlayerAdded={onPlayerAdded} />
 
       <Table>
         <TableHeader>
@@ -69,7 +70,7 @@ export function PlayerTable({ players }: PlayerTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentPlayers.map((player) => (
+          {players.map((player) => (
             <TableRow key={player.id}>
               <TableCell>
                 <Avatar className="h-9 w-9">

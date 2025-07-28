@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { addPlayer } from "@/lib/api";
 import { Player } from "@/types";
-import axios from "axios";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -32,9 +31,10 @@ const formSchema = z.object({
 interface AddPlayerDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  onPlayerAdded: () => void; // Callback to refresh the player list
 }
 
-export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
+export function AddPlayerDialog({ open, setOpen, onPlayerAdded }: AddPlayerDialogProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -52,27 +52,26 @@ export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
-      //create a Player object that adheres to the @/types/index.ts Player
-      const newPlayer: Omit<Player, 'id'| 'goals'| 'assists'| 'matchesPlayed'| 'matchesWon'
-      | 'matchesLost'| 'yellowCards' | 'redCards' | 'avatarUrl'> = {
+      const newPlayer: Omit<Player, 'id' | 'goals' | 'assists' | 'matchesPlayed' | 'matchesWon' | 'matchesLost' | 'yellowCards' | 'redCards' | 'avatarUrl' | 'remarks'> = {
         ...values,
-        remarks: [], // Initialize remarks as an empty array
+        preferredPosition: values.preferredPosition.split(',').map(p => p.trim()),
       };
+      
+      const result = await addPlayer(newPlayer);
 
-      // const success = await addPlayer(newPlayer);
-      axios.post("http://localhost:8080/api/players", newPlayer)
-      .then((response) => {
-        console.log("response", response)
+      if (result) {
         toast({
           title: "Player added successfully",
         });
         form.reset();
-        setOpen(false)
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-
+        setOpen(false);
+        onPlayerAdded(); // Trigger the refresh callback
+      } else {
+        toast({
+          title: "Failed to add player",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error adding player:", error);
       toast({
@@ -87,7 +86,7 @@ export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add a new player</DialogTitle>
           <DialogDescription>
@@ -105,9 +104,6 @@ export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
                   <FormControl>
                     <Input placeholder="Cristiano Ronaldo" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    This is the player's public display name.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -121,9 +117,6 @@ export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
                   <FormControl>
                     <Input placeholder="Red Devils" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Assign the team to the respective player.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -135,11 +128,8 @@ export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
                 <FormItem>
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <Input placeholder="5 star" {...field} />
+                    <Input placeholder="5★" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Assign the catgory to the respective player.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -151,11 +141,8 @@ export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
                 <FormItem>
                   <FormLabel>Base Price</FormLabel>
                   <FormControl>
-                    <Input placeholder="10 pts" {...field} />
+                    <Input placeholder="10pts" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Mention the base price for the respective player.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -167,11 +154,8 @@ export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
                 <FormItem>
                   <FormLabel>Preferred Position</FormLabel>
                   <FormControl>
-                    <Input placeholder="Forward" {...field} />
+                    <Input placeholder="FW, MID" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Mention the player preferred position.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -183,24 +167,21 @@ export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
                 <FormItem>
                   <FormLabel>Preferred Foot</FormLabel>
                   <FormControl>
-                    <Input placeholder="Right" {...field} />
+                    <Input placeholder="R" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Mention the player preferred foot.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter>
+              <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Saving..." : "Save"}
               </Button>
-               <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
             </DialogFooter>
           </form>
         </Form>
-      
+      </DialogContent>
     </Dialog>
-  )
+  );
 }
