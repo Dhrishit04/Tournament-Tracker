@@ -1,4 +1,4 @@
-nat// src/components/admin/delete-confirmation-dialog.tsx
+// src/components/admin/delete-confirmation-dialog.tsx
 "use client";
 
 import {
