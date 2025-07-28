@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { addPlayer } from "@/lib/api";
 import { Player } from "@/types";
+import axios from "axios";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -58,19 +59,20 @@ export function AddPlayerDialog({ open, setOpen }: AddPlayerDialogProps) {
         remarks: [], // Initialize remarks as an empty array
       };
 
-      const success = await addPlayer(newPlayer);
-      if (success) {
+      // const success = await addPlayer(newPlayer);
+      axios.post("http://localhost:8080/api/players", newPlayer)
+      .then((response) => {
+        console.log("response", response)
         toast({
           title: "Player added successfully",
         });
         form.reset();
         setOpen(false)
-      } else {
-        toast({
-          title: "Failed to add player",
-          variant: "destructive",
-        });
-      }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
     } catch (error) {
       console.error("Error adding player:", error);
       toast({

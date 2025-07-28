@@ -78,6 +78,10 @@ export default function AdminDashboardPage() {
             <Button asChild>
               <Link href="/admin/teams">Manage Teams</Link>
             </Button>
+            {/* New button for Player Management */}
+            <Button asChild>
+              <Link href="/admin/players">Manage Players</Link>
+            </Button>
             <Button variant="outline" onClick={handleSignOut}>
               Sign Out
             </Button>
