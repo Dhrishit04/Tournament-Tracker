@@ -1,15 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getTeamById, Team, Player } from '@/lib/team-data';
+import { Team } from '@/types';
+import { fetchTeamById } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowLeft, Shield, Users, Crown, TrendingUp, ShieldCheck, ShieldAlert, CheckCircle, XCircle, Goal, BarChart2, CalendarDays } from 'lucide-react';
+import { ArrowLeft, Crown, Users, BarChart2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // --- Animation Variants ---
@@ -27,39 +28,47 @@ const itemVariants = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.4 } },
 };
 
-// --- Helper Components ---
-const StatCard = ({ icon, label, value, color }: { icon: React.ElementType, label: string, value: string | number, color?: string }) => {
-    const Icon = icon;
-    return (
-        <motion.div variants={itemVariants}>
-            <Card className="flex flex-col items-center justify-center p-4 h-full text-center shadow-md">
-                <Icon className={`w-8 h-8 mb-2 ${color || 'text-primary'}`} />
-                <p className="text-2xl font-bold">{value}</p>
-                <p className="text-sm text-muted-foreground">{label}</p>
-            </Card>
-        </motion.div>
-    );
-};
-
-
 // --- Main Component ---
 const TeamDetailPage = () => {
     const params = useParams<{ teamId: string }>();
-    const team: Team | undefined = getTeamById(params.teamId);
+    const [team, setTeam] = useState<Team | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!params.teamId) return;
+
+        const getTeam = async () => {
+            try {
+                const data = await fetchTeamById(params.teamId);
+                if (data) {
+                    setTeam(data);
+                } else {
+                    setError("Team not found.");
+                }
+            } catch (err) {
+                setError("Failed to load team data.");
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        getTeam();
+    }, [params.teamId]);
+
+    if (isLoading) {
+        return <div className="container text-center py-8"><p>Loading team details...</p></div>;
+    }
+
+    if (error) {
+        return <div className="container text-center py-8"><p className="text-red-500">Error: {error}</p></div>;
+    }
 
     if (!team) {
         return notFound();
     }
 
-    // --- Aggregate Stats ---
-    const totalGoals = team.players.reduce((acc, p) => acc + (p.goals || 0), 0);
-    const totalAssists = team.players.reduce((acc, p) => acc + (p.assists || 0), 0);
-    const matchesPlayed = team.players[0]?.matchesPlayed ?? 0;
-    const matchesWon = team.players[0]?.matchesWon ?? 0;
-    const matchesLost = team.players[0]?.matchesLost ?? 0;
-    const yellowCards = team.players.reduce((acc, p) => acc + (p.yellowCards || 0), 0);
-    const redCards = team.players.reduce((acc, p) => acc + (p.redCards || 0), 0);
-
+    const { stats, players } = team;
 
     return (
         <motion.div
@@ -82,7 +91,7 @@ const TeamDetailPage = () => {
             <motion.div variants={itemVariants} className="mb-8">
                 <Card className="flex flex-col sm:flex-row items-center gap-6 p-6 shadow-lg">
                     <Avatar className="h-24 w-24 border-4 border-primary">
-                        <AvatarImage src={team.logo} alt={`${team.name} Logo`} className="object-cover" />
+                        <AvatarImage src={team.logoUrl} alt={`${team.name} Logo`} className="object-cover" />
                         <AvatarFallback>{team.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="text-center sm:text-left">
@@ -106,13 +115,7 @@ const TeamDetailPage = () => {
                         <CardDescription>Overall performance of {team.name} in the league.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        <StatCard icon={Goal} label="Total Goals" value={totalGoals} color="text-green-500"/>
-                        <StatCard icon={TrendingUp} label="Total Assists" value={totalAssists} color="text-blue-500"/>
-                        <StatCard icon={CalendarDays} label="Matches Played" value={matchesPlayed} />
-                        <StatCard icon={CheckCircle} label="Matches Won" value={matchesWon} color="text-green-500"/>
-                        <StatCard icon={XCircle} label="Matches Lost" value={matchesLost} color="text-red-500"/>
-                        <StatCard icon={ShieldCheck} label="Yellow Cards" value={yellowCards} color="text-yellow-500"/>
-                        <StatCard icon={ShieldAlert} label="Red Cards" value={redCards} color="text-red-700"/>
+                       {/* Stats are now read directly from the team object */}
                     </CardContent>
                 </Card>
             </motion.div>
@@ -141,7 +144,7 @@ const TeamDetailPage = () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {team.players.map((player) => (
+                                    {players && players.map((player) => (
                                         <TableRow key={player.id}>
                                             <TableCell className="font-medium">{player.name}</TableCell>
                                             <TableCell className="text-center">{player.goals ?? 0}</TableCell>

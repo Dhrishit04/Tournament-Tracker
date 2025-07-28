@@ -1,13 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ShieldCheck, Crown, Users, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { teams } from '@/lib/team-data';
+import { Team } from '@/types'; // Import the central Team type
+import { fetchTeams } from '@/lib/api'; // Import the fetch function
 
 // --- Animation Variants ---
 const containerVariants = {
@@ -26,6 +27,41 @@ const itemVariants = {
 
 // --- Component ---
 const TeamsPage: React.FC = () => {
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getTeams = async () => {
+      try {
+        const data = await fetchTeams();
+        setTeams(data);
+      } catch (err) {
+        setError("Failed to load teams.");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getTeams();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8 px-4 text-center">
+        <p className="text-muted-foreground">Loading teams...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-8 px-4 text-center">
+        <p className="text-red-500">Error: {error}</p>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className="container mx-auto py-8 px-4 sm:px-6 lg:px-8"
@@ -51,7 +87,7 @@ const TeamsPage: React.FC = () => {
               <Card className="h-full flex flex-col rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ease-in-out group">
                 <CardHeader className="flex flex-row items-center gap-4 p-4 bg-card/50">
                   <Avatar className="h-16 w-16 border-2 border-primary/50">
-                    <AvatarImage src={team.logo} alt={`${team.name} Logo`} className="object-cover" />
+                    <AvatarImage src={team.logoUrl} alt={`${team.name} Logo`} className="object-cover" />
                     <AvatarFallback>{team.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
@@ -69,10 +105,10 @@ const TeamsPage: React.FC = () => {
                         Team Roster
                     </h4>
                     <ul className="space-y-1 text-sm text-muted-foreground list-disc list-inside">
-                      {team.players.slice(0, 3).map((player) => (
+                      {team.players && team.players.slice(0, 3).map((player) => (
                         <li key={player.id}>{player.name}</li>
                       ))}
-                      {team.players.length > 3 && <li className="font-semibold">and {team.players.length - 3} more...</li>}
+                      {team.players && team.players.length > 3 && <li className="font-semibold">and {team.players.length - 3} more...</li>}
                     </ul>
                   </div>
                   <div className="mt-4 text-right">

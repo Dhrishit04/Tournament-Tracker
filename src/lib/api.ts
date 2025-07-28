@@ -9,13 +9,23 @@ const API_BASE_URL = "http://localhost:8080/api";
 export async function fetchTeams(): Promise<Team[]> {
   try {
     const response = await fetch(`${API_BASE_URL}/teams`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   } catch (error) {
     console.error("Error fetching teams:", error);
     return [];
+  }
+}
+
+export async function fetchTeamById(id: string): Promise<Team | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/teams/${id}`);
+    if (response.status === 404) return null;
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    console.error(`Error fetching team with id ${id}:`, error);
+    return null;
   }
 }
 

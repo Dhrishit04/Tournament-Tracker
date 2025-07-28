@@ -13,8 +13,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Player } from '@/types'; // Import the central Player type
-import { fetchPlayers } from '@/lib/api'; // Import the fetch function
+import { Player } from '@/types';
+import { fetchPlayers } from '@/lib/api';
 
 const positionMapping: { [key: string]: string } = {
   'FW': 'Forward',
@@ -34,7 +34,8 @@ const categoryColors: { [key: string]: string } = {
     '3★': 'border-orange-300 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 dark:border-orange-700',
 };
 
-function formatPosition(positions: string[]): string {
+function formatPosition(positions: string[] | undefined): string {
+  if (!positions) return 'N/A';
   return positions.map(p => positionMapping[p] || p).join(', ');
 }
 
@@ -173,7 +174,7 @@ export default function PlayersPage() {
                       <div className="space-y-1 p-3 bg-card rounded-md shadow-sm">
                         <h4 className="font-semibold text-sm flex items-center gap-1"><TrendingUp className="w-4 h-4 text-primary"/>Remarks</h4>
                         <ul className="text-muted-foreground list-disc list-inside">
-                          {player.remarks.map((remark, i) => <li key={i}>{remark}</li>)}
+                          {player.remarks && player.remarks.map((remark, i) => <li key={i}>{remark}</li>)}
                         </ul>
                       </div>
                     </div>
