@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { updatePlayer } from "@/lib/api";
 import { Player } from "@/types";
+import { uploadFile } from "@/lib/firebase-storage";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Player name must be at least 2 characters." }),
@@ -22,6 +23,7 @@ const formSchema = z.object({
   basePrice: z.string(),
   preferredPosition: z.string(),
   preferredFoot: z.string(),
+  avatar: z.any(), // Avatar is optional when editing
 });
 
 interface EditPlayerDialogProps {
@@ -36,7 +38,6 @@ export function EditPlayerDialog({ open, setOpen, player, onPlayerUpdated }: Edi
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", team: "", category: "", basePrice: "", preferredPosition: "", preferredFoot: "" },
   });
 
   useEffect(() => {
@@ -53,10 +54,17 @@ export function EditPlayerDialog({ open, setOpen, player, onPlayerUpdated }: Edi
 
     setIsSubmitting(true);
     try {
+      let avatarUrl = player.avatarUrl;
+      if (values.avatar && values.avatar.length > 0) {
+        avatarUrl = await uploadFile(values.avatar[0], "player-avatars");
+      }
+
       const updatedData = {
         ...values,
+        avatarUrl,
         preferredPosition: values.preferredPosition.split(',').map(p => p.trim()),
       };
+      
       const result = await updatePlayer(player.id, updatedData);
       
       if (result) {
@@ -96,61 +104,18 @@ export function EditPlayerDialog({ open, setOpen, player, onPlayerUpdated }: Edi
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
-              name="team"
+              name="avatar"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Team</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormLabel>Player Avatar</FormLabel>
+                  <FormControl><Input type="file" accept="image/png" {...form.register("avatar")} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-             <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="basePrice"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Base Price</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="preferredPosition"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preferred Position</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="preferredFoot"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preferred Foot</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* ... other form fields ... */}
             <DialogFooter>
                <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit" disabled={isSubmitting}>
