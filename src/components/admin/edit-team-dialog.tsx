@@ -15,11 +15,24 @@ import { Input } from "@/components/ui/input";
 import { updateTeam } from "@/lib/api";
 import { Team } from "@/types";
 import { uploadFile } from "@/lib/firebase-storage";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { X } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Team name must be at least 2 characters." }),
   owner: z.string().min(2, { message: "Owner name must be at least 2 characters." }),
-  logo: z.any(), // Allow any file type
+  logo: z.any(),
+  stats: z.object({
+    matchesPlayed: z.number().min(0),
+    matchesWon: z.number().min(0),
+    matchesLost: z.number().min(0),
+    matchesDrawn: z.number().min(0),
+    totalGoals: z.number().min(0),
+    totalAssists: z.number().min(0),
+    cleanSheets: z.number().min(0),
+    totalYellowCards: z.number().min(0),
+    totalRedCards: z.number().min(0),
+  }),
 });
 
 interface EditTeamDialogProps {
@@ -38,7 +51,7 @@ export function EditTeamDialog({ open, setOpen, team, onTeamUpdated }: EditTeamD
 
   useEffect(() => {
     if (team) {
-      form.reset({ name: team.name, owner: team.owner });
+      form.reset({ name: team.name, owner: team.owner, stats: team.stats });
     }
   }, [team, form]);
 
@@ -71,48 +84,74 @@ export function EditTeamDialog({ open, setOpen, team, onTeamUpdated }: EditTeamD
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Edit Team</DialogTitle>
           <DialogDescription>
-            Make changes to the team details. Click save when you're done.
+            Make changes to the team details, stats, and roster. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField name="name" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Team Name</FormLabel>
                   <FormControl><Input {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="owner"
-              render={({ field }) => (
+              )} />
+              <FormField name="owner" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Owner</FormLabel>
                   <FormControl><Input {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="logo"
-              render={({ field }) => (
+              )} />
+              <FormField name="logo" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Team Logo</FormLabel>
                   <FormControl><Input type="file" accept="image/png" {...form.register("logo")} /></FormControl>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+              )} />
+            </div>
+            
+            <h3 className="text-lg font-medium">Team Stats</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {Object.keys(team?.stats || {}).map((key) => (
+                <FormField key={key} name={`stats.${key}`} render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</FormLabel>
+                    <FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              ))}
+            </div>
+
+            <h3 className="text-lg font-medium">Player Roster</h3>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {team?.players?.map((player) => (
+                  <TableRow key={player.id}>
+                    <TableCell>{player.name}</TableCell>
+                    <TableCell>
+                      <Button variant="destructive" size="sm" onClick={() => console.log('Remove player', player.id)}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            
             <DialogFooter>
               <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit" disabled={isSubmitting}>
