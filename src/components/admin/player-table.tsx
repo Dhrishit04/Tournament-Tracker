@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,25 +26,44 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Player } from "@/types";
 import { AddPlayerDialog } from "./add-player-dialog";
+import { DeleteConfirmationDialog } from "./delete-confirmation-dialog";
+import { EditPlayerDialog } from "./edit-player-dialog";
+import { deletePlayer } from "@/lib/api";
 
 interface PlayerTableProps {
   players: Player[];
-  onPlayerAdded: () => void; // Callback to refresh the player list
+  onPlayerAdded: () => void;
 }
 
 export function PlayerTable({ players, onPlayerAdded }: PlayerTableProps) {
+  const { toast } = useToast();
   const [showAddPlayerDialog, setShowAddPlayerDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
 
-  // Placeholder for future edit functionality
-  const handleEdit = (player: Player) => {
-    console.log("Edit player:", player);
-    // Here you would typically open a dialog or form
+  const openEditDialog = (player: Player) => {
+    setSelectedPlayer(player);
+    setShowEditDialog(true);
   };
 
-  // Placeholder for future delete functionality
-  const handleDelete = (playerId: string) => {
-    console.log("Delete player with ID:", playerId);
-    // Implement actual deletion logic, then update state
+  const openDeleteDialog = (player: Player) => {
+    setSelectedPlayer(player);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedPlayer) return;
+
+    const success = await deletePlayer(selectedPlayer.id);
+    if (success) {
+      toast({ title: "Player deleted successfully!" });
+      onPlayerAdded(); // Refresh the list
+    } else {
+      toast({ title: "Failed to delete player.", variant: "destructive" });
+    }
+    setShowDeleteDialog(false);
+    setSelectedPlayer(null);
   };
 
   return (
@@ -55,6 +75,21 @@ export function PlayerTable({ players, onPlayerAdded }: PlayerTableProps) {
         </Button>
       </div>
       <AddPlayerDialog open={showAddPlayerDialog} setOpen={setShowAddPlayerDialog} onPlayerAdded={onPlayerAdded} />
+      <EditPlayerDialog
+        open={showEditDialog}
+        setOpen={setShowEditDialog}
+        player={selectedPlayer}
+        onPlayerUpdated={() => {
+          onPlayerAdded(); // Refresh list
+          setSelectedPlayer(null);
+        }}
+      />
+      <DeleteConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDeleteConfirm}
+        itemName={selectedPlayer?.name || ""}
+      />
 
       <Table>
         <TableHeader>
@@ -106,8 +141,8 @@ export function PlayerTable({ players, onPlayerAdded }: PlayerTableProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => handleEdit(player)}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDelete(player.id)}>Delete</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditDialog(player)}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openDeleteDialog(player)}>Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

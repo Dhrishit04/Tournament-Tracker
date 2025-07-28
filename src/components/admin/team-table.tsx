@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,26 +23,45 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Team } from "@/types";
-import { AddTeamDialog } from "./add-team-dialog"; // Import the new dialog
+import { AddTeamDialog } from "./add-team-dialog";
+import { DeleteConfirmationDialog } from "./delete-confirmation-dialog";
+import { EditTeamDialog } from "./edit-team-dialog";
+import { deleteTeam } from "@/lib/api";
 
 interface TeamTableProps {
   teams: Team[];
-  onTeamAdded: () => void; // Callback to refresh the team list
+  onTeamAdded: () => void;
 }
 
 export function TeamTable({ teams, onTeamAdded }: TeamTableProps) {
+  const { toast } = useToast();
   const [showAddTeamDialog, setShowAddTeamDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
-  // Handle edit operation (placeholder for now)
-  const handleEdit = (team: Team) => {
-    console.log("Edit team:", team);
-    // Implement dialog/form opening for editing
+  const openEditDialog = (team: Team) => {
+    setSelectedTeam(team);
+    setShowEditDialog(true);
   };
 
-  // Handle delete operation (placeholder for now)
-  const handleDelete = (teamId: string) => {
-    console.log("Delete team with ID:", teamId);
-    // Implement actual deletion logic, then update state
+  const openDeleteDialog = (team: Team) => {
+    setSelectedTeam(team);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedTeam) return;
+
+    const success = await deleteTeam(selectedTeam.id);
+    if (success) {
+      toast({ title: "Team deleted successfully!" });
+      onTeamAdded(); // Refresh the list
+    } else {
+      toast({ title: "Failed to delete team.", variant: "destructive" });
+    }
+    setShowDeleteDialog(false);
+    setSelectedTeam(null);
   };
 
   return (
@@ -53,6 +73,21 @@ export function TeamTable({ teams, onTeamAdded }: TeamTableProps) {
         </Button>
       </div>
       <AddTeamDialog open={showAddTeamDialog} setOpen={setShowAddTeamDialog} onTeamAdded={onTeamAdded} />
+      <EditTeamDialog
+        open={showEditDialog}
+        setOpen={setShowEditDialog}
+        team={selectedTeam}
+        onTeamUpdated={() => {
+          onTeamAdded(); // Refresh list
+          setSelectedTeam(null);
+        }}
+      />
+      <DeleteConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDeleteConfirm}
+        itemName={selectedTeam?.name || ""}
+      />
 
       <Table>
         <TableHeader>
@@ -99,8 +134,8 @@ export function TeamTable({ teams, onTeamAdded }: TeamTableProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => handleEdit(team)}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDelete(team.id)}>Delete</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditDialog(team)}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openDeleteDialog(team)}>Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

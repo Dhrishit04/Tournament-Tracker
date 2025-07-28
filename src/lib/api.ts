@@ -44,9 +44,9 @@ export async function addTeam(team: Omit<Team, 'id' | 'stats' | 'players'>): Pro
   }
 }
 
-export async function updateTeam(team: Team): Promise<Team | null> {
+export async function updateTeam(teamId: string, team: Partial<Team>): Promise<Team | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/teams/${team.id}`, {
+    const response = await fetch(`${API_BASE_URL}/teams/${teamId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(team),
@@ -96,5 +96,32 @@ export async function addPlayer(player: Omit<Player, 'id'>): Promise<Player | nu
   } catch (error) {
     console.error("Error adding player:", error);
     return null;
+  }
+}
+
+export async function updatePlayer(playerId: string, player: Partial<Player>): Promise<Player | null> {
+    try {
+        const response = await fetch(`${API_BASE_URL}/players/${playerId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(player),
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    } catch (error) {
+        console.error("Error updating player:", error);
+        return null;
+    }
+}
+
+export async function deletePlayer(playerId: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/players/${playerId}`, {
+      method: 'DELETE',
+    });
+    return response.ok;
+  } catch (error) {
+    console.error("Error deleting player:", error);
+    return false;
   }
 }
