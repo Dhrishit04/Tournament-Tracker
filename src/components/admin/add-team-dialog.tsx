@@ -13,17 +13,18 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { addTeam } from "@/lib/api";
+import { uploadFile } from "@/lib/firebase-storage";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Team name must be at least 2 characters." }),
   owner: z.string().min(2, { message: "Owner name must be at least 2 characters." }),
-  logoUrl: z.string().url({ message: "Please enter a valid URL for the logo." }),
+  logo: z.any().refine((files) => files?.length == 1, "Team logo is required."),
 });
 
 interface AddTeamDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  onTeamAdded: () => void; // Callback to refresh the team list
+  onTeamAdded: () => void;
 }
 
 export function AddTeamDialog({ open, setOpen, onTeamAdded }: AddTeamDialogProps) {
@@ -31,20 +32,20 @@ export function AddTeamDialog({ open, setOpen, onTeamAdded }: AddTeamDialogProps
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", owner: "", logoUrl: "" },
+    defaultValues: { name: "", owner: "" },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     try {
-      const newTeam = { ...values };
-      const result = await addTeam(newTeam);
+      const logoUrl = await uploadFile(values.logo[0], "team-logos");
+      const result = await addTeam({ ...values, logoUrl });
       
       if (result) {
         toast({ title: "Team added successfully!" });
         form.reset();
         setOpen(false);
-        onTeamAdded(); // Trigger the refresh callback
+        onTeamAdded();
       } else {
         toast({ title: "Failed to add team", variant: "destructive" });
       }
@@ -91,11 +92,11 @@ export function AddTeamDialog({ open, setOpen, onTeamAdded }: AddTeamDialogProps
             />
             <FormField
               control={form.control}
-              name="logoUrl"
+              name="logo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Logo URL</FormLabel>
-                  <FormControl><Input placeholder="e.g., /images/teams/rd.png" {...field} /></FormControl>
+                  <FormLabel>Team Logo</FormLabel>
+                  <FormControl><Input type="file" accept="image/png" {...form.register("logo")} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}

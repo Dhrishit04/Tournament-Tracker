@@ -14,11 +14,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { updateTeam } from "@/lib/api";
 import { Team } from "@/types";
+import { uploadFile } from "@/lib/firebase-storage";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Team name must be at least 2 characters." }),
   owner: z.string().min(2, { message: "Owner name must be at least 2 characters." }),
-  logoUrl: z.string().url({ message: "Please enter a valid URL for the logo." }),
+  logo: z.any(), // Allow any file type
 });
 
 interface EditTeamDialogProps {
@@ -33,12 +34,11 @@ export function EditTeamDialog({ open, setOpen, team, onTeamUpdated }: EditTeamD
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: "", owner: "", logoUrl: "" },
   });
 
   useEffect(() => {
     if (team) {
-      form.reset(team);
+      form.reset({ name: team.name, owner: team.owner });
     }
   }, [team, form]);
 
@@ -47,7 +47,12 @@ export function EditTeamDialog({ open, setOpen, team, onTeamUpdated }: EditTeamD
 
     setIsSubmitting(true);
     try {
-      const result = await updateTeam(team.id, values);
+      let logoUrl = team.logoUrl;
+      if (values.logo && values.logo.length > 0) {
+        logoUrl = await uploadFile(values.logo[0], "team-logos");
+      }
+
+      const result = await updateTeam(team.id, { ...values, logoUrl });
       
       if (result) {
         toast({ title: "Team updated successfully!" });
@@ -99,11 +104,11 @@ export function EditTeamDialog({ open, setOpen, team, onTeamUpdated }: EditTeamD
             />
             <FormField
               control={form.control}
-              name="logoUrl"
+              name="logo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Logo URL</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormLabel>Team Logo</FormLabel>
+                  <FormControl><Input type="file" accept="image/png" {...form.register("logo")} /></FormControl>
                   <FormMessage />
                 </FormItem>
               )}
