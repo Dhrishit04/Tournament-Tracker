@@ -14,10 +14,13 @@ export default function PlayersAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Combined function to fetch and set players
   const getPlayers = async () => {
+    setIsLoading(true);
     try {
       const data = await fetchPlayers();
       setPlayers(data);
+      setError(null);
     } catch (err) {
       setError("Failed to load players.");
       console.error(err);
@@ -27,9 +30,8 @@ export default function PlayersAdminPage() {
   };
 
   useEffect(() => {
-    setIsLoading(true);
     getPlayers();
-  }, []);
+  }, []); // Empty dependency array to run only on mount
 
   if (isLoading) {
     return (
@@ -54,7 +56,7 @@ export default function PlayersAdminPage() {
           <UserSquare className="w-6 h-6" />
           Player Management
         </h1>
-        <Button className="ml-auto" size="sm">
+        <Button className="ml-auto" size="sm" onClick={getPlayers}>
           <PlusCircle className="h-4 w-4 mr-2" />
           Add Player
         </Button>
