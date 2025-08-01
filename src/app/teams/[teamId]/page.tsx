@@ -1,17 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Team } from '@/types';
-import { fetchTeamById } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowLeft, Crown, Users, BarChart2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTeam } from '@/hooks/use-api';
 
 // --- Animation Variants ---
 const containerVariants = {
@@ -31,37 +29,14 @@ const itemVariants = {
 // --- Main Component ---
 const TeamDetailPage = () => {
     const params = useParams<{ teamId: string }>();
-    const [team, setTeam] = useState<Team | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!params.teamId) return;
-
-        const getTeam = async () => {
-            try {
-                const data = await fetchTeamById(params.teamId);
-                if (data) {
-                    setTeam(data);
-                } else {
-                    setError("Team not found.");
-                }
-            } catch (err) {
-                setError("Failed to load team data.");
-                console.error(err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        getTeam();
-    }, [params.teamId]);
+    const { team, isLoading, isError } = useTeam(params.teamId);
 
     if (isLoading) {
         return <div className="container text-center py-8"><p>Loading team details...</p></div>;
     }
 
-    if (error) {
-        return <div className="container text-center py-8"><p className="text-red-500">Error: {error}</p></div>;
+    if (isError) {
+        return <div className="container text-center py-8"><p className="text-red-500">Error: Failed to load team data.</p></div>;
     }
 
     if (!team) {

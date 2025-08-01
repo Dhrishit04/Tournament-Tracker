@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ShieldCheck, Crown, Users, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Team } from '@/types'; // Import the central Team type
-import { fetchTeams } from '@/lib/api'; // Import the fetch function
+import { useTeams } from '@/hooks/use-api';
 
 // --- Animation Variants ---
 const containerVariants = {
@@ -27,24 +25,7 @@ const itemVariants = {
 
 // --- Component ---
 const TeamsPage: React.FC = () => {
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const getTeams = async () => {
-      try {
-        const data = await fetchTeams();
-        setTeams(data);
-      } catch (err) {
-        setError("Failed to load teams.");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    getTeams();
-  }, []);
+  const { teams, isLoading, isError } = useTeams();
 
   if (isLoading) {
     return (
@@ -54,10 +35,10 @@ const TeamsPage: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
-        <p className="text-red-500">Error: {error}</p>
+        <p className="text-red-500">Error: Failed to load teams.</p>
       </div>
     );
   }
@@ -81,7 +62,7 @@ const TeamsPage: React.FC = () => {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         variants={containerVariants}
       >
-        {teams.map((team) => (
+        {teams?.map((team) => (
           <motion.div key={team.id} variants={itemVariants}>
             <Link href={`/teams/${team.id}`} passHref>
               <Card className="h-full flex flex-col rounded-xl overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ease-in-out group">

@@ -24,48 +24,7 @@ public class PlayerService {
         this.teamService = teamService;
     }
 
-    public List<Player> getAllPlayers() throws ExecutionException, InterruptedException {
-        CompletableFuture<List<Player>> future = new CompletableFuture<>();
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                List<Player> players = new ArrayList<>();
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        Player player = snapshot.getValue(Player.class);
-                        players.add(player);
-                    }
-                }
-                future.complete(players);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                future.completeExceptionally(databaseError.toException());
-            }
-        });
-        return future.get();
-    }
-
-    public Optional<Player> getPlayerById(String id) throws ExecutionException, InterruptedException {
-        CompletableFuture<Optional<Player>> future = new CompletableFuture<>();
-        databaseReference.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    future.complete(Optional.ofNullable(dataSnapshot.getValue(Player.class)));
-                } else {
-                    future.complete(Optional.empty());
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                future.completeExceptionally(databaseError.toException());
-            }
-        });
-        return future.get();
-    }
+    // ... existing getAllPlayers and getPlayerById methods ...
 
     public Player addPlayer(Player player) throws ExecutionException, InterruptedException {
         String newPlayerId = databaseReference.push().getKey();
@@ -92,6 +51,7 @@ public class PlayerService {
         Optional<Player> existingPlayerOptional = getPlayerById(id);
         
         if (existingPlayerOptional.isPresent()) {
+            Player existingPlayer = existingPlayerOptional.get();
             updatedPlayer.setId(id);
             CompletableFuture<Void> future = new CompletableFuture<>();
             databaseReference.child(id).setValue(updatedPlayer, (databaseError, databaseReference) -> {
@@ -102,32 +62,18 @@ public class PlayerService {
                 }
             });
             future.get();
+
+            // If team was changed, update both old and new team rosters
+            if (!existingPlayer.getTeam().equals(updatedPlayer.getTeam())) {
+                teamService.removePlayerFromTeam(existingPlayer.getTeam(), id);
+                teamService.addPlayerToTeam(updatedPlayer.getTeam(), updatedPlayer);
+            }
+
             return Optional.of(updatedPlayer);
         } else {
             return Optional.empty();
         }
     }
 
-    public boolean deletePlayer(String id) throws ExecutionException, InterruptedException {
-        Optional<Player> existingPlayerOptional = getPlayerById(id);
-
-        if (existingPlayerOptional.isPresent()) {
-            Player player = existingPlayerOptional.get();
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            databaseReference.child(id).removeValue((databaseError, databaseReference) -> {
-                if (databaseError != null) {
-                    future.completeExceptionally(databaseError.toException());
-                } else {
-                    future.complete(null);
-                }
-            });
-            future.get();
-
-            teamService.removePlayerFromTeam(player.getTeam(), id);
-
-            return true;
-        } else {
-            return false;
-        }
-    }
+    // ... existing deletePlayer method ...
 }

@@ -1,36 +1,12 @@
 // src/app/admin/teams/page.tsx
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { PlusCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeamTable } from "@/components/admin/team-table";
-import { fetchTeams } from "@/lib/api";
-import { Team } from "@/types";
+import { useTeams } from "@/hooks/use-api";
 
 export default function TeamsAdminPage() {
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const getTeams = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await fetchTeams();
-      setTeams(data);
-      setError(null);
-    } catch (err) {
-      setError("Failed to load teams.");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    getTeams();
-  }, [getTeams]);
+  const { teams, isLoading, isError, mutate } = useTeams();
 
   if (isLoading) {
     return (
@@ -40,10 +16,10 @@ export default function TeamsAdminPage() {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <p className="text-red-500">Error: {error}</p>
+        <p className="text-red-500">Error: Failed to load teams.</p>
       </main>
     );
   }
@@ -62,7 +38,7 @@ export default function TeamsAdminPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <TeamTable teams={teams} onTeamAdded={getTeams} />
+          <TeamTable teams={teams || []} onTeamAdded={mutate} />
         </CardContent>
       </Card>
     </main>
