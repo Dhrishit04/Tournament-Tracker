@@ -29,7 +29,7 @@ public class TeamController {
             return ResponseEntity.ok(teams);
         } catch (ExecutionException | InterruptedException e) {
             logger.error("Error fetching all teams: {}", e.getMessage());
-            Thread.currentThread().interrupt(); // Restore the interrupted status
+            Thread.currentThread().interrupt();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching teams from database.");
         }
     }
