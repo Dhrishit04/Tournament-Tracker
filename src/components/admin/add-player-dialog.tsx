@@ -19,7 +19,7 @@ import { Team } from "@/types";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Player name must be at least 2 characters." }),
-  team: z.string({ required_error: "Please select a team." }),
+  teamId: z.string({ required_error: "Please select a team." }),
   category: z.string({ required_error: "Please select a category." }),
   basePrice: z.string().min(1, { message: "Base price is required." }),
   preferredPosition: z.string().min(1, { message: "Position is required." }),
@@ -39,6 +39,7 @@ export function AddPlayerDialog({ open, setOpen, onPlayerAdded }: AddPlayerDialo
   const [teams, setTeams] = useState<Team[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: { name: "", basePrice: "", preferredPosition: "" },
   });
 
   useEffect(() => {
@@ -55,8 +56,9 @@ export function AddPlayerDialog({ open, setOpen, onPlayerAdded }: AddPlayerDialo
     setIsSubmitting(true);
     try {
       const avatarUrl = await uploadFile(values.avatar[0], "player-avatars");
+      const { avatar, ...playerData } = values;
       const result = await addPlayer({
-        ...values,
+        ...playerData,
         avatarUrl,
         preferredPosition: values.preferredPosition.split(',').map(p => p.trim()),
         remarks: [],
@@ -113,7 +115,7 @@ export function AddPlayerDialog({ open, setOpen, onPlayerAdded }: AddPlayerDialo
             />
             <FormField
               control={form.control}
-              name="team"
+              name="teamId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Team</FormLabel>
@@ -122,7 +124,7 @@ export function AddPlayerDialog({ open, setOpen, onPlayerAdded }: AddPlayerDialo
                       <SelectTrigger><SelectValue placeholder="Select a team" /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {teams.map(team => <SelectItem key={team.id} value={team.name}>{team.name}</SelectItem>)}
+                      {teams.map(team => <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   <FormMessage />

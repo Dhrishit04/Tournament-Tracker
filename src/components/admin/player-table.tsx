@@ -1,7 +1,7 @@
 // src/components/admin/player-table.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
@@ -24,11 +24,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Player } from "@/types";
+import { Player, Team } from "@/types";
 import { AddPlayerDialog } from "./add-player-dialog";
 import { DeleteConfirmationDialog } from "./delete-confirmation-dialog";
 import { EditPlayerDialog } from "./edit-player-dialog";
-import { deletePlayer } from "@/lib/api";
+import { deletePlayer, fetchTeams } from "@/lib/api";
 
 interface PlayerTableProps {
   players: Player[];
@@ -41,6 +41,20 @@ export function PlayerTable({ players, onPlayerAdded }: PlayerTableProps) {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [teams, setTeams] = useState<Team[]>([]);
+
+  useEffect(() => {
+    async function getTeams() {
+      const fetchedTeams = await fetchTeams();
+      setTeams(fetchedTeams);
+    }
+    getTeams();
+  }, []);
+
+  const getTeamName = (teamId: string) => {
+    const team = teams.find((t) => t.id === teamId);
+    return team ? team.name : "Unassigned";
+  };
 
   const openEditDialog = (player: Player) => {
     setSelectedPlayer(player);
@@ -124,7 +138,7 @@ export function PlayerTable({ players, onPlayerAdded }: PlayerTableProps) {
                 </Avatar>
               </TableCell>
               <TableCell className="font-medium">{player.name}</TableCell>
-              <TableCell>{player.team}</TableCell>
+              <TableCell>{getTeamName(player.teamId)}</TableCell>
               <TableCell>
                 <Badge variant="outline">{player.category}</Badge>
               </TableCell>

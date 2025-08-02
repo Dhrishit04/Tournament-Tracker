@@ -4,7 +4,7 @@
 export interface Player {
   id: string;
   name: string;
-  team: string;
+  teamId: string; // Changed from team to teamId
   category: string;
   basePrice: string;
   preferredPosition: string[];
@@ -46,7 +46,7 @@ export interface Team {
 
 // Match Information
 export interface Match {
-  id: string;
+  id:string;
   date: string | Date;
   time: string;
   homeTeam: Pick<Team, 'id' | 'name' | 'logoUrl'>;

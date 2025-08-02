@@ -13,8 +13,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Player } from '@/types';
-import { fetchPlayers } from '@/lib/api';
+import { Player, Team } from '@/types';
+import { fetchPlayers, fetchTeams } from '@/lib/api';
 
 const positionMapping: { [key: string]: string } = {
   'FW': 'Forward',
@@ -56,23 +56,31 @@ const itemVariants = {
 
 export default function PlayersPage() {
   const [players, setPlayers] = useState<Player[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const getPlayers = async () => {
+    const getData = async () => {
       try {
-        const data = await fetchPlayers();
-        setPlayers(data);
+        const [playerData, teamData] = await Promise.all([fetchPlayers(), fetchTeams()]);
+        setPlayers(playerData);
+        setTeams(teamData);
       } catch (err) {
-        setError("Failed to load players.");
+        setError("Failed to load data.");
         console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
-    getPlayers();
+    getData();
   }, []);
+  
+  const getTeamName = (teamId: string) => {
+    const team = teams.find((t) => t.id === teamId);
+    return team ? team.name : "Unassigned";
+  };
+
 
   if (isLoading) {
     return (
@@ -141,7 +149,7 @@ export default function PlayersPage() {
                           <span className="font-medium">{player.name}</span>
                           <div className="flex items-center gap-1 text-sm text-muted-foreground">
                              <Users className="w-3 h-3 text-muted-foreground"/>
-                            <span>{player.team}</span>
+                            <span>{getTeamName(player.teamId)}</span>
                           </div>
                         </div>
                       </div>
