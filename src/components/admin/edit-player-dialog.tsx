@@ -1,221 +1,117 @@
-// src/components/admin/edit-team-dialog.tsx
+// src/components/admin/edit-player-dialog.tsx
+"use client";
+
+import * as React from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Team, TeamStats } from "@/types";
-import { API_BASE_URL } from "@/lib/api";
-import { useTeam, useTeams } from "@/hooks/use-api";
+import { useSWRConfig } from "swr";
 
-// Combined schema for team details and stats
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { updatePlayer, fetchTeams } from "@/lib/api";
+import { Player, Team } from "@/types";
+
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Team name must be at least 2 characters." }),
-  owner: z.string().min(2, { message: "Owner name must be at least 2 characters." }),
-  logoUrl: z.string().url({ message: "Logo URL must be a valid URL." }),
-  matchesPlayed: z.coerce.number().min(0).default(0),
-  matchesWon: z.coerce.number().min(0).default(0),
-  matchesLost: z.coerce.number().min(0).default(0),
-  goalsFor: z.coerce.number().min(0).default(0),
-  goalsAgainst: z.coerce.number().min(0).default(0),
-  goalDifference: z.coerce.number().default(0),
-  points: z.coerce.number().default(0),
-  rank: z.coerce.number().default(0),
-  wins: z.coerce.number().min(0).default(0),
+  name: z.string().min(2, { message: "Player name must be at least 2 characters." }),
+  team: z.string({ required_error: "Please select a team." }),
+  category: z.string({ required_error: "Please select a category." }),
+  basePrice: z.string().min(1, { message: "Base price is required." }),
+  preferredPosition: z.string().min(1, { message: "Position is required." }),
+  preferredFoot: z.string({ required_error: "Please select a preferred foot." }),
 });
 
-interface EditTeamDialogProps {
-  team: Team;
+interface EditPlayerDialogProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  player: Player | null;
+  onPlayerUpdated: () => void;
 }
 
-export function EditTeamDialog({ team }: EditTeamDialogProps) {
-  const [open, setOpen] = useState(false);
+export function EditPlayerDialog({ open, setOpen, player, onPlayerUpdated }: EditPlayerDialogProps) {
   const { toast } = useToast();
-  const { mutate: mutateTeamsList } = useTeams();
-  const { mutate: mutateSingleTeam } = useTeam(team.id);
-
+  const { mutate } = useSWRConfig();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [teams, setTeams] = useState<Team[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
   useEffect(() => {
-    if (team) {
-      form.reset({
-        name: team.name,
-        owner: team.owner,
-        logoUrl: team.logoUrl,
-        matchesPlayed: team.stats?.matchesPlayed ?? 0,
-        matchesWon: team.stats?.matchesWon ?? 0,
-        matchesLost: team.stats?.matchesLost ?? 0,
-        goalsFor: team.stats?.goalsFor ?? 0,
-        goalsAgainst: team.stats?.goalsAgainst ?? 0,
-        goalDifference: team.stats?.goalDifference ?? 0,
-        points: team.stats?.points ?? 0,
-        rank: team.stats?.rank ?? 0,
-        wins: team.stats?.wins ?? 0,
-      });
+    async function getTeams() {
+      const fetchedTeams = await fetchTeams();
+      setTeams(fetchedTeams);
     }
-  }, [team, form, open]); // Reset form when dialog opens or team data changes
+    if (open) {
+      getTeams();
+      if (player) {
+        form.reset({
+          ...player,
+          preferredPosition: player.preferredPosition.join(', '),
+        });
+      }
+    }
+  }, [player, open, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!player) return;
+
+    setIsSubmitting(true);
     try {
-      const updatedTeam: Team = {
-        ...team, // Retain existing properties like id and players
-        name: values.name,
-        owner: values.owner,
-        logoUrl: values.logoUrl,
-        stats: {
-          matchesPlayed: values.matchesPlayed,
-          matchesWon: values.matchesWon,
-          matchesLost: values.matchesLost,
-          goalsFor: values.goalsFor,
-          goalsAgainst: values.goalsAgainst,
-          goalDifference: values.goalDifference,
-          points: values.points,
-          rank: values.rank,
-          wins: values.wins,
-        } as TeamStats,
-      };
-
-      const response = await fetch(`${API_BASE_URL}/teams/${team.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedTeam),
+      const result = await updatePlayer(player.id, {
+        ...values,
+        preferredPosition: values.preferredPosition.split(',').map(p => p.trim()),
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      toast({
-        title: "Team Updated!",
-        description: `Team "${updatedTeam.name}" has been successfully updated.`,
-      });
-
-      // Trigger revalidation of SWR caches
-      await mutateTeamsList();
-      await mutateSingleTeam();
       
-      setOpen(false);
+      if (result) {
+        toast({ title: "Player updated successfully!" });
+        
+        // Revalidate the caches for players and teams
+        mutate('api/players');
+        mutate('api/teams');
+
+        setOpen(false);
+        onPlayerUpdated();
+      } else {
+        toast({ title: "Failed to update player", variant: "destructive" });
+      }
     } catch (error) {
-      console.error("Failed to update team:", error);
-      toast({
-        title: "Error",
-        description: `Failed to update team. ${error instanceof Error ? error.message : String(error)}`,
-        variant: "destructive",
-      });
+      console.error("Error updating player:", error);
+      toast({ title: "An error occurred.", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">Edit</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Team: {team.name}</DialogTitle>
+          <DialogTitle>Edit Player</DialogTitle>
           <DialogDescription>
-            Make changes to the team details and stats. Click save when you're done.
+            Make changes to the player details. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Team Details */}
-              <div className="space-y-4">
-                <h4 className="font-semibold text-lg">Team Details</h4>
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Team Name</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="owner" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Owner</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="logoUrl" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Logo URL</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
-              {/* Team Stats */}
-              <div className="space-y-4">
-                <h4 className="font-semibold text-lg">Team Statistics</h4>
-                <FormField control={form.control} name="matchesPlayed" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Matches Played</FormLabel>
-                    <FormControl><Input type="number" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="matchesWon" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Matches Won</FormLabel>
-                    <FormControl><Input type="number" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="matchesLost" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Matches Lost</FormLabel>
-                    <FormControl><Input type="number" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="goalsFor" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Goals For</FormLabel>
-                    <FormControl><Input type="number" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                 <FormField control={form.control} name="goalsAgainst" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Goals Against</FormLabel>
-                    <FormControl><Input type="number" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                 <FormField control={form.control} name="points" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Points</FormLabel>
-                    <FormControl><Input type="number" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
-            </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* All form fields are included here */}
+            <FormField name="name" render={({ field }) => ( <FormItem><FormLabel>Player Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+            <FormField name="team" render={({ field }) => ( <FormItem><FormLabel>Team</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a team" /></SelectTrigger></FormControl><SelectContent>{teams.map(team => <SelectItem key={team.id} value={team.name}>{team.name}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem> )} />
+            <FormField name="category" render={({ field }) => ( <FormItem><FormLabel>Category</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger></FormControl><SelectContent><SelectItem value="5★">5★</SelectItem><SelectItem value="4★">4★</SelectItem><SelectItem value="3★">3★</SelectItem></SelectContent></Select><FormMessage /></FormItem> )} />
+            <FormField name="basePrice" render={({ field }) => ( <FormItem><FormLabel>Base Price</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+            <FormField name="preferredPosition" render={({ field }) => ( <FormItem><FormLabel>Preferred Position</FormLabel><FormControl><Input placeholder="e.g., FW, MID" {...field} /></FormControl><FormMessage /></FormItem> )} />
+            <FormField name="preferredFoot" render={({ field }) => ( <FormItem><FormLabel>Preferred Foot</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a foot" /></SelectTrigger></FormControl><SelectContent><SelectItem value="R">Right</SelectItem><SelectItem value="L">Left</SelectItem></SelectContent></Select><FormMessage /></FormItem> )} />
+            
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit">Save Changes</Button>
+               <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

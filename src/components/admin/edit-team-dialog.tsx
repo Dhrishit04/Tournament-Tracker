@@ -7,16 +7,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
+import { useSWRConfig } from "swr";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { updateTeam } from "@/lib/api";
+import { updateTeam, deletePlayer } from "@/lib/api";
 import { Team } from "@/types";
 import { uploadFile } from "@/lib/firebase-storage";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { X } from "lucide-react";
+import { DeleteConfirmationDialog } from "./delete-confirmation-dialog";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Team name must be at least 2 characters." }),
@@ -44,7 +46,10 @@ interface EditTeamDialogProps {
 
 export function EditTeamDialog({ open, setOpen, team, onTeamUpdated }: EditTeamDialogProps) {
   const { toast } = useToast();
+  const { mutate } = useSWRConfig();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [playerToRemove, setPlayerToRemove] = useState<string | null>(null);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -54,6 +59,21 @@ export function EditTeamDialog({ open, setOpen, team, onTeamUpdated }: EditTeamD
       form.reset({ name: team.name, owner: team.owner, stats: team.stats });
     }
   }, [team, form]);
+
+  async function handleRemovePlayer(playerId: string) {
+    if(!team) return;
+    const success = await deletePlayer(playerId);
+    if(success) {
+        toast({ title: "Player removed successfully!" });
+        mutate('api/teams');
+        mutate(`api/teams/${team.id}`);
+        mutate('api/players');
+        onTeamUpdated();
+    } else {
+        toast({ title: "Failed to remove player.", variant: "destructive" });
+    }
+    setPlayerToRemove(null);
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!team) return;
@@ -69,6 +89,8 @@ export function EditTeamDialog({ open, setOpen, team, onTeamUpdated }: EditTeamD
       
       if (result) {
         toast({ title: "Team updated successfully!" });
+        mutate('api/teams');
+        mutate(`api/teams/${team.id}`);
         setOpen(false);
         onTeamUpdated();
       } else {
@@ -83,84 +105,76 @@ export function EditTeamDialog({ open, setOpen, team, onTeamUpdated }: EditTeamD
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>Edit Team</DialogTitle>
-          <DialogDescription>
-            Make changes to the team details, stats, and roster. Click save when you're done.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField name="name" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Team Name</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField name="owner" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Owner</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-              <FormField name="logo" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Team Logo</FormLabel>
-                  <FormControl><Input type="file" accept="image/png" {...form.register("logo")} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-            </div>
-            
-            <h3 className="text-lg font-medium">Team Stats</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {Object.keys(team?.stats || {}).map((key) => (
-                <FormField key={key} name={`stats.${key}`} render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</FormLabel>
-                    <FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              ))}
-            </div>
-
-            <h3 className="text-lg font-medium">Player Roster</h3>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {team?.players?.map((player) => (
-                  <TableRow key={player.id}>
-                    <TableCell>{player.name}</TableCell>
-                    <TableCell>
-                      <Button variant="destructive" size="sm" onClick={() => console.log('Remove player', player.id)}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+    <>
+      <DeleteConfirmationDialog
+        open={!!playerToRemove}
+        onOpenChange={(isOpen) => !isOpen && setPlayerToRemove(null)}
+        onConfirm={() => handleRemovePlayer(playerToRemove!)}
+        itemName="player from this team"
+      />
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Edit Team</DialogTitle>
+            <DialogDescription>
+              Make changes to the team details, stats, and roster. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField name="name" render={({ field }) => ( <FormItem><FormLabel>Team Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                <FormField name="owner" render={({ field }) => ( <FormItem><FormLabel>Owner</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                <FormField name="logo" render={({ field }) => ( <FormItem><FormLabel>Team Logo</FormLabel><FormControl><Input type="file" accept="image/png" {...form.register("logo")} /></FormControl><FormMessage /></FormItem> )} />
+              </div>
+              
+              <h3 className="text-lg font-medium">Team Stats</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {Object.keys(team?.stats || {}).map((key) => (
+                  <FormField key={key} name={`stats.${key as keyof Team['stats']}`} render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</FormLabel>
+                      <FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value, 10) || 0)} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                 ))}
-              </TableBody>
-            </Table>
-            
-            <DialogFooter>
-              <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Save Changes"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+              </div>
+
+              <h3 className="text-lg font-medium">Player Roster</h3>
+              <div className="max-h-60 overflow-y-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {team?.players?.map((player) => (
+                      <TableRow key={player.id}>
+                        <TableCell>{player.name}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="destructive" size="sm" onClick={() => setPlayerToRemove(player.id)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              <DialogFooter>
+                <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Save Changes"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
