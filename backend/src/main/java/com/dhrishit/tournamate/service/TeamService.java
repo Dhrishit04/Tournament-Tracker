@@ -108,7 +108,7 @@ public class TeamService {
             return Optional.of(updatedTeam);
         } else {
             return Optional.empty();
-        }\
+        }
     }
 
     public boolean deleteTeam(String id) throws ExecutionException, InterruptedException {
