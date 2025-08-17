@@ -37,8 +37,5 @@ services:
       - ./backend:/app
       # Cache maven dependencies to speed up subsequent builds
       - ~/.m2:/root/.m2
-    # Set the environment variable to point to the service account key.
-    environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/serviceAccountKey.json
     # Override the Dockerfile's ENTRYPOINT and run the development server.
     command: mvn spring-boot:run

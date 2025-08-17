@@ -15,6 +15,9 @@ RUN mvn dependency:go-offline
 # Copy the rest of the source code
 COPY src ./src
 
+# Also copy the service account key into the builder stage
+COPY serviceAccountKey.json .
+
 # Compile the application and package it into a single, executable JAR file.
 RUN mvn package -DskipTests
 
@@ -27,6 +30,9 @@ WORKDIR /app
 
 # Copy the executable JAR file from the 'builder' stage
 COPY --from=builder /app/target/*.jar app.jar
+
+# Copy the service account key from the builder stage. It needs to be available on the classpath.
+COPY --from=builder /app/serviceAccountKey.json .
 
 # Expose the port that the Spring Boot application will run on
 EXPOSE 8080
