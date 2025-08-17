@@ -19,6 +19,7 @@ services:
       - /app/node_modules
     # Use the development command to run the Next.js dev server.
     command: npm run dev
+    
   # The Java Spring Boot Backend Service
   backend:
     # Build the image using the Dockerfile inside the 'backend' directory.
