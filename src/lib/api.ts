@@ -2,8 +2,9 @@
 
 import { Player, Team } from "@/types";
 
-// Use environment variable for API base URL, with a fallback for client-side execution
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "/api";
+// Always use the relative path for API calls.
+// Next.js will proxy these requests to the backend.
+const API_BASE_URL = "/api";
 
 // --- Team Functions ---
 
