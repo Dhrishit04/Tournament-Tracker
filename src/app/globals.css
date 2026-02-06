@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 230 20% 98%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 235 75% 15%; /* Deep Space Navy */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 235 20% 90%;
+    --secondary-foreground: 235 75% 15%;
+    --muted: 235 20% 95%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 16 100% 55%; /* Electric Orange */
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 235 20% 88%;
+    --input: 235 20% 88%;
+    --ring: 16 100% 55%;
+    --radius: 0.75rem;
+  }
+ 
+  .dark {
+    --background: 235 80% 2%; /* Ultra Deep Navy */
+    --foreground: 0 0% 98%;
+    --card: 235 60% 4%;
+    --card-foreground: 0 0% 98%;
+    --popover: 235 60% 4%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 235 80% 65%;
+    --primary-foreground: 235 80% 5%;
+    --secondary: 235 30% 10%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 235 30% 12%;
+    --muted-foreground: 235 20% 65%;
+    --accent: 16 100% 55%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 235 30% 15%;
+    --input: 235 30% 15%;
+    --ring: 16 100% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground selection:bg-accent selection:text-accent-foreground;
+  }
+}
+
+.glass-card {
+  @apply bg-card/60 backdrop-blur-md border-border/50;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/60;
+}

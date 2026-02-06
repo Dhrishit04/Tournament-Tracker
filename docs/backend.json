@@ -1,0 +1,187 @@
+
+{
+  "entities": {
+    "Player": {
+      "title": "Player",
+      "description": "A football player in the league.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "teamId": { "type": "string" },
+        "category": { "type": "string", "enum": ["A", "B", "C"] },
+        "basePrice": { "type": "string" },
+        "preferredPosition": { "type": "array", "items": { "type": "string" } },
+        "preferredFoot": { "type": "string" },
+        "age": { "type": "number" },
+        "remarks": { "type": "array", "items": { "type": "string" } },
+        "goals": { "type": "number" },
+        "assists": { "type": "number" },
+        "matchesPlayed": { "type": "number" },
+        "avatarUrl": { "type": "string" },
+        "yellowCards": { "type": "number" },
+        "redCards": { "type": "number" }
+      },
+      "required": ["name", "teamId", "category", "yellowCards", "redCards"]
+    },
+    "Team": {
+      "title": "Team",
+      "description": "A football team in the league.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "owner": { "type": "string" },
+        "logoUrl": { "type": "string" },
+        "group": { "type": "string", "description": "The group assigned to this team (A, B, C, etc.)" },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "totalGoals": { "type": "number" },
+            "totalAssists": { "type": "number" },
+            "matchesPlayed": { "type": "number" },
+            "matchesWon": { "type": "number" },
+            "matchesLost": { "type": "number" },
+            "matchesDrawn": { "type": "number" },
+            "goalsAgainst": { "type": "number" },
+            "totalYellowCards": { "type": "number" },
+            "totalRedCards": { "type": "number" }
+          }
+        }
+      },
+      "required": ["name", "owner", "logoUrl", "stats"]
+    },
+    "MatchEvent": {
+      "title": "Match Event",
+      "description": "An event that occurred during a match, like a goal or a card.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "minute": { "type": "number" },
+        "type": { "type": "string", "enum": ["Goal", "Assist", "Yellow Card", "Red Card", "Own Goal"] },
+        "playerId": { "type": "string" },
+        "teamId": { "type": "string" },
+        "playerName": { "type": "string" },
+        "linkedGoalId": { "type": "string" }
+      },
+      "required": ["id", "minute", "type", "playerId", "teamId", "playerName"]
+    },
+    "Match": {
+      "title": "Match",
+      "description": "A scheduled or finished match.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date-time" },
+        "time": { "type": "string" },
+        "homeTeamId": { "type": "string" },
+        "awayTeamId": { "type": "string" },
+        "homeScore": { "type": "number" },
+        "awayScore": { "type": "number" },
+        "status": { "type": "string", "enum": ["UPCOMING", "LIVE", "FINISHED", "POSTPONED"] },
+        "venue": { "type": "string" },
+        "events": {
+          "type": "array",
+          "items": { "$ref": "#/entities/MatchEvent" }
+        },
+        "stage": { "type": "string", "enum": ["GROUP_STAGE", "QUARTER_FINALS", "SEMI_FINALS", "FINALS", "OTHERS"] },
+        "description": { "type": "string" }
+      },
+      "required": ["date", "homeTeamId", "awayTeamId", "status"]
+    },
+    "MatchConfig": {
+        "title": "Match Config",
+        "description": "Configuration for match stages in a season.",
+        "type": "object",
+        "properties": {
+            "showGroupStage": { "type": "boolean" },
+            "showQuarterFinals": { "type": "boolean" },
+            "showOthers": { "type": "boolean" },
+            "isGroupModeActive": { "type": "boolean" },
+            "showVenue": { "type": "boolean" }
+        },
+        "required": ["showGroupStage", "showQuarterFinals", "showOthers", "isGroupModeActive", "showVenue"]
+    },
+    "SeasonConfig": {
+      "title": "Season Config",
+      "description": "Configuration for tournament seasons.",
+      "type": "object",
+      "properties": {
+        "currentSeasonId": { "type": "string" },
+        "isLoggingEnabled": { "type": "boolean" },
+        "seasons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "year": { "type": "number" },
+              "matchConfig": { "$ref": "#/entities/MatchConfig" }
+            },
+            "required": ["id", "name", "year", "matchConfig"]
+          }
+        },
+        "globalAnnouncement": {
+          "type": "object",
+          "properties": {
+            "message": { "type": "string" },
+            "isActive": { "type": "boolean" }
+          }
+        }
+      },
+      "required": ["currentSeasonId", "seasons"]
+    },
+    "AdminProfile": {
+      "title": "Admin Profile",
+      "description": "A registry of authorized regular admins.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "password": { "type": "string" },
+        "displayName": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "canAccessSettings": { "type": "boolean" }
+      },
+      "required": ["email", "password"]
+    },
+    "LogEntry": {
+      "title": "Log Entry",
+      "description": "An audit log of an administrative action.",
+      "type": "object",
+      "properties": {
+        "timestamp": { "type": "number" },
+        "adminEmail": { "type": "string" },
+        "action": { "type": "string" },
+        "details": { "type": "string" }
+      },
+      "required": ["timestamp", "adminEmail", "action", "details"]
+    }
+  },
+  "auth": {
+    "providers": ["password"]
+  },
+  "firestore": {
+    "/seasons/{seasonId}/players/{playerId}": {
+      "schema": { "$ref": "#/entities/Player" },
+      "description": "Stores individual player documents for a specific season."
+    },
+    "/seasons/{seasonId}/teams/{teamId}": {
+      "schema": { "$ref": "#/entities/Team" },
+      "description": "Stores individual team documents for a specific season."
+    },
+    "/seasons/{seasonId}/matches/{matchId}": {
+      "schema": { "$ref": "#/entities/Match" },
+      "description": "Stores individual match documents for a specific season."
+    },
+    "/config/app": {
+      "schema": { "$ref": "#/entities/SeasonConfig" },
+      "description": "Stores global application configuration."
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminProfile" },
+      "description": "Registry of regular administrators."
+    },
+    "/logs/{logId}": {
+      "schema": { "$ref": "#/entities/LogEntry" },
+      "description": "Centralized audit logs for monitoring admin activity."
+    }
+  }
+}

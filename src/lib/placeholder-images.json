@@ -1,0 +1,58 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-background",
+      "description": "A football stadium at night under bright lights",
+      "imageUrl": "https://images.unsplash.com/photo-1506626637585-0802df0d0269?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmb290YmFsbCUyMHN0YWRpdW18ZW58MHx8fHwxNzY5MDAxMDMzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "football stadium"
+    },
+    {
+      "id": "team-logo-1",
+      "description": "Team logo for Warriors FC",
+      "imageUrl": "https://images.unsplash.com/photo-1631607054640-876e1cd7ea27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0ZWFtJTIwbG9nb3xlbnwwfHx8fDE3Njg5MjIzNzd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team logo"
+    },
+    {
+      "id": "team-logo-2",
+      "description": "Team logo for Titans",
+      "imageUrl": "https://images.unsplash.com/photo-1599446740719-23f3414840ba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8dGVhbSUyMGxvZ298ZW58MHx8fHwxNzY4OTIyMzc3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team logo"
+    },
+    {
+      "id": "team-logo-3",
+      "description": "Team logo for Phoenix FC",
+      "imageUrl": "https://images.unsplash.com/photo-1758499535896-7be3b226d854?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx0ZWFtJTIwbG9nb3xlbnwwfHx8fDE3Njg5MjIzNzd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team logo"
+    },
+    {
+      "id": "team-logo-4",
+      "description": "Team logo for Gladiators",
+      "imageUrl": "https://images.unsplash.com/photo-1625392085233-3f10b25fac1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx0ZWFtJTIwbG9nb3xlbnwwfHx8fDE3Njg5MjIzNzd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team logo"
+    },
+    {
+      "id": "player-avatar-1",
+      "description": "Avatar for Alex Morgan",
+      "imageUrl": "https://images.unsplash.com/photo-1535043883-2548fb805573?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwbGF5ZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njg5OTMwMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "player portrait"
+    },
+    {
+      "id": "player-avatar-2",
+      "description": "Avatar for Ben Carter",
+      "imageUrl": "https://images.unsplash.com/photo-1691042138547-90995378b576?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwbGF5ZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njg5OTMwMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "player portrait"
+    },
+    {
+      "id": "player-avatar-3",
+      "description": "Avatar for Chris Evans",
+      "imageUrl": "https://images.unsplash.com/photo-1613002864483-7464b6bd442e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwbGF5ZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njg5OTMwMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "player portrait"
+    },
+    {
+      "id": "player-avatar-4",
+      "description": "Avatar for David Villa",
+      "imageUrl": "https://images.unsplash.com/photo-1755495523970-3f905e0266db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGF5ZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3Njg5OTMwMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "player portrait"
+    }
+  ]
+}

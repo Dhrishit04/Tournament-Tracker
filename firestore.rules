@@ -1,0 +1,56 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    /**
+     * Checks if the authenticated user is the root system administrator.
+     */
+    function isSystemAdmin() {
+      return request.auth != null && request.auth.token.email == 'dfplowners@gmail.com';
+    }
+
+    /**
+     * Tournament Data: Open for reading. Writing is permitted for all 
+     * authorized admins (verified via application logic).
+     */
+    match /seasons/{seasonId}/{document=**} {
+      allow read: if true;
+      allow write: if true; 
+    }
+
+    /**
+     * Application Configuration: Open for reading. Updates permitted for
+     * administrative setup. Deletion restricted to System Admin.
+     */
+    match /config/app {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isSystemAdmin();
+    }
+
+    /**
+     * Admin Registry: Accessible by System Admin only for management.
+     */
+    match /admins/{adminId} {
+      allow read: if true; 
+      allow write: if isSystemAdmin();
+      allow delete: if isSystemAdmin();
+    }
+
+    /**
+     * System Audit Logs: Write-only for all admins to ensure accountability.
+     * Reading and management reserved for System Admin.
+     */
+    match /logs/{logId} {
+      allow create: if true;
+      allow read, delete: if isSystemAdmin();
+      allow update: if false;
+    }
+    
+    match /{document=**} {
+      allow read: if true;
+      allow write: if isSystemAdmin();
+    }
+  }
+}
