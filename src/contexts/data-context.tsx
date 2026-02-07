@@ -171,7 +171,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     if (JSON.stringify(old.preferredPosition) !== JSON.stringify(player.preferredPosition)) {
         changes.push(`position: [${old.preferredPosition?.join(', ') || 'N/A'}] -> [${player.preferredPosition?.join(', ')}]`);
     }
-    if (old.avatarUrl !== player.avatarUrl) changes.push(`updated profile picture`);
     
     const details = changes.length > 0 ? `Modified profile for ${player.name} (${changes.join(', ')})` : `Modified profile for ${player.name}`;
 
@@ -226,7 +225,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     const changes: string[] = [];
     if (old.name !== team.name) changes.push(`name: "${old.name}" -> "${team.name}"`);
     if (old.owner !== team.owner) changes.push(`owner: "${old.owner}" -> "${team.owner}"`);
-    if (old.logoUrl !== team.logoUrl) changes.push(`updated logo`);
     
     const oldGrp = (old.group && old.group !== 'None') ? old.group : 'None';
     const newGrp = (team.group && team.group !== 'None') ? team.group : 'None';
@@ -304,6 +302,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     if (old.status !== updatedMatch.status) changes.push(`status: ${old.status} -> ${updatedMatch.status}`);
     if (old.stage !== updatedMatch.stage) changes.push(`stage: ${old.stage} -> ${updatedMatch.stage}`);
     if (old.time !== updatedMatch.time) changes.push(`time: ${old.time} -> ${updatedMatch.time}`);
+    if (old.venue !== updatedMatch.venue) changes.push(`venue: ${old.venue} -> ${updatedMatch.venue}`);
 
     const details = `Match update [${getTeamName(updatedMatch.homeTeamId)} vs ${getTeamName(updatedMatch.awayTeamId)}]: ${changes.join(', ')}`;
 
@@ -333,10 +332,222 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [firestore, seasonId, logAction, getTeamName]);
 
+  const addMatchEvent = async (matchId: string, event: Omit<MatchEvent, 'id'> & { id?: string }) => {
+    if (!firestore || !seasonId) return;
+    const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
+    const matchSnap = await getDoc(matchRef);
+    if (!matchSnap.exists()) return;
+    const match = { id: matchSnap.id, ...matchSnap.data() } as Match;
+
+    const eventId = event.id || `evt-${Date.now()}`;
+    const fullEvent = { ...event, id: eventId } as MatchEvent;
+
+    const batch = writeBatch(firestore);
+    batch.update(matchRef, { events: arrayUnion(fullEvent) });
+
+    if (event.type === 'Goal') {
+        const field = event.teamId === match.homeTeamId ? 'homeScore' : 'awayScore';
+        batch.update(matchRef, { [field]: increment(1) });
+    } else if (event.type === 'Own Goal') {
+        const field = event.teamId === match.homeTeamId ? 'awayScore' : 'homeScore';
+        batch.update(matchRef, { [field]: increment(1) });
+    }
+
+    applyStatChange(batch, firestore, seasonId, match, fullEvent, 1);
+
+    await batch.commit().then(() => {
+        logAction("ADD_MATCH_EVENT", `Recorded ${event.type} for ${event.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
+        toast({ title: 'Event Added', description: `${event.type} recorded successfully.` });
+    });
+  };
+
+  const updateMatchEvent = async (matchId: string, eventId: string, newEventData: Omit<MatchEvent, 'id'>) => {
+    if (!firestore || !seasonId) return;
+    const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
+    const matchSnap = await getDoc(matchRef);
+    if (!matchSnap.exists()) return;
+    const match = { id: matchSnap.id, ...matchSnap.data() } as Match;
+
+    const oldEvent = match.events?.find(e => e.id === eventId);
+    if (!oldEvent) return;
+
+    const batch = writeBatch(firestore);
+    const filteredEvents = match.events?.filter(e => e.id !== eventId) || [];
+    const updatedEvent = { ...newEventData, id: eventId } as MatchEvent;
+    batch.update(matchRef, { events: [...filteredEvents, updatedEvent] });
+
+    // Revert old scores
+    if (oldEvent.type === 'Goal') {
+        const field = oldEvent.teamId === match.homeTeamId ? 'homeScore' : 'awayScore';
+        batch.update(matchRef, { [field]: increment(-1) });
+    } else if (oldEvent.type === 'Own Goal') {
+        const field = oldEvent.teamId === match.homeTeamId ? 'awayScore' : 'homeScore';
+        batch.update(matchRef, { [field]: increment(-1) });
+    }
+    applyStatChange(batch, firestore, seasonId, match, oldEvent, -1);
+
+    // Apply new scores
+    if (updatedEvent.type === 'Goal') {
+        const field = updatedEvent.teamId === match.homeTeamId ? 'homeScore' : 'awayScore';
+        batch.update(matchRef, { [field]: increment(1) });
+    } else if (updatedEvent.type === 'Own Goal') {
+        const field = updatedEvent.teamId === match.homeTeamId ? 'awayScore' : 'homeScore';
+        batch.update(matchRef, { [field]: increment(1) });
+    }
+    applyStatChange(batch, firestore, seasonId, match, updatedEvent, 1);
+
+    await batch.commit().then(() => {
+        logAction("UPDATE_MATCH_EVENT", `Modified ${updatedEvent.type} for ${updatedEvent.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
+        toast({ title: 'Event Updated', description: 'Match timeline record updated.' });
+    });
+  };
+
+  const deleteMatchEvent = async (matchId: string, eventId: string) => {
+    if (!firestore || !seasonId) return;
+    const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
+    const matchSnap = await getDoc(matchRef);
+    if (!matchSnap.exists()) return;
+    const match = { id: matchSnap.id, ...matchSnap.data() } as Match;
+
+    const event = match.events?.find(e => e.id === eventId);
+    if (!event) return;
+
+    const batch = writeBatch(firestore);
+    batch.update(matchRef, { events: arrayRemove(event) });
+
+    if (event.type === 'Goal') {
+        const field = event.teamId === match.homeTeamId ? 'homeScore' : 'awayScore';
+        batch.update(matchRef, { [field]: increment(-1) });
+    } else if (event.type === 'Own Goal') {
+        const field = event.teamId === match.homeTeamId ? 'awayScore' : 'homeScore';
+        batch.update(matchRef, { [field]: increment(-1) });
+    }
+
+    applyStatChange(batch, firestore, seasonId, match, event, -1);
+
+    await batch.commit().then(() => {
+        logAction("DELETE_MATCH_EVENT", `Removed ${event.type} for ${event.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
+        toast({ title: 'Event Removed', description: 'Action reverted from match history.' });
+    });
+  };
+
+  const updateMatchStatus = async (matchId: string, newStatus: Match['status']) => {
+    if (!firestore || !seasonId) return;
+    const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
+    const matchSnap = await getDoc(matchRef);
+    if (!matchSnap.exists()) return;
+    const oldMatch = { id: matchSnap.id, ...matchSnap.data() } as Match;
+
+    const batch = writeBatch(firestore);
+    if (newStatus !== oldMatch.status) {
+        if (newStatus === 'FINISHED') updateTeamStatsForOutcome(batch, firestore, seasonId, oldMatch, 1);
+        if (oldMatch.status === 'FINISHED') updateTeamStatsForOutcome(batch, firestore, seasonId, oldMatch, -1);
+    }
+
+    batch.update(matchRef, { status: newStatus });
+
+    await batch.commit().then(() => {
+        logAction("UPDATE_MATCH_STATUS", `Changed Match Status to ${newStatus}: ${getTeamName(oldMatch.homeTeamId)} vs ${getTeamName(oldMatch.awayTeamId)}`);
+        toast({ title: 'Status Updated', description: `Match is now ${newStatus}.` });
+    });
+  };
+
+  const resetSeasonStats = async () => {
+    if (!firestore || !seasonId) return;
+    const batch = writeBatch(firestore);
+    
+    teams.forEach(t => {
+        batch.update(doc(firestore, 'seasons', seasonId, 'teams', t.id), {
+            stats: { totalGoals: 0, totalAssists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, matchesDrawn: 0, goalsAgainst: 0, totalYellowCards: 0, totalRedCards: 0 }
+        });
+    });
+
+    players.forEach(p => {
+        batch.update(doc(firestore, 'seasons', seasonId, 'players', p.id), {
+            goals: 0, assists: 0, matchesPlayed: 0, yellowCards: 0, redCards: 0
+        });
+    });
+
+    matches.forEach(m => {
+        batch.update(doc(firestore, 'seasons', seasonId, 'matches', m.id), {
+            status: 'UPCOMING', homeScore: 0, awayScore: 0, events: []
+        });
+    });
+
+    await batch.commit().then(() => {
+        logAction("RESET_SEASON", `Purged all performance metrics for ${currentSeason?.name}`);
+        toast({ title: 'Stats Reset', description: 'Season performance logs have been zeroed.' });
+    });
+  };
+
+  const wipeSeasonData = async () => {
+    if (!firestore || !seasonId) return;
+    const batch = writeBatch(firestore);
+    
+    players.forEach(p => batch.delete(doc(firestore, 'seasons', seasonId, 'players', p.id)));
+    teams.forEach(t => batch.delete(doc(firestore, 'seasons', seasonId, 'teams', t.id)));
+    matches.forEach(m => batch.delete(doc(firestore, 'seasons', seasonId, 'matches', m.id)));
+
+    await batch.commit().then(() => {
+        logAction("WIPE_SEASON", `Permanently erased all registries and fixtures for ${currentSeason?.name}`);
+        toast({ title: 'Data Wiped', description: 'All season records have been deleted.' });
+    });
+  };
+
+  const importSeasonPreset = async (sourceSeasonId: string) => {
+    if (!firestore || !seasonId) return;
+    const sourceTeams = await getDocs(collection(firestore, 'seasons', sourceSeasonId, 'teams'));
+    const sourcePlayers = await getDocs(collection(firestore, 'seasons', sourceSeasonId, 'players'));
+
+    const batch = writeBatch(firestore);
+    const sourceName = (await getDoc(doc(firestore, 'config', 'app'))).data()?.seasons?.find((s: any) => s.id === sourceSeasonId)?.name || sourceSeasonId;
+
+    sourceTeams.forEach(tDoc => {
+        const { id, ...data } = tDoc.data() as Team;
+        batch.set(doc(firestore, 'seasons', seasonId, 'teams', tDoc.id), {
+            ...data,
+            stats: { totalGoals: 0, totalAssists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, matchesDrawn: 0, goalsAgainst: 0, totalYellowCards: 0, totalRedCards: 0 }
+        });
+    });
+
+    sourcePlayers.forEach(pDoc => {
+        const { id, ...data } = pDoc.data() as Player;
+        batch.set(doc(firestore, 'seasons', seasonId, 'players', pDoc.id), {
+            ...data,
+            goals: 0, assists: 0, matchesPlayed: 0, yellowCards: 0, redCards: 0
+        });
+    });
+
+    await batch.commit().then(() => {
+        logAction("IMPORT_DATA", `Migrated rosters from ${sourceName} into ${currentSeason?.name}`);
+        toast({ title: 'Import Complete', description: `Rosters migrated from ${sourceName} successfully.` });
+    });
+  };
+
+  const resetGroups = async () => {
+    if (!firestore || !seasonId) return;
+    const batch = writeBatch(firestore);
+    teams.forEach(t => {
+        batch.update(doc(firestore, 'seasons', seasonId, 'teams', t.id), { group: 'None' });
+    });
+    await batch.commit().then(() => {
+        logAction("RESET_GROUPS", `Reverted all club group assignments to standalone for ${currentSeason?.name}`);
+        toast({ title: 'Groups Reset', description: 'All teams are now unassigned.' });
+    });
+  };
+
   const value: DataContextState = {
     players, teams, matches, loading, addPlayer, updatePlayer, deletePlayer, addTeam, updateTeam, deleteTeam, addMatch, updateMatch, deleteMatch, logAction,
-    addMatchEvent: async () => {}, updateMatchEvent: async () => {}, deleteMatchEvent: async () => {}, updateMatchStatus: async () => {}, resetSeasonStats: async () => {}, wipeSeasonData: async () => {}, importSeasonPreset: async () => {}, resetGroups: async () => {}
+    addMatchEvent, updateMatchEvent, deleteMatchEvent, updateMatchStatus, resetSeasonStats, wipeSeasonData, importSeasonPreset, resetGroups
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+};
+
+export const useData = (): DataContextState => {
+  const context = useContext(DataContext);
+  if (context === undefined) {
+    throw new Error('useData must be used within a DataProvider');
+  }
+  return context;
 };
