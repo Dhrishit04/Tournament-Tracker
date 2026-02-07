@@ -1,6 +1,6 @@
 run:
   cpu: 1
-  memoryMiB: 512
+  memoryMiB: 1024
   minInstances: 0
   maxInstances: 5
   region: [asia-south1]
