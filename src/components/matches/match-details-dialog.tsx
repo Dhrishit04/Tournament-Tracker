@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -17,7 +16,8 @@ import * as z from 'zod';
 import { type Player, type MatchEvent, type Match, type MatchStage } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useData } from '@/hooks/use-data';
-import { getImageUrl } from '@/lib/utils';
+import { cn, getImageUrl } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { PlusCircle, Goal, Footprints, Trash2, Pencil, CheckCircle2, Settings2, Timer, Sword } from 'lucide-react';
 import {
@@ -144,7 +144,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                 await addMatchEvent(match.id, { ...baseValues, id: goalEventId, teamId: player.teamId, playerName: player.name });
                 await addMatchEvent(match.id, { type: 'Assist', minute: values.minute, playerId: assister.id, teamId: assister.teamId, playerName: assister.name, linkedGoalId: goalEventId });
             } else {
-                await addMatchEvent(match.id, { ...baseValues, teamId: player.teamId, playerName: player.name });
+                await addMatchEvent(match.id, { ...baseValues, id: `evt-${Date.now()}`, teamId: player.teamId, playerName: player.name });
             }
         }
         resetEventForm();

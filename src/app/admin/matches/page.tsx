@@ -1,8 +1,7 @@
-
 'use client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Edit, Trash2, Clock, Timer, CheckCircle2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Clock, Timer } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -14,7 +13,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -43,11 +41,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Match, Team, MatchStage, MatchConfig, StageTiming } from '@/types';
+import type { Match, Team, MatchStage, MatchConfig } from '@/types';
 import { useData } from '@/hooks/use-data';
 import { useSeason } from '@/contexts/season-context';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 const matchSchema = z.object({
   homeTeamId: z.string().min(1, 'Home team is required'),
@@ -211,7 +209,6 @@ function MatchForm({
   match,
   onClose,
   teams,
-  matches,
 }: {
   onSubmit: (data: z.infer<typeof matchSchema>) => void;
   match?: Match | null;
