@@ -71,7 +71,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     return () => unsubscribe();
   }, [fbAuth, firestore]);
 
-  // Real-time Registry Listener (Handles both Elevation and Revocation)
+  // Real-time Registry Listener 
   useEffect(() => {
     if (!firestore || !user || user.role === 'SYSTEM_ADMIN') return;
 
@@ -83,7 +83,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
             setUser(prev => {
                 if (!prev || prev.id !== user.id) return prev;
                 
-                // If privileges changed (elevated or revoked), update immediately
+                // If privileges changed; update immediately
                 if (data.canAccessSettings !== prev.canAccessSettings) {
                     const updated = { ...prev, canAccessSettings: !!data.canAccessSettings };
                     localStorage.setItem('dfpl_admin_session', JSON.stringify(updated));
