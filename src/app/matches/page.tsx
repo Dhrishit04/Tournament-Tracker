@@ -21,7 +21,7 @@ function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { matc
   const awayTeam = teams.find(t => t.id === match.awayTeamId);
 
   if (!homeTeam || !awayTeam) {
-    return <Card><CardContent className="h-[210px]"><Skeleton className="h-full w-full" /></CardContent></Card>;
+    return <Card className="h-full"><CardContent className="h-[210px]"><Skeleton className="h-full w-full" /></CardContent></Card>;
   }
 
   const homeLogo = getImageUrl(homeTeam.logoUrl);
@@ -29,7 +29,7 @@ function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { matc
   const groupName = isGroupMode && match.stage === 'GROUP_STAGE' ? homeTeam.group : null;
 
   return (
-    <Card className="hover:shadow-md transition-shadow flex flex-col">
+    <Card className="hover:shadow-md transition-shadow flex flex-col h-full overflow-hidden">
        <div className="flex-grow cursor-pointer" onClick={() => onCardClick(match)}>
         <CardHeader className="pb-2 pt-4 px-4">
             <div className="flex justify-between items-start text-xs text-muted-foreground w-full">
@@ -43,38 +43,42 @@ function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { matc
                     <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-primary border-primary/30">Group {groupName}</Badge>
                 </div>
             )}
-            <div className="flex items-center justify-center gap-2">
-                <div className="flex-1 flex flex-col items-center text-center gap-2">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden border">
+            <div className="flex items-center justify-center gap-2 w-full">
+                <div className="flex-1 min-w-0 flex flex-col items-center text-center gap-2">
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden border shrink-0">
                         <Image src={homeLogo.imageUrl} alt={homeTeam.name} fill className="object-cover" data-ai-hint={homeLogo.imageHint}/>
                     </div>
-                    <span className="font-semibold text-sm truncate w-full">{homeTeam.name}</span>
+                    <span className="font-bold text-xs sm:text-sm truncate w-full block leading-tight" title={homeTeam.name}>{homeTeam.name}</span>
                 </div>
-                <div className="text-xl font-bold text-center px-1">
+                
+                <div className="shrink-0 min-w-[60px] text-center px-1">
                     {match.status === 'FINISHED' || match.status === 'LIVE' ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-1.5 text-lg font-black font-mono">
                         <span>{match.homeScore ?? '0'}</span>
-                        <span className="text-muted-foreground/30">-</span>
+                        <span className="text-muted-foreground/30 font-sans font-normal">-</span>
                         <span>{match.awayScore ?? '0'}</span>
                     </div>
                     ) : (
-                    <span className="text-lg text-muted-foreground whitespace-nowrap">{match.time}</span>
+                    <span className="text-xs sm:text-sm font-bold text-muted-foreground whitespace-nowrap bg-secondary/50 px-2 py-1 rounded">
+                        {match.time}
+                    </span>
                     )}
                 </div>
-                <div className="flex-1 flex flex-col items-center text-center gap-2">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden border">
+
+                <div className="flex-1 min-w-0 flex flex-col items-center text-center gap-2">
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden border shrink-0">
                         <Image src={awayLogo.imageUrl} alt={awayTeam.name} fill className="object-cover" data-ai-hint={awayLogo.imageHint} />
                     </div>
-                    <span className="font-semibold text-sm truncate w-full">{awayTeam.name}</span>
+                    <span className="font-bold text-xs sm:text-sm truncate w-full block leading-tight" title={awayTeam.name}>{awayTeam.name}</span>
                 </div>
             </div>
             {showVenue && match.venue && (
-                <p className="text-center text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-4">{match.venue}</p>
+                <p className="text-center text-[9px] uppercase font-black tracking-[0.15em] text-muted-foreground/60 mt-4 truncate px-2">{match.venue}</p>
             )}
         </CardContent>
       </div>
        {match.stage === 'OTHERS' && match.description && (
-            <div className="text-center text-xs text-muted-foreground mt-1 mb-4 border-t mx-6 pt-3 italic">
+            <div className="text-center text-[10px] text-muted-foreground mt-auto mb-4 border-t mx-6 pt-3 italic line-clamp-2">
                 {match.description}
             </div>
        )}
@@ -88,7 +92,7 @@ function LoadingSkeleton() {
              <Skeleton className="h-10 w-1/3 mb-4" />
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[...Array(3)].map((_, i) => (
-                    <Card key={i}>
+                    <Card key={i} className="h-full">
                         <CardHeader className="pb-2">
                             <div className="flex justify-between items-center">
                                 <Skeleton className="h-4 w-24"/>
@@ -193,7 +197,7 @@ export default function MatchesPage() {
                                   {upcoming.length > 0 && (
                                       <div className="mb-8">
                                           <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Fixtures</p>
-                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
                                               {upcoming.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={true} showVenue={showVenue} />)}
                                           </div>
                                       </div>
@@ -201,7 +205,7 @@ export default function MatchesPage() {
                                   {finished.length > 0 && (
                                       <div>
                                           <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Results</p>
-                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
                                               {finished.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={true} showVenue={showVenue} />)}
                                           </div>
                                       </div>
@@ -222,7 +226,7 @@ export default function MatchesPage() {
                 {upcoming.length > 0 && (
                     <div className="mb-8">
                         <h3 className="text-xl font-semibold mb-4 text-muted-foreground">Fixtures</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
                             {upcoming.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={false} showVenue={showVenue} />)}
                         </div>
                     </div>
@@ -230,7 +234,7 @@ export default function MatchesPage() {
                  {finished.length > 0 && (
                     <div>
                         <h3 className="text-xl font-semibold mb-4 text-muted-foreground">Results</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
                            {finished.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={false} showVenue={showVenue} />)}
                         </div>
                     </div>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -144,7 +143,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             const eventData = { ...baseValues, teamId: player.teamId, playerName: player.name };
             await updateMatchEvent(match.id, editingEvent.id, eventData);
 
-            // Handle linked assist logic during Goal updates
             if (editingEvent.type === 'Goal') {
                 const oldAssist = match.events?.find(e => e.type === 'Assist' && e.linkedGoalId === editingEvent.id);
                 
@@ -152,7 +150,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                     const assister = players.find(p => p.id === assisterId);
                     if (assister) {
                         if (oldAssist) {
-                            // Update existing linked assist
                             await updateMatchEvent(match.id, oldAssist.id, {
                                 type: 'Assist',
                                 minute: values.minute,
@@ -162,7 +159,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                 linkedGoalId: editingEvent.id
                             });
                         } else {
-                            // Create new assist for this existing goal
                             await addMatchEvent(match.id, {
                                 type: 'Assist',
                                 minute: values.minute,
@@ -174,7 +170,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                         }
                     }
                 } else if (oldAssist) {
-                    // Assist was removed during goal edit (Solo Goal conversion)
                     await deleteMatchEvent(match.id, oldAssist.id);
                 }
             }
@@ -215,7 +210,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             description: values.description,
         };
         
-        // DataContext.updateMatch now handles both status transitions and smart logging
         await updateMatch(updatedMatch);
         setShowSettingsForm(false);
         toast({ title: "Updated", description: "Match details saved successfully." });
@@ -249,8 +243,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     const handleDeleteConfirm = async () => {
         if (eventToDelete) {
             await deleteMatchEvent(match.id, eventToDelete.id);
-            
-            // If deleting a goal, also delete its linked assist automatically
             if (eventToDelete.type === 'Goal') {
                 const linkedAssist = match.events?.find(e => e.type === 'Assist' && e.linkedGoalId === eventToDelete.id);
                 if (linkedAssist) {
@@ -362,14 +354,14 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-2">
             <div className="flex flex-col items-center justify-center bg-secondary/5 p-4 rounded-xl border border-border/40">
-                 <div className="flex items-center justify-around w-full mb-6">
-                    <div className="flex flex-col items-center w-[40%] text-center">
-                        <div className="relative w-16 h-16 rounded-full overflow-hidden mb-2 border border-primary/20 shadow-sm">
+                 <div className="flex items-center justify-around w-full mb-6 gap-2">
+                    <div className="flex flex-col items-center w-[40%] text-center min-w-0">
+                        <div className="relative w-16 h-16 rounded-full overflow-hidden mb-2 border border-primary/20 shadow-sm shrink-0">
                         <Image src={homeLogo.imageUrl} alt={homeTeam.name} fill className="object-cover" data-ai-hint={homeLogo.imageHint}/>
                         </div>
-                        <span className="font-bold text-sm leading-tight">{homeTeam.name}</span>
+                        <span className="font-bold text-sm leading-tight truncate w-full" title={homeTeam.name}>{homeTeam.name}</span>
                     </div>
-                    <div className="text-4xl font-black font-mono tracking-tighter flex items-center gap-2">
+                    <div className="text-4xl font-black font-mono tracking-tighter flex items-center gap-2 shrink-0">
                         {match.status === 'FINISHED' || match.status === 'LIVE' ? (
                         <>
                             <span>{match.homeScore ?? 0}</span>
@@ -380,20 +372,20 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                         <span className="text-base text-muted-foreground font-sans font-medium uppercase tracking-widest">{match.time}</span>
                         )}
                     </div>
-                    <div className="flex flex-col items-center w-[40%] text-center">
-                        <div className="relative w-16 h-16 rounded-full overflow-hidden mb-2 border border-primary/20 shadow-sm">
+                    <div className="flex flex-col items-center w-[40%] text-center min-w-0">
+                        <div className="relative w-16 h-16 rounded-full overflow-hidden mb-2 border border-primary/20 shadow-sm shrink-0">
                         <Image src={awayLogo.imageUrl} alt={awayTeam.name} fill className="object-cover" data-ai-hint={awayLogo.imageHint} />
                         </div>
-                        <span className="font-bold text-sm leading-tight">{awayTeam.name}</span>
+                        <span className="font-bold text-sm leading-tight truncate w-full" title={awayTeam.name}>{awayTeam.name}</span>
                     </div>
                 </div>
                 {isAdmin && match.status === 'LIVE' && (
-                    <Button onClick={handleDeclareMatch} className="bg-green-600 hover:bg-green-700 w-full font-bold h-10">
+                    <Button onClick={handleDeclareMatch} className="bg-green-600 hover:bg-green-700 w-full font-bold h-10 mt-4">
                         <CheckCircle2 className="mr-2 h-4 w-4" /> Declare Result
                     </Button>
                 )}
                 {match.status === 'FINISHED' && (
-                    <div className="flex items-center gap-2 text-muted-foreground font-bold uppercase text-[10px] tracking-[0.2em] bg-secondary/50 px-4 py-1.5 rounded-full border border-border/40">
+                    <div className="flex items-center gap-2 text-muted-foreground font-bold uppercase text-[10px] tracking-[0.2em] bg-secondary/50 px-4 py-1.5 rounded-full border border-border/40 mt-4">
                         <CheckCircle2 className="h-3 w-3 text-green-500" /> Full Time
                     </div>
                 )}
@@ -444,12 +436,12 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                             <FormControl><SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select..."/></SelectTrigger></FormControl>
                                             <SelectContent>
                                                 <SelectGroup>
-                                                    <SelectLabel className="text-[10px] font-bold text-primary uppercase tracking-wider">{getTeamName(homeTeam.id)}</SelectLabel>
+                                                    <SelectLabel className="text-[10px] font-bold text-primary uppercase tracking-wider truncate max-w-[200px]">{getTeamName(homeTeam.id)}</SelectLabel>
                                                     {homePlayers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                                                 </SelectGroup>
                                                 <Separator className="my-1" />
                                                 <SelectGroup>
-                                                    <SelectLabel className="text-[10px] font-bold text-primary uppercase tracking-wider">{getTeamName(awayTeam.id)}</SelectLabel>
+                                                    <SelectLabel className="text-[10px] font-bold text-primary uppercase tracking-wider truncate max-w-[200px]">{getTeamName(awayTeam.id)}</SelectLabel>
                                                     {awayPlayers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                                                 </SelectGroup>
                                             </SelectContent>
@@ -467,13 +459,13 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                     <SelectItem value="none">None (Solo)</SelectItem>
                                                     {playerTeamId === homeTeam.id && (
                                                         <SelectGroup>
-                                                            <SelectLabel className="text-[10px] font-bold uppercase text-primary">{getTeamName(homeTeam.id)}</SelectLabel>
+                                                            <SelectLabel className="text-[10px] font-bold uppercase text-primary truncate max-w-[200px]">{getTeamName(homeTeam.id)}</SelectLabel>
                                                             {homePlayers.filter(p => p.id !== selectedPlayerId).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                                                         </SelectGroup>
                                                     )}
                                                     {playerTeamId === awayTeam.id && (
                                                         <SelectGroup>
-                                                            <SelectLabel className="text-[10px] font-bold uppercase text-primary">{getTeamName(awayTeam.id)}</SelectLabel>
+                                                            <SelectLabel className="text-[10px] font-bold uppercase text-primary truncate max-w-[200px]">{getTeamName(awayTeam.id)}</SelectLabel>
                                                             {awayPlayers.filter(p => p.id !== selectedPlayerId).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                                                         </SelectGroup>
                                                     )}
@@ -495,20 +487,20 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                 return (
                                     <div key={event.id} className="flex items-center gap-2 text-xs group animate-in fade-in slide-in-from-left-2">
                                         <span className="font-mono w-6 text-[10px] text-muted-foreground">{event.minute}'</span>
-                                        <div className="bg-secondary/20 p-1 rounded-md"><EventIcon type={event.type} /></div>
+                                        <div className="bg-secondary/20 p-1 rounded-md shrink-0"><EventIcon type={event.type} /></div>
                                         <div className="flex flex-col min-w-0 flex-1">
                                             <div className="flex flex-wrap items-baseline gap-x-1.5">
-                                                <span className="font-bold leading-tight">{event.playerName}</span>
+                                                <span className="font-bold leading-tight truncate">{event.playerName}</span>
                                                 {linkedGoal && (
                                                     <span className="text-[9px] text-muted-foreground font-normal whitespace-nowrap">
                                                         (Goal: {linkedGoal.playerName} - {linkedGoal.minute}')
                                                     </span>
                                                 )}
                                             </div>
-                                            <span className="text-[9px] text-muted-foreground uppercase font-medium">{getTeamName(event.teamId)}</span>
+                                            <span className="text-[9px] text-muted-foreground uppercase font-medium truncate">{getTeamName(event.teamId)}</span>
                                         </div>
                                         {isAdmin && event.type !== 'Assist' && (
-                                            <div className="flex items-center gap-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center gap-0 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleEditClick(event)}><Pencil className="h-3 w-3"/></Button>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
