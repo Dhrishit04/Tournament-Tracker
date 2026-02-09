@@ -19,6 +19,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Restore session from localStorage on initial mount
   useEffect(() => {
     const savedUser = localStorage.getItem('dfpl_admin_session');
     if (savedUser && !user) {
@@ -26,6 +27,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, []);
 
+  // Monitor Firebase Auth State (Primary for System Admin)
   useEffect(() => {
     if (!fbAuth || !firestore) return;
 
@@ -38,6 +40,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
           role = 'SYSTEM_ADMIN';
           canAccessSettings = true;
         } else {
+          // Regular admins are managed via the Registry (Firestore)
           const adminDoc = await getDoc(doc(firestore, 'admins', firebaseUser.uid));
           if (adminDoc.exists()) {
             role = 'ADMIN';
@@ -49,6 +52,8 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
         setUser(newUser);
         localStorage.setItem('dfpl_admin_session', JSON.stringify(newUser));
       } else {
+        // If Auth clears, only clear the session if it belonged to the System Admin
+        // Regular admins (virtual) handle their own logout
         const session = localStorage.getItem('dfpl_admin_session');
         if (session && JSON.parse(session).role === 'SYSTEM_ADMIN') {
             setUser(null);
@@ -61,48 +66,68 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     return () => unsubscribe();
   }, [fbAuth, firestore]);
 
+  // Real-time Registry Listener (Primary for Regular Admins)
+  // This ensures that privilege elevation or account revocation happens instantly
   useEffect(() => {
     if (!firestore || !user || user.role === 'SYSTEM_ADMIN') return;
+
     const unsubscribe = onSnapshot(doc(firestore, 'admins', user.id), (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.data();
+            // Detect and apply privilege changes in real-time
             if (data.canAccessSettings !== user.canAccessSettings) {
-                const updated = { ...user, canAccessSettings: data.canAccessSettings };
-                setUser(updated);
-                localStorage.setItem('dfpl_admin_session', JSON.stringify(updated));
+                const updatedUser = { ...user, canAccessSettings: data.canAccessSettings || false };
+                setUser(updatedUser);
+                localStorage.setItem('dfpl_admin_session', JSON.stringify(updatedUser));
             }
         } else {
+            // Document deleted: Revoke session immediately
             setUser(null);
             localStorage.removeItem('dfpl_admin_session');
         }
+    }, (error) => {
+        console.error("Registry listener failure:", error);
     });
+
     return () => unsubscribe();
-  }, [firestore, user?.id]);
+  }, [firestore, user?.id, user?.canAccessSettings]);
 
   const login = useCallback(
     async (email: string, password: string): Promise<void> => {
       if (!fbAuth || !firestore) throw new Error('Services not initialized');
+      
       try {
+        // Attempt Firebase Auth Login (System Admin path)
         await signInWithEmailAndPassword(fbAuth, email, password);
       } catch (e) {
-        const q = query(collection(firestore, 'admins'), where('email', '==', email.toLowerCase().trim()), where('password', '==', password));
+        // Fallback: Registry-based login (Regular Admin path)
+        const q = query(
+          collection(firestore, 'admins'), 
+          where('email', '==', email.toLowerCase().trim()), 
+          where('password', '==', password)
+        );
         const snap = await getDocs(q);
+        
         if (!snap.empty) {
-          const doc = snap.docs[0];
-          const data = doc.data();
-          const virtualUser: User = { id: doc.id, email: email.toLowerCase().trim(), role: 'ADMIN', canAccessSettings: data.canAccessSettings || false };
+          const adminDoc = snap.docs[0];
+          const data = adminDoc.data();
+          const virtualUser: User = { 
+            id: adminDoc.id, 
+            email: email.toLowerCase().trim(), 
+            role: 'ADMIN', 
+            canAccessSettings: data.canAccessSettings || false 
+          };
           setUser(virtualUser);
           localStorage.setItem('dfpl_admin_session', JSON.stringify(virtualUser));
           return;
         }
-        throw e;
+        throw e; // Standard Auth failure
       }
     }, [fbAuth, firestore]
   );
 
   const logout = useCallback(async () => {
-    if (!fbAuth) return;
-    await signOut(fbAuth);
+    if (fbAuth) await signOut(fbAuth);
     setUser(null);
     localStorage.removeItem('dfpl_admin_session');
   }, [fbAuth]);
@@ -111,7 +136,9 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     user,
     isAdmin: user?.role === 'ADMIN' || user?.role === 'SYSTEM_ADMIN',
     isSystemAdmin: user?.role === 'SYSTEM_ADMIN',
-    login, logout, loading,
+    login, 
+    logout, 
+    loading,
   };
 
   return <AuthContext.Provider value={authState}>{children}</AuthContext.Provider>;
