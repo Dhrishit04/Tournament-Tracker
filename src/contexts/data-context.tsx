@@ -25,7 +25,7 @@ export interface DataContextState {
   updateMatch: (match: Match) => Promise<void>;
   deleteMatch: (matchId: string) => Promise<void>;
   addMatchEvent: (matchId: string, event: Omit<MatchEvent, 'id'> & { id?: string }) => Promise<void>;
-  updateMatchEvent: (matchId: string, eventId: string, newEventData: Omit<MatchEvent, 'id'>) => Promise<void>;
+  updateMatchEvent: (matchId: string, eventId: string, newEventData: Omit<MatchEvent, 'id'> & { assisterId?: string }) => Promise<void>;
   deleteMatchEvent: (matchId: string, eventId: string) => Promise<void>;
   updateMatchStatus: (matchId: string, newStatus: Match['status']) => Promise<void>;
   resetSeasonStats: () => Promise<void>;
@@ -266,7 +266,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const addMatch = useCallback((match: Match) => {
     if (!firestore || !seasonId) return;
     const { id, ...matchData } = match;
-    const dataWithTimestamp = { ...matchData, date: Timestamp.fromDate(new Date(matchData.date)) };
+    const dataWithTimestamp = { ...matchData, date: Timestamp.fromDate(new Date(matchData.date as string)) };
     const docRef = doc(firestore, 'seasons', seasonId, 'matches', id);
     setDoc(docRef, dataWithTimestamp).then(() => {
         logAction("SCHEDULE_MATCH", `Scheduled fixture: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
@@ -294,7 +294,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     const { id, ...matchData } = updatedMatch;
     const dataToSave = { 
         ...matchData, 
-        date: updatedMatch.date instanceof Date ? Timestamp.fromDate(updatedMatch.date) : Timestamp.fromDate(new Date(updatedMatch.date)) 
+        date: updatedMatch.date instanceof Date ? Timestamp.fromDate(updatedMatch.date) : Timestamp.fromDate(new Date(updatedMatch.date as string)) 
     };
     batch.update(matchRef, dataToSave);
 
@@ -361,7 +361,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     });
   }, [firestore, seasonId, logAction, getTeamName, toast]);
 
-  const updateMatchEvent = useCallback(async (matchId: string, eventId: string, newEventData: Omit<MatchEvent, 'id'>) => {
+  const updateMatchEvent = useCallback(async (matchId: string, eventId: string, newEventData: Omit<MatchEvent, 'id'> & { assisterId?: string }) => {
     if (!firestore || !seasonId) return;
     const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
     const matchSnap = await getDoc(matchRef);
@@ -372,10 +372,12 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     if (!oldEvent) return;
 
     const batch = writeBatch(firestore);
-    const filteredEvents = match.events?.filter(e => e.id !== eventId) || [];
-    const updatedEvent = { ...newEventData, id: eventId } as MatchEvent;
-    batch.update(matchRef, { events: [...filteredEvents, updatedEvent] });
-
+    let updatedEvents = match.events?.filter(e => e.id !== eventId) || [];
+    
+    const { assisterId, ...cleanEventData } = newEventData;
+    const updatedEvent = { ...cleanEventData, id: eventId } as MatchEvent;
+    
+    // Sync Goal Scores
     if (oldEvent.type === 'Goal') {
         const field = oldEvent.teamId === match.homeTeamId ? 'homeScore' : 'awayScore';
         batch.update(matchRef, { [field]: increment(-1) });
@@ -394,11 +396,39 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
     applyStatChange(batch, firestore, seasonId, match, updatedEvent, 1);
 
+    // Linked Assist Management (Prompt 2, 3, 4)
+    const oldAssistIndex = updatedEvents.findIndex(e => e.linkedGoalId === eventId);
+    if (oldAssistIndex !== -1) {
+        const oldAssist = updatedEvents[oldAssistIndex];
+        applyStatChange(batch, firestore, seasonId, match, oldAssist, -1);
+        updatedEvents.splice(oldAssistIndex, 1);
+    }
+
+    if (updatedEvent.type === 'Goal' && assisterId && assisterId !== 'none') {
+        const assister = playersData.find(p => p.id === assisterId);
+        if (assister) {
+            const newAssist: MatchEvent = {
+                id: `evt-${Date.now()}-ast`,
+                type: 'Assist',
+                minute: updatedEvent.minute,
+                playerId: assister.id,
+                teamId: assister.teamId,
+                playerName: assister.name,
+                linkedGoalId: eventId
+            };
+            updatedEvents.push(newAssist);
+            applyStatChange(batch, firestore, seasonId, match, newAssist, 1);
+        }
+    }
+
+    updatedEvents.push(updatedEvent);
+    batch.update(matchRef, { events: updatedEvents });
+
     await batch.commit().then(() => {
         logAction("UPDATE_MATCH_EVENT", `Modified ${updatedEvent.type} for ${updatedEvent.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
         toast({ title: 'Event Updated', description: 'Match timeline record updated.' });
     });
-  }, [firestore, seasonId, logAction, getTeamName, toast]);
+  }, [firestore, seasonId, logAction, getTeamName, toast, playersData]);
 
   const deleteMatchEvent = useCallback(async (matchId: string, eventId: string) => {
     if (!firestore || !seasonId) return;
@@ -411,6 +441,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     if (!event) return;
 
     const batch = writeBatch(firestore);
+    
+    // Linked Assist Deletion (Prompt 4)
+    const linkedAssist = match.events?.find(e => e.linkedGoalId === eventId);
+    if (linkedAssist) {
+        batch.update(matchRef, { events: arrayRemove(linkedAssist) });
+        applyStatChange(batch, firestore, seasonId, match, linkedAssist, -1);
+    }
+
     batch.update(matchRef, { events: arrayRemove(event) });
 
     if (event.type === 'Goal') {

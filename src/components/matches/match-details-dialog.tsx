@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -79,6 +79,20 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         },
     });
 
+    // Reset settings form when match data changes
+    useEffect(() => {
+        if (match) {
+            settingsForm.reset({
+                status: match.status,
+                stage: match.stage,
+                date: format(new Date(match.date), 'yyyy-MM-dd'),
+                time: match.time,
+                venue: match.venue || '',
+                description: match.description || '',
+            });
+        }
+    }, [match, settingsForm]);
+
     const goalsCount = useMemo(() => match?.events?.filter(e => e.type === 'Goal' || e.type === 'Own Goal').length || 0, [match?.events]);
     const assistsCount = useMemo(() => match?.events?.filter(e => e.type === 'Assist').length || 0, [match?.events]);
 
@@ -108,28 +122,42 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     const showVenue = currentSeason?.matchConfig.showVenue ?? true;
     const stageTiming = match.stage ? currentSeason?.matchConfig.stageTimings?.[match.stage] : null;
 
+    // Filtered players for assister logic (Prompt 1)
+    const selectedScorerId = eventForm.watch('playerId');
+    const selectedScorer = players.find(p => p.id === selectedScorerId);
+    const eligibleAssisters = useMemo(() => {
+        if (!selectedScorer) return [];
+        return players.filter(p => p.teamId === selectedScorer.teamId && p.id !== selectedScorer.id);
+    }, [selectedScorer, players]);
+
     const handleEventSubmit = async (values: z.infer<typeof eventSchema>) => {
         const { assisterId, ...baseValues } = values;
-
-        // Validation for standalone assists
-        if (values.type === 'Assist' && assistsCount >= goalsCount && !editingEvent) {
-            toast({ variant: 'destructive', title: 'Invalid Event', description: 'Assists cannot exceed the number of goals scored.' });
-            return;
-        }
-
         const player = players.find(p => p.id === values.playerId);
         if (!player) return;
 
         if (editingEvent) {
-            await updateMatchEvent(match.id, editingEvent.id, { ...baseValues, teamId: player.teamId, playerName: player.name });
+            // Update Goal Logic (Prompt 2, 3, 4)
+            await updateMatchEvent(match.id, editingEvent.id, { 
+                ...baseValues, 
+                teamId: player.teamId, 
+                playerName: player.name,
+                assisterId: (assisterId && assisterId !== 'none') ? assisterId : undefined
+            });
         } else {
-            // Handle Linked Assister logic
+            // Create New Goal Logic
             if (values.type === 'Goal' && assisterId && assisterId !== 'none') {
                 const assister = players.find(p => p.id === assisterId);
                 if (!assister) return;
                 const goalEventId = `evt-${Date.now()}`;
                 await addMatchEvent(match.id, { ...baseValues, id: goalEventId, teamId: player.teamId, playerName: player.name });
-                await addMatchEvent(match.id, { type: 'Assist', minute: values.minute, playerId: assister.id, teamId: assister.teamId, playerName: assister.name, linkedGoalId: goalEventId });
+                await addMatchEvent(match.id, { 
+                    type: 'Assist', 
+                    minute: values.minute, 
+                    playerId: assister.id, 
+                    teamId: assister.teamId, 
+                    playerName: assister.name, 
+                    linkedGoalId: goalEventId 
+                });
             } else {
                 await addMatchEvent(match.id, { ...baseValues, id: `evt-${Date.now()}`, teamId: player.teamId, playerName: player.name });
             }
@@ -325,11 +353,11 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                     <FormField control={eventForm.control} name="type" render={({ field }) => (
                                         <FormItem className="space-y-1">
                                             <FormLabel className="text-[9px] font-black uppercase opacity-50">Event Identity</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select onValueChange={(val) => { field.onChange(val); if(val !== 'Goal') eventForm.setValue('assisterId', 'none'); }} defaultValue={field.value}>
                                                 <FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger></FormControl>
                                                 <SelectContent>
                                                     <SelectItem value="Goal">Goal</SelectItem>
-                                                    <SelectItem value="Assist" disabled={goalsCount <= assistsCount && !editingEvent}>Assist</SelectItem>
+                                                    <SelectItem value="Assist" disabled={!editingEvent}>Assist (Standalone)</SelectItem>
                                                     <SelectItem value="Yellow Card">Yellow Card</SelectItem>
                                                     <SelectItem value="Red Card">Red Card</SelectItem>
                                                     <SelectItem value="Own Goal">Own Goal</SelectItem>
@@ -363,23 +391,17 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                     </FormItem>
                                 )}/>
 
-                                {eventForm.watch('type') === 'Goal' && !editingEvent && (
+                                {eventForm.watch('type') === 'Goal' && (
                                     <FormField control={eventForm.control} name="assisterId" render={({ field }) => (
                                         <FormItem className="space-y-1">
                                             <FormLabel className="text-[9px] font-black uppercase opacity-50">Assister (Optional)</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue placeholder="None"/></SelectTrigger></FormControl>
                                                 <SelectContent>
                                                     <SelectItem value="none">None</SelectItem>
-                                                    <SelectGroup>
-                                                        <SelectLabel className="text-[10px] font-black uppercase tracking-widest text-accent mb-1">{homeTeam.name}</SelectLabel>
-                                                        {homePlayers.filter(p => p.id !== eventForm.watch('playerId')).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                                    </SelectGroup>
-                                                    <Separator className="my-2 bg-white/5" />
-                                                    <SelectGroup>
-                                                        <SelectLabel className="text-[10px] font-black uppercase tracking-widest text-accent mb-1">{awayTeam.name}</SelectLabel>
-                                                        {awayPlayers.filter(p => p.id !== eventForm.watch('playerId')).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                                    </SelectGroup>
+                                                    {eligibleAssisters.map(p => (
+                                                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                                    ))}
                                                 </SelectContent>
                                             </Select>
                                         </FormItem>
@@ -393,25 +415,41 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                     <ScrollArea className="h-[250px] pr-4">
                     {match.events && match.events.length > 0 ? (
                         <div className="space-y-4">
-                            {[...match.events].sort((a,b) => a.minute - b.minute).map(event => (
+                            {[...match.events].sort((a,b) => a.minute - b.minute).map(event => {
+                                const isLinkedAssist = !!event.linkedGoalId;
+                                const linkedGoal = event.linkedGoalId ? match.events?.find(e => e.id === event.linkedGoalId) : null;
+                                
+                                return (
                                 <div key={event.id} className="flex items-center gap-4 text-xs group animate-in fade-in slide-in-from-left-2">
                                     <span className="font-mono w-8 text-[10px] font-black text-accent">{event.minute}'</span>
                                     <div className="bg-white/5 p-2 rounded-xl border border-white/5 shrink-0"><EventIcon type={event.type} /></div>
                                     <div className="flex flex-col min-w-0 flex-1">
                                         <div className="flex flex-wrap items-baseline gap-x-2">
                                             <span className="font-bold text-sm tracking-tight truncate uppercase">{event.playerName}</span>
-                                            <span className="text-[8px] font-black uppercase tracking-widest text-white/20">{event.type}</span>
+                                            <span className="text-[8px] font-black uppercase tracking-widest text-white/20">
+                                                {event.type} {isLinkedAssist && linkedGoal ? `(Goal: ${linkedGoal.playerName} - ${linkedGoal.minute}')` : ''}
+                                            </span>
                                         </div>
                                         <span className="text-[9px] font-black uppercase tracking-[0.15em] text-white/30 truncate">{event.teamId === homeTeam.id ? homeTeam.name : awayTeam.name}</span>
                                     </div>
-                                    {isAdmin && (
+                                    {isAdmin && !isLinkedAssist && (
                                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/5" onClick={() => { setEditingEvent(event); setShowEventForm(true); eventForm.reset({type: event.type, minute: event.minute, playerId: event.playerId}); }}><Pencil className="h-3.5 w-3.5"/></Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/5" onClick={() => { 
+                                                const linkedAssist = match.events?.find(e => e.linkedGoalId === event.id);
+                                                setEditingEvent(event); 
+                                                setShowEventForm(true); 
+                                                eventForm.reset({
+                                                    type: event.type, 
+                                                    minute: event.minute, 
+                                                    playerId: event.playerId,
+                                                    assisterId: linkedAssist ? linkedAssist.playerId : 'none'
+                                                }); 
+                                            }}><Pencil className="h-3.5 w-3.5"/></Button>
                                             <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => deleteMatchEvent(match.id, event.id)}><Trash2 className="h-3.5 w-3.5"/></Button>
                                         </div>
                                     )}
                                 </div>
-                            ))}
+                            )})}
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full text-white/10 pt-10">
