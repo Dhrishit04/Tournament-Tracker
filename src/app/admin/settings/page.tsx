@@ -1,4 +1,3 @@
-
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,17 +27,29 @@ export default function AdminSettingsPage() {
     const { isSystemAdmin, user } = useAuth();
     const { seasons, currentSeason, setCurrentSeason, createNextSeason, loading, deleteCurrentSeason } = useSeason();
     const { resetSeasonStats, wipeSeasonData, importSeasonPreset } = useData();
+    
     const [isPartialResetDialogOpen, setIsPartialResetDialogOpen] = useState(false);
     const [isFullResetDialogOpen, setIsFullResetDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
     const [sourceSeasonToImport, setSourceSeasonToImport] = useState('');
 
-    // Check for root authority or elevated privileges
+    // Dynamic privilege check (Reactive to AuthProvider listener)
     const canAccessSettings = isSystemAdmin || user?.canAccessSettings;
 
+    // Immediate Access Denied check
     if (!canAccessSettings) {
         return <AccessDenied />;
+    }
+
+    // Secondary Data Loading check
+    if (loading || !currentSeason) {
+      return (
+        <div className="space-y-8">
+            <Skeleton className="h-10 w-64 opacity-20" />
+            <Card className="glass-card border-white/5"><CardContent className="h-64 opacity-5"/></Card>
+        </div>
+      )
     }
 
     const handlePartialReset = async () => {
@@ -64,15 +75,6 @@ export default function AdminSettingsPage() {
         await wipeSeasonData();
         await deleteCurrentSeason();
         setIsDeleteDialogOpen(false);
-    }
-
-    if (loading || !currentSeason) {
-      return (
-        <div className="space-y-8">
-            <Skeleton className="h-10 w-64 opacity-20" />
-            <Card className="glass-card border-white/5"><CardContent className="h-64 opacity-5"/></Card>
-        </div>
-      )
     }
 
     const handleSeasonChange = async (value: string) => {
@@ -247,7 +249,7 @@ export default function AdminSettingsPage() {
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                    <AlertDialogCancel className="glass-card border-white/10">Cancel</AlertDialogCancel>
+                                    <AlertDialogCancel className="glass-card border-white/5">Cancel</AlertDialogCancel>
                                     <AlertDialogAction onClick={handleDeleteSeason} className="bg-destructive hover:bg-destructive/90">Confirm Termination</AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>

@@ -22,8 +22,12 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // Restore session from localStorage on initial mount
   useEffect(() => {
     const savedUser = localStorage.getItem('dfpl_admin_session');
-    if (savedUser && !user) {
-      setUser(JSON.parse(savedUser));
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem('dfpl_admin_session');
+      }
     }
   }, []);
 
@@ -53,12 +57,13 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
         localStorage.setItem('dfpl_admin_session', JSON.stringify(newUser));
       } else {
         // If Auth clears, only clear the session if it belonged to the System Admin
-        // Regular admins (virtual) handle their own logout
-        const session = localStorage.getItem('dfpl_admin_session');
-        if (session && JSON.parse(session).role === 'SYSTEM_ADMIN') {
-            setUser(null);
-            localStorage.removeItem('dfpl_admin_session');
-        }
+        setUser(prev => {
+            if (prev?.role === 'SYSTEM_ADMIN') {
+                localStorage.removeItem('dfpl_admin_session');
+                return null;
+            }
+            return prev;
+        });
       }
       setLoading(false);
     });
@@ -66,38 +71,43 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     return () => unsubscribe();
   }, [fbAuth, firestore]);
 
-  // Real-time Registry Listener (Primary for Regular Admins)
-  // This ensures that privilege elevation or account revocation happens instantly
+  // Real-time Registry Listener (Handles both Elevation and Revocation)
   useEffect(() => {
     if (!firestore || !user || user.role === 'SYSTEM_ADMIN') return;
 
-    const unsubscribe = onSnapshot(doc(firestore, 'admins', user.id), (snapshot) => {
+    const adminRef = doc(firestore, 'admins', user.id);
+    
+    const unsubscribe = onSnapshot(adminRef, (snapshot) => {
         if (snapshot.exists()) {
             const data = snapshot.data();
-            // Detect and apply privilege changes in real-time
-            if (data.canAccessSettings !== user.canAccessSettings) {
-                const updatedUser = { ...user, canAccessSettings: data.canAccessSettings || false };
-                setUser(updatedUser);
-                localStorage.setItem('dfpl_admin_session', JSON.stringify(updatedUser));
-            }
+            setUser(prev => {
+                if (!prev || prev.id !== user.id) return prev;
+                
+                // If privileges changed (elevated or revoked), update immediately
+                if (data.canAccessSettings !== prev.canAccessSettings) {
+                    const updated = { ...prev, canAccessSettings: !!data.canAccessSettings };
+                    localStorage.setItem('dfpl_admin_session', JSON.stringify(updated));
+                    return updated;
+                }
+                return prev;
+            });
         } else {
             // Document deleted: Revoke session immediately
             setUser(null);
             localStorage.removeItem('dfpl_admin_session');
         }
     }, (error) => {
-        console.error("Registry listener failure:", error);
+        // Silent background listener
     });
 
     return () => unsubscribe();
-  }, [firestore, user?.id, user?.canAccessSettings]);
+  }, [firestore, user?.id]);
 
   const login = useCallback(
     async (email: string, password: string): Promise<void> => {
       if (!fbAuth || !firestore) throw new Error('Services not initialized');
       
       try {
-        // Attempt Firebase Auth Login (System Admin path)
         await signInWithEmailAndPassword(fbAuth, email, password);
       } catch (e) {
         // Fallback: Registry-based login (Regular Admin path)
@@ -121,7 +131,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
           localStorage.setItem('dfpl_admin_session', JSON.stringify(virtualUser));
           return;
         }
-        throw e; // Standard Auth failure
+        throw e;
       }
     }, [fbAuth, firestore]
   );
