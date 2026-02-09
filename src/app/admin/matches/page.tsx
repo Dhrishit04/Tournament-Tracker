@@ -1,7 +1,8 @@
+
 'use client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Clock, Timer, CheckCircle2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -42,10 +43,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Match, Team, MatchStage, MatchConfig } from '@/types';
+import type { Match, Team, MatchStage, MatchConfig, StageTiming } from '@/types';
 import { useData } from '@/hooks/use-data';
 import { useSeason } from '@/contexts/season-context';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 
 const matchSchema = z.object({
   homeTeamId: z.string().min(1, 'Home team is required'),
@@ -62,6 +64,7 @@ const matchSchema = z.object({
 function StageSettings() {
     const { currentSeason, updateMatchConfig, loading: seasonLoading } = useSeason();
     const { teams, loading: dataLoading } = useData();
+    const [selectedStageForTiming, setSelectedStageForTiming] = useState<MatchStage | ''>('');
 
     const loading = seasonLoading || dataLoading;
 
@@ -74,36 +77,133 @@ function StageSettings() {
 
     const { matchConfig } = currentSeason;
 
-    const handleConfigChange = (key: keyof MatchConfig, value: boolean) => {
+    const handleConfigChange = (key: keyof MatchConfig, value: any) => {
         const newConfig = { ...matchConfig, [key]: value };
         updateMatchConfig(newConfig);
     }
+
+    const handleTimingChange = (type: 'duration' | 'extraTime', value: string) => {
+        if (!selectedStageForTiming) return;
+        const numVal = parseInt(value) || 0;
+        const clampedVal = Math.min(90, Math.max(0, numVal));
+        
+        const currentTimings = matchConfig.stageTimings || {};
+        const stageTiming = currentTimings[selectedStageForTiming] || {};
+        
+        const newTimings = {
+            ...currentTimings,
+            [selectedStageForTiming]: {
+                ...stageTiming,
+                [type]: clampedVal
+            }
+        };
+        
+        handleConfigChange('stageTimings', newTimings);
+    }
     
     const canEnableQuarters = teams.length >= 16;
+    const stages = [
+        { id: 'GROUP_STAGE', label: 'Group Stage' },
+        { id: 'QUARTER_FINALS', label: 'Quarter-Finals' },
+        { id: 'SEMI_FINALS', label: 'Semi-Finals' },
+        { id: 'FINALS', label: 'Finals' },
+        { id: 'OTHERS', label: 'Others' }
+    ];
+
+    const currentTiming = selectedStageForTiming ? (matchConfig.stageTimings?.[selectedStageForTiming] || {}) : null;
 
     return (
-        <Card className="mb-6">
-            <CardHeader><CardTitle>Match Stage & App Settings</CardTitle></CardHeader>
-            <CardContent className="flex flex-wrap gap-6">
-                <div className="flex items-center space-x-2">
-                    <Switch id="group-stage-switch" checked={matchConfig.showGroupStage} onCheckedChange={(c) => handleConfigChange('showGroupStage', c)} />
-                    <Label htmlFor="group-stage-switch">Show Group Stage</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <Switch id="quarters-switch" checked={matchConfig.showQuarterFinals} onCheckedChange={(c) => handleConfigChange('showQuarterFinals', c)} disabled={!canEnableQuarters} />
-                    <Label htmlFor="quarters-switch" className={!canEnableQuarters ? 'text-muted-foreground' : ''}>Show Quarter-Finals {!canEnableQuarters && `(Needs 16 teams)`}</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <Switch id="others-switch" checked={matchConfig.showOthers} onCheckedChange={(c) => handleConfigChange('showOthers', c)} />
-                    <Label htmlFor="others-switch">Show Others</Label>
-                </div>
-                <div className="flex items-center space-x-2 border-l pl-6">
-                    <Switch id="venue-switch" checked={matchConfig.showVenue} onCheckedChange={(c) => handleConfigChange('showVenue', c)} />
-                    <Label htmlFor="venue-switch">Display Venue Info</Label>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <Card className="lg:col-span-2 glass-card border-white/5">
+                <CardHeader><CardTitle className="text-sm font-black uppercase tracking-widest opacity-70">App & Stage Visibility</CardTitle></CardHeader>
+                <CardContent className="flex flex-wrap gap-6">
+                    <div className="flex items-center space-x-2">
+                        <Switch id="group-stage-switch" checked={matchConfig.showGroupStage} onCheckedChange={(c) => handleConfigChange('showGroupStage', c)} />
+                        <Label htmlFor="group-stage-switch" className="text-xs font-bold">Group Stage</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch id="quarters-switch" checked={matchConfig.showQuarterFinals} onCheckedChange={(c) => handleConfigChange('showQuarterFinals', c)} disabled={!canEnableQuarters} />
+                        <Label htmlFor="quarters-switch" className={cn("text-xs font-bold", !canEnableQuarters ? 'text-muted-foreground' : '')}>Quarters {!canEnableQuarters && `(Min 16 teams)`}</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch id="others-switch" checked={matchConfig.showOthers} onCheckedChange={(c) => handleConfigChange('showOthers', c)} />
+                        <Label htmlFor="others-switch" className="text-xs font-bold">Others</Label>
+                    </div>
+                    <div className="flex items-center space-x-2 border-l border-white/10 pl-6">
+                        <Switch id="venue-switch" checked={matchConfig.showVenue} onCheckedChange={(c) => handleConfigChange('showVenue', c)} />
+                        <Label htmlFor="venue-switch" className="text-xs font-bold">Venue Info</Label>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="glass-card border-accent/20 bg-accent/5">
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-black uppercase tracking-widest text-accent flex items-center gap-2">
+                        <Clock className="h-4 w-4" /> Match Timing
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Select value={selectedStageForTiming} onValueChange={(v) => setSelectedStageForTiming(v as MatchStage)}>
+                        <SelectTrigger className="h-9 text-xs glass-card">
+                            <SelectValue placeholder="Select stage to configure" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {stages.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+
+                    {selectedStageForTiming && (
+                        <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-1">
+                            <div className="space-y-1.5">
+                                <Label className="text-[10px] font-black uppercase opacity-50">Match (m)</Label>
+                                <Input 
+                                    type="number" 
+                                    placeholder="90" 
+                                    className="h-8 text-xs glass-card" 
+                                    value={currentTiming?.duration || ''} 
+                                    onChange={(e) => handleTimingChange('duration', e.target.value)}
+                                />
+                            </div>
+                            {selectedStageForTiming !== 'GROUP_STAGE' && (
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] font-black uppercase opacity-50">Extra (m)</Label>
+                                    <Input 
+                                        type="number" 
+                                        placeholder="30" 
+                                        className="h-8 text-xs glass-card" 
+                                        value={currentTiming?.extraTime || ''}
+                                        onChange={(e) => handleTimingChange('extraTime', e.target.value)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
     )
+}
+
+function TimingIndicator({ stage }: { stage?: MatchStage }) {
+    const { currentSeason } = useSeason();
+    if (!stage || !currentSeason?.matchConfig.stageTimings?.[stage]) return null;
+    
+    const timing = currentSeason.matchConfig.stageTimings[stage];
+    if (!timing.duration) return null;
+
+    return (
+        <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-1 text-[10px] font-bold text-accent uppercase tracking-tighter bg-accent/10 px-2 py-0.5 rounded border border-accent/20">
+                <Timer className="h-3 w-3" />
+                {timing.duration}m
+            </div>
+            {timing.extraTime ? (
+                <div className="flex items-center gap-1 text-[10px] font-bold text-blue-400 uppercase tracking-tighter bg-blue-400/10 px-2 py-0.5 rounded border border-blue-400/20">
+                    ET: {timing.extraTime}m
+                </div>
+            ) : null}
+        </div>
+    );
 }
 
 function MatchForm({
@@ -166,6 +266,8 @@ function MatchForm({
       onSubmit(data);
   };
 
+  const selectedStage = form.watch('stage');
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleValidationAndSubmit)} className="space-y-4">
@@ -185,7 +287,15 @@ function MatchForm({
                 <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></Select><FormMessage /></FormItem>
             )}/>
             <FormField control={form.control} name="stage" render={({ field }) => (
-                <FormItem><FormLabel>Stage</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select stage" /></SelectTrigger></FormControl><SelectContent>{availableStages.map(stage => <SelectItem key={stage.value} value={stage.value}>{stage.label}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>
+                <FormItem>
+                    <FormLabel>Stage</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select stage" /></SelectTrigger></FormControl>
+                        <SelectContent>{availableStages.map(stage => <SelectItem key={stage.value} value={stage.value}>{stage.label}</SelectItem>)}</SelectContent>
+                    </Select>
+                    <TimingIndicator stage={selectedStage as MatchStage} />
+                    <FormMessage />
+                </FormItem>
             )}/>
         </div>
         {form.watch('stage') === 'OTHERS' && (
@@ -257,10 +367,6 @@ export default function AdminMatchesPage() {
         handleCloseDialog();
     };
 
-    const handleDelete = (match: Match) => {
-        setMatchToDelete(match);
-    }
-
     const confirmDelete = () => {
         if(matchToDelete) {
             deleteMatch(matchToDelete.id);
@@ -279,8 +385,6 @@ export default function AdminMatchesPage() {
   ];
 
   const activeStages = STAGES.filter(s => s.show);
-  
-  // Find matches that don't fit into current active stages (ghost matches)
   const legacyMatches = matches.filter(m => !activeStages.some(s => s.key === m.stage));
 
   if (pageLoading) {
@@ -302,64 +406,108 @@ export default function AdminMatchesPage() {
   }
 
   return (
-    <div>
-        <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold font-headline">Manage Matches</h1>
-            <Button onClick={() => handleOpenDialog('add')}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Schedule New Match
+    <div className="space-y-6">
+        <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold font-headline tracking-tighter uppercase italic">Match <span className="text-accent">Fixtures</span></h1>
+            <Button onClick={() => handleOpenDialog('add')} className="bg-accent hover:bg-accent/90">
+                <PlusCircle className="mr-2 h-4 w-4" /> Schedule Fixture
             </Button>
         </div>
+
         <StageSettings />
-        <Card>
+
+        <Card className="glass-card border-white/5 overflow-hidden">
             <CardContent className="p-0">
                 <Tabs defaultValue={activeStages[0]?.key || (legacyMatches.length > 0 ? 'legacy' : 'GROUP_STAGE')} className="w-full">
-                    <TabsList className="m-4">
-                        {activeStages.map(stage => (
-                            <TabsTrigger key={stage.key} value={stage.key}>{stage.label}</TabsTrigger>
-                        ))}
-                        {legacyMatches.length > 0 && (
-                             <TabsTrigger value="legacy" className="text-destructive font-bold">Hidden/Legacy</TabsTrigger>
-                        )}
-                    </TabsList>
+                    <div className="bg-white/5 border-b border-white/5 p-2 flex items-center justify-between">
+                        <TabsList className="bg-transparent border-none">
+                            {activeStages.map(stage => (
+                                <TabsTrigger key={stage.key} value={stage.key} className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent font-bold uppercase tracking-widest text-[10px] h-8">
+                                    {stage.label}
+                                </TabsTrigger>
+                            ))}
+                            {legacyMatches.length > 0 && (
+                                <TabsTrigger value="legacy" className="text-destructive font-bold uppercase tracking-widest text-[10px] h-8">Hidden</TabsTrigger>
+                            )}
+                        </TabsList>
+                    </div>
 
                     {activeStages.map(stage => {
                         const stageMatches = matches.filter(m => m.stage === stage.key);
                         return (
-                            <TabsContent key={stage.key} value={stage.key} className="p-4 pt-0">
+                            <TabsContent key={stage.key} value={stage.key} className="mt-0">
                                 <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Date</TableHead>
-                                            <TableHead>Match</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead>Score</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
+                                    <TableHeader className="bg-white/5">
+                                        <TableRow className="border-white/5">
+                                            <TableHead className="px-8 h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Kickoff</TableHead>
+                                            <TableHead className="h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Fixture</TableHead>
+                                            <TableHead className="h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Protocol</TableHead>
+                                            <TableHead className="h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Scoreline</TableHead>
+                                            <TableHead className="px-8 h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {stageMatches.length > 0 ? stageMatches.map((match) => {
                                             const group = getTeamGroup(match.homeTeamId);
                                             return (
-                                                <TableRow key={match.id}>
-                                                    <TableCell>{format(new Date(match.date), 'PP')}</TableCell>
+                                                <TableRow key={match.id} className="border-white/5 hover:bg-white/5 transition-colors group">
+                                                    <TableCell className="px-8">
+                                                        <div className="space-y-0.5">
+                                                            <p className="font-bold text-xs">{format(new Date(match.date), 'MMM dd')}</p>
+                                                            <p className="text-[10px] font-medium opacity-40 uppercase tracking-widest">{match.time}</p>
+                                                        </div>
+                                                    </TableCell>
                                                     <TableCell>
                                                         <div className="flex flex-col">
-                                                            <span>{getTeamName(match.homeTeamId)} vs {getTeamName(match.awayTeamId)}</span>
+                                                            <span className="font-bold text-sm">{getTeamName(match.homeTeamId)} <span className="text-[10px] opacity-30 italic mx-1">vs</span> {getTeamName(match.awayTeamId)}</span>
                                                             {currentSeason.matchConfig.isGroupModeActive && match.stage === 'GROUP_STAGE' && group && group !== 'None' && (
-                                                                <span className="text-[10px] font-bold text-primary uppercase">Group {group}</span>
+                                                                <span className="text-[8px] font-black text-accent uppercase tracking-[0.2em] mt-1">Group {group}</span>
                                                             )}
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell><Badge variant={match.status === 'FINISHED' ? 'secondary' : 'default'} className={match.status === 'UPCOMING' ? 'bg-accent text-accent-foreground' : ''}>{match.status}</Badge></TableCell>
-                                                    <TableCell>{(match.status === 'FINISHED' || match.status === 'LIVE') ? `${match.homeScore ?? '0'} - ${match.awayScore ?? '0'}` : '—'}</TableCell>
-                                                    <TableCell className="text-right">
-                                                        <Button variant="ghost" size="icon" onClick={() => handleOpenDialog('edit', match)}><Edit className="h-4 w-4" /></Button>
-                                                        <AlertDialog><AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(match)}><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone. This will permanently delete the match and revert all associated statistics.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel onClick={() => setMatchToDelete(null)}>Cancel</AlertDialogCancel><AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+                                                    <TableCell>
+                                                        <Badge variant="outline" className={cn(
+                                                            "text-[9px] font-black tracking-widest uppercase border-white/10 px-2 py-0.5",
+                                                            match.status === 'LIVE' ? "bg-red-500/10 text-red-500 border-red-500/20" : ""
+                                                        )}>
+                                                            {match.status}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {(match.status === 'FINISHED' || match.status === 'LIVE') ? (
+                                                            <div className="flex items-center gap-2 font-mono font-black text-sm">
+                                                                <span className={cn(match.homeScore! > match.awayScore! ? "text-accent" : "")}>{match.homeScore ?? '0'}</span>
+                                                                <span className="opacity-20">-</span>
+                                                                <span className={cn(match.awayScore! > match.homeScore! ? "text-accent" : "")}>{match.awayScore ?? '0'}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-[10px] font-bold opacity-20">—</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="px-8 text-right">
+                                                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <Button variant="ghost" size="icon" onClick={() => handleOpenDialog('edit', match)} className="h-8 w-8 hover:bg-white/10"><Edit className="h-4 w-4" /></Button>
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent className="glass-card border-white/5">
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Erase <span className="text-destructive">Fixture</span></AlertDialogTitle>
+                                                                        <AlertDialogDescription className="text-white/70">Permanently delete match records and revert associated performance statistics.</AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>Abort</AlertDialogCancel>
+                                                                        <AlertDialogAction onClick={() => {setMatchToDelete(match); confirmDelete();}} className="bg-destructive hover:bg-destructive/90">Erase Match</AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+                                                        </div>
                                                     </TableCell>
                                                 </TableRow>
                                             )
                                         }) : (
-                                          <TableRow><TableCell colSpan={5} className="text-center h-24">No matches scheduled for this stage.</TableCell></TableRow>
+                                          <TableRow><TableCell colSpan={5} className="text-center h-32 text-muted-foreground italic text-sm">No fixtures scheduled for this phase.</TableCell></TableRow>
                                         )}
                                     </TableBody>
                                 </Table>
@@ -368,25 +516,28 @@ export default function AdminMatchesPage() {
                     })}
 
                     {legacyMatches.length > 0 && (
-                        <TabsContent value="legacy" className="p-4 pt-0">
-                             <div className="p-4 mb-4 bg-destructive/10 text-destructive text-sm rounded-lg border border-destructive/20">
-                                <strong>Warning:</strong> These matches are not visible on the public site because their stages are disabled or malformed. You should delete them to ensure clean tournament statistics and exports.
+                        <TabsContent value="legacy" className="mt-0">
+                             <div className="p-6 bg-destructive/5 text-destructive text-xs font-bold flex items-center gap-3 border-b border-destructive/10">
+                                <PlusCircle className="h-4 w-4 rotate-45" />
+                                These fixtures belong to disabled stages and are hidden from the public dashboard.
                             </div>
                             <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Stage</TableHead>
-                                        <TableHead>Match</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                <TableHeader className="bg-white/5">
+                                    <TableRow className="border-white/5">
+                                        <TableHead className="px-8 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Original Stage</TableHead>
+                                        <TableHead className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Matchup</TableHead>
+                                        <TableHead className="px-8 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Protocol</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {legacyMatches.map((match) => (
-                                        <TableRow key={match.id}>
-                                            <TableCell><Badge variant="outline">{match.stage}</Badge></TableCell>
-                                            <TableCell>{getTeamName(match.homeTeamId)} vs {getTeamName(match.awayTeamId)}</TableCell>
-                                            <TableCell className="text-right">
-                                                <AlertDialog><AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(match)}><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Permanently delete ghost match?</AlertDialogTitle><AlertDialogDescription>This will revert any goals or cards associated with this match.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel onClick={() => setMatchToDelete(null)}>Cancel</AlertDialogCancel><AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+                                        <TableRow key={match.id} className="border-white/5 hover:bg-white/5 group transition-colors">
+                                            <TableCell className="px-8"><Badge variant="outline" className="text-[9px] font-black tracking-tighter border-white/10">{match.stage}</Badge></TableCell>
+                                            <TableCell className="font-bold text-sm">{getTeamName(match.homeTeamId)} vs {getTeamName(match.awayTeamId)}</TableCell>
+                                            <TableCell className="px-8 text-right">
+                                                <Button variant="ghost" size="icon" className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => {setMatchToDelete(match); confirmDelete();}}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -397,11 +548,13 @@ export default function AdminMatchesPage() {
                 </Tabs>
             </CardContent>
         </Card>
+
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-lg glass-card border-white/5 p-8">
             <DialogHeader>
-                <DialogTitle>{dialogMode === 'edit' ? 'Edit Match' : 'Schedule New Match'}</DialogTitle>
-                <DialogDescription>{dialogMode === 'edit' ? 'Update the details of the match.' : 'Fill in the details to schedule a new match.'}</DialogDescription>
+                <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
+                    {dialogMode === 'edit' ? 'Modify' : 'Schedule'} <span className="text-accent">Fixture</span>
+                </DialogTitle>
             </DialogHeader>
             <MatchForm 
                 onSubmit={handleFormSubmit}

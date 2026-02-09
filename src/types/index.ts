@@ -82,12 +82,18 @@ export interface Standing {
   points: number;
 }
 
+export interface StageTiming {
+  duration?: number;
+  extraTime?: number;
+}
+
 export interface MatchConfig {
   showGroupStage: boolean;
   showQuarterFinals: boolean;
   showOthers: boolean;
   isGroupModeActive: boolean;
   showVenue: boolean;
+  stageTimings?: Record<string, StageTiming>;
 }
 
 export interface GlobalAnnouncement {

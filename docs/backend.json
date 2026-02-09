@@ -95,7 +95,17 @@
             "showQuarterFinals": { "type": "boolean" },
             "showOthers": { "type": "boolean" },
             "isGroupModeActive": { "type": "boolean" },
-            "showVenue": { "type": "boolean" }
+            "showVenue": { "type": "boolean" },
+            "stageTimings": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "duration": { "type": "number" },
+                  "extraTime": { "type": "number" }
+                }
+              }
+            }
         },
         "required": ["showGroupStage", "showQuarterFinals", "showOthers", "isGroupModeActive", "showVenue"]
     },
