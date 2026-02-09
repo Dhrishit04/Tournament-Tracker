@@ -46,22 +46,27 @@ export function AnnouncementBanner() {
     if (!globalAnnouncement?.isActive || !globalAnnouncement.message) return null;
 
     return (
-        <div className="relative z-50 bg-accent/60 backdrop-blur-2xl border-b border-accent/30 shadow-[0_8px_32px_rgba(255,87,34,0.3)] overflow-hidden h-14 flex items-center">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer pointer-events-none" />
-            <div className="relative z-20 flex items-center gap-3 px-6 h-full bg-accent/40 backdrop-blur-md border-r border-white/20 shadow-[10px_0_30px_rgba(0,0,0,0.1)]">
-                <div className="bg-white rounded-full p-1.5 shadow-[0_0_15px_rgba(255,255,255,0.5)]">
+        <div className="relative z-50 bg-primary border-b border-primary/20 shadow-xl overflow-hidden h-12 flex items-center">
+            {/* Animated subtle glow */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer pointer-events-none" />
+            
+            {/* Sticky "Broadcast" indicator using the accent color for high contrast */}
+            <div className="relative z-20 flex items-center gap-3 px-6 h-full bg-accent border-r border-white/10 shadow-[5px_0_15px_rgba(0,0,0,0.3)]">
+                <div className="bg-white rounded-full p-1.5 shadow-sm">
                     <Megaphone className="h-3 w-3 text-accent fill-accent" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white drop-shadow-sm">Broadcast</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white drop-shadow-sm">Broadcast</span>
             </div>
+            
+            {/* Continuous ticker content */}
             <div className="flex-1 flex overflow-hidden">
-                <div className="flex items-center gap-12 whitespace-nowrap animate-marquee py-2">
+                <div className="flex items-center gap-12 whitespace-nowrap animate-marquee py-1.5">
                     {[...Array(10)].map((_, i) => (
                         <div key={i} className="flex items-center gap-12">
-                            <p className="font-extrabold tracking-tight text-base uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                            <p className="font-bold tracking-wide text-sm uppercase text-white/90 shadow-black/20 drop-shadow-sm">
                                 {globalAnnouncement.message}
                             </p>
-                            <span className="text-white/30 text-xl font-black">•</span>
+                            <span className="text-accent text-xl font-black">•</span>
                         </div>
                     ))}
                 </div>
