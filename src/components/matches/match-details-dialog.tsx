@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { type Player, type MatchEvent, type Match, type MatchStage } from '@/types';
+import { type MatchEvent, type Match, type MatchStage } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
 import { useData } from '@/hooks/use-data';
 import { cn, getImageUrl } from '@/lib/utils';
@@ -29,8 +29,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { useSeason } from '@/contexts/season-context';
 
@@ -61,8 +60,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     const [showEventForm, setShowEventForm] = useState(false);
     const [showSettingsForm, setShowSettingsForm] = useState(false);
     const [editingEvent, setEditingEvent] = useState<MatchEvent | null>(null);
-    const [eventToDelete, setEventToDelete] = useState<MatchEvent | null>(null);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isExtraTimePromptOpen, setIsExtraTimePromptOpen] = useState(false);
 
     const eventForm = useForm<z.infer<typeof eventSchema>>({
@@ -88,22 +85,10 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     const availableStages = useMemo(() => {
         if (!currentSeason) return [];
         let stages: { value: MatchStage; label: string }[] = [];
-        
-        if (currentSeason.matchConfig.showGroupStage) {
-          stages.push({ value: 'GROUP_STAGE', label: 'Group Stage' });
-        }
-
-        if (currentSeason.matchConfig.showQuarterFinals && teams.length >= 16) {
-          stages.push({ value: 'QUARTER_FINALS', label: 'Quarter-Finals' });
-        }
-        
-        stages.push({ value: 'SEMI_FINALS', label: 'Semi-Finals' });
-        stages.push({ value: 'FINALS', label: 'Finals' });
-        
-        if (currentSeason.matchConfig.showOthers) {
-          stages.push({ value: 'OTHERS', label: 'Others' });
-        }
-        
+        if (currentSeason.matchConfig.showGroupStage) stages.push({ value: 'GROUP_STAGE', label: 'Group Stage' });
+        if (currentSeason.matchConfig.showQuarterFinals && teams.length >= 16) stages.push({ value: 'QUARTER_FINALS', label: 'Quarter-Finals' });
+        stages.push({ value: 'SEMI_FINALS', label: 'Semi-Finals' }, { value: 'FINALS', label: 'Finals' });
+        if (currentSeason.matchConfig.showOthers) stages.push({ value: 'OTHERS', label: 'Others' });
         return stages;
     }, [currentSeason, teams.length]);
 
@@ -126,6 +111,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     const handleEventSubmit = async (values: z.infer<typeof eventSchema>) => {
         const { assisterId, ...baseValues } = values;
 
+        // Validation for standalone assists
         if (values.type === 'Assist' && assistsCount >= goalsCount && !editingEvent) {
             toast({ variant: 'destructive', title: 'Invalid Event', description: 'Assists cannot exceed the number of goals scored.' });
             return;
@@ -137,6 +123,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         if (editingEvent) {
             await updateMatchEvent(match.id, editingEvent.id, { ...baseValues, teamId: player.teamId, playerName: player.name });
         } else {
+            // Handle Linked Assister logic
             if (values.type === 'Goal' && assisterId && assisterId !== 'none') {
                 const assister = players.find(p => p.id === assisterId);
                 if (!assister) return;
@@ -193,7 +180,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         eventForm.reset({ type: 'Goal', minute: 0, playerId: '', assisterId: 'none' });
         setShowEventForm(false);
         setEditingEvent(null);
-    }
+    };
 
     const EventIcon = ({type}: {type: MatchEvent['type']}) => {
         switch(type) {
@@ -204,7 +191,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             case 'Red Card': return <div className="w-3 h-4 bg-red-600 border border-black/20 rounded-sm"/>
             default: return null
         }
-    }
+    };
 
   return (
     <>
@@ -224,23 +211,9 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                     <Button variant="ghost" size="sm" onClick={() => setShowSettingsForm(!showSettingsForm)} className="h-8 rounded-full hover:bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest">
                         <Settings2 className="w-3 h-3 mr-2" /> {showSettingsForm ? 'Close' : 'Config'}
                     </Button>
-                    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="sm" className="h-8 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                                <Trash2 className="w-3 h-3 mr-1" /> Decommission
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="glass-card border-white/5">
-                            <AlertDialogHeader>
-                                <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Erase <span className="text-destructive">Match?</span></AlertDialogTitle>
-                                <AlertDialogDescription className="text-white/70">Revert all performance logs and permanently delete this fixture from the database.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Abort</AlertDialogCancel>
-                                <AlertDialogAction onClick={async () => { await deleteMatch(match.id); onClose(); }} className="bg-destructive hover:bg-destructive/90">Confirm Erasure</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    <Button variant="destructive" size="sm" className="h-8 rounded-full text-[10px] font-bold uppercase tracking-widest" onClick={async () => { if(confirm('Delete fixture and revert stats?')) { await deleteMatch(match.id); onClose(); } }}>
+                        <Trash2 className="w-3 h-3 mr-1" /> Decommission
+                    </Button>
                 </div>
             )}
           </div>
@@ -389,6 +362,30 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                         <FormMessage className="text-[10px]"/>
                                     </FormItem>
                                 )}/>
+
+                                {eventForm.watch('type') === 'Goal' && !editingEvent && (
+                                    <FormField control={eventForm.control} name="assisterId" render={({ field }) => (
+                                        <FormItem className="space-y-1">
+                                            <FormLabel className="text-[9px] font-black uppercase opacity-50">Assister (Optional)</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue placeholder="None"/></SelectTrigger></FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="none">None</SelectItem>
+                                                    <SelectGroup>
+                                                        <SelectLabel className="text-[10px] font-black uppercase tracking-widest text-accent mb-1">{homeTeam.name}</SelectLabel>
+                                                        {homePlayers.filter(p => p.id !== eventForm.watch('playerId')).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                                    </SelectGroup>
+                                                    <Separator className="my-2 bg-white/5" />
+                                                    <SelectGroup>
+                                                        <SelectLabel className="text-[10px] font-black uppercase tracking-widest text-accent mb-1">{awayTeam.name}</SelectLabel>
+                                                        {awayPlayers.filter(p => p.id !== eventForm.watch('playerId')).map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}/>
+                                )}
+
                                 <Button type="submit" className="w-full h-10 text-[10px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-white/20 border border-white/10">{editingEvent ? 'Update Registry' : 'Record Event'}</Button>
                             </form>
                         </Form>
