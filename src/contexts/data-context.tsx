@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useMemo, useCallback } from 'react';
+import { createContext, ReactNode, useMemo, useCallback, useContext } from 'react';
 import type { Player, Team, Match, MatchEvent } from '@/types';
 import { useCollection, useFirestore } from '@/firebase';
 import { collection, doc, setDoc, updateDoc, deleteDoc, writeBatch, getDocs, Timestamp, increment, getDoc, arrayRemove, arrayUnion, addDoc } from 'firebase/firestore';
@@ -138,7 +138,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }).catch(() => {});
   }, [firestore, isLoggingEnabled, user]);
 
-  const addPlayer = (player: Player) => {
+  const addPlayer = useCallback((player: Player) => {
     if (!firestore || !seasonId) return;
     const { id, ...playerData } = player;
     const docRef = doc(firestore, 'seasons', seasonId, 'players', id);
@@ -151,9 +151,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         requestResourceData: playerData
       }));
     });
-  };
+  }, [firestore, seasonId, logAction, getTeamName]);
 
-  const updatePlayer = async (player: Player) => {
+  const updatePlayer = useCallback(async (player: Player) => {
     if (!firestore || !seasonId) return;
     const { id, ...playerData } = player;
     const docRef = doc(firestore, 'seasons', seasonId, 'players', id);
@@ -183,9 +183,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         requestResourceData: playerData
       }));
     });
-  };
+  }, [firestore, seasonId, logAction, getTeamName]);
 
-  const deletePlayer = (playerId: string) => {
+  const deletePlayer = useCallback((playerId: string) => {
     if (!firestore || !seasonId) return;
     const playerName = getPlayerName(playerId);
     const docRef = doc(firestore, 'seasons', seasonId, 'players', playerId);
@@ -197,9 +197,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         operation: 'delete'
       }));
     });
-  };
+  }, [firestore, seasonId, logAction, getPlayerName]);
 
-  const addTeam = (team: Team) => {
+  const addTeam = useCallback((team: Team) => {
     if (!firestore || !seasonId) return;
     const { id, ...teamData } = team;
     const docRef = doc(firestore, 'seasons', seasonId, 'teams', id);
@@ -212,9 +212,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         requestResourceData: teamData
       }));
     });
-  };
+  }, [firestore, seasonId, logAction]);
 
-  const updateTeam = async (team: Team) => {
+  const updateTeam = useCallback(async (team: Team) => {
     if (!firestore || !seasonId) return;
     const { id, ...teamData } = team;
     const docRef = doc(firestore, 'seasons', seasonId, 'teams', id);
@@ -247,9 +247,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         requestResourceData: teamData
       }));
     });
-  };
+  }, [firestore, seasonId, logAction]);
 
-  const deleteTeam = (teamId: string) => {
+  const deleteTeam = useCallback((teamId: string) => {
     if (!firestore || !seasonId) return;
     const teamName = getTeamName(teamId);
     const docRef = doc(firestore, 'seasons', seasonId, 'teams', teamId);
@@ -261,9 +261,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         operation: 'delete'
       }));
     });
-  };
+  }, [firestore, seasonId, logAction, getTeamName]);
 
-  const addMatch = (match: Match) => {
+  const addMatch = useCallback((match: Match) => {
     if (!firestore || !seasonId) return;
     const { id, ...matchData } = match;
     const dataWithTimestamp = { ...matchData, date: Timestamp.fromDate(new Date(matchData.date)) };
@@ -276,7 +276,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         operation: 'create'
       }));
     });
-  };
+  }, [firestore, seasonId, logAction, getTeamName]);
 
   const updateMatch = useCallback(async (updatedMatch: Match) => {
     if (!firestore || !seasonId) return;
@@ -332,7 +332,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [firestore, seasonId, logAction, getTeamName]);
 
-  const addMatchEvent = async (matchId: string, event: Omit<MatchEvent, 'id'> & { id?: string }) => {
+  const addMatchEvent = useCallback(async (matchId: string, event: Omit<MatchEvent, 'id'> & { id?: string }) => {
     if (!firestore || !seasonId) return;
     const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
     const matchSnap = await getDoc(matchRef);
@@ -359,9 +359,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         logAction("ADD_MATCH_EVENT", `Recorded ${event.type} for ${event.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
         toast({ title: 'Event Added', description: `${event.type} recorded successfully.` });
     });
-  };
+  }, [firestore, seasonId, logAction, getTeamName, toast]);
 
-  const updateMatchEvent = async (matchId: string, eventId: string, newEventData: Omit<MatchEvent, 'id'>) => {
+  const updateMatchEvent = useCallback(async (matchId: string, eventId: string, newEventData: Omit<MatchEvent, 'id'>) => {
     if (!firestore || !seasonId) return;
     const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
     const matchSnap = await getDoc(matchRef);
@@ -376,7 +376,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     const updatedEvent = { ...newEventData, id: eventId } as MatchEvent;
     batch.update(matchRef, { events: [...filteredEvents, updatedEvent] });
 
-    // Revert old scores
     if (oldEvent.type === 'Goal') {
         const field = oldEvent.teamId === match.homeTeamId ? 'homeScore' : 'awayScore';
         batch.update(matchRef, { [field]: increment(-1) });
@@ -386,7 +385,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
     applyStatChange(batch, firestore, seasonId, match, oldEvent, -1);
 
-    // Apply new scores
     if (updatedEvent.type === 'Goal') {
         const field = updatedEvent.teamId === match.homeTeamId ? 'homeScore' : 'awayScore';
         batch.update(matchRef, { [field]: increment(1) });
@@ -400,9 +398,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         logAction("UPDATE_MATCH_EVENT", `Modified ${updatedEvent.type} for ${updatedEvent.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
         toast({ title: 'Event Updated', description: 'Match timeline record updated.' });
     });
-  };
+  }, [firestore, seasonId, logAction, getTeamName, toast]);
 
-  const deleteMatchEvent = async (matchId: string, eventId: string) => {
+  const deleteMatchEvent = useCallback(async (matchId: string, eventId: string) => {
     if (!firestore || !seasonId) return;
     const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
     const matchSnap = await getDoc(matchRef);
@@ -429,30 +427,30 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         logAction("DELETE_MATCH_EVENT", `Removed ${event.type} for ${event.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
         toast({ title: 'Event Removed', description: 'Action reverted from match history.' });
     });
-  };
+  }, [firestore, seasonId, logAction, getTeamName, toast]);
 
-  const updateMatchStatus = async (matchId: string, newStatus: Match['status']) => {
+  const updateMatchStatus = useCallback(async (matchId: string, newStatus: Match['status']) => {
     if (!firestore || !seasonId) return;
     const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
     const matchSnap = await getDoc(matchRef);
     if (!matchSnap.exists()) return;
-    const oldMatch = { id: matchSnap.id, ...matchSnap.data() } as Match;
+    const matchData = { id: matchSnap.id, ...matchSnap.data() } as Match;
 
     const batch = writeBatch(firestore);
-    if (newStatus !== oldMatch.status) {
-        if (newStatus === 'FINISHED') updateTeamStatsForOutcome(batch, firestore, seasonId, oldMatch, 1);
-        if (oldMatch.status === 'FINISHED') updateTeamStatsForOutcome(batch, firestore, seasonId, oldMatch, -1);
+    if (newStatus !== matchData.status) {
+        if (newStatus === 'FINISHED') updateTeamStatsForOutcome(batch, firestore, seasonId, matchData, 1);
+        if (matchData.status === 'FINISHED') updateTeamStatsForOutcome(batch, firestore, seasonId, matchData, -1);
     }
 
     batch.update(matchRef, { status: newStatus });
 
     await batch.commit().then(() => {
-        logAction("UPDATE_MATCH_STATUS", `Changed Match Status to ${newStatus}: ${getTeamName(oldMatch.homeTeamId)} vs ${getTeamName(oldMatch.awayTeamId)}`);
+        logAction("UPDATE_MATCH_STATUS", `Changed Match Status to ${newStatus}: ${getTeamName(matchData.homeTeamId)} vs ${getTeamName(matchData.awayTeamId)}`);
         toast({ title: 'Status Updated', description: `Match is now ${newStatus}.` });
     });
-  };
+  }, [firestore, seasonId, logAction, getTeamName, toast]);
 
-  const resetSeasonStats = async () => {
+  const resetSeasonStats = useCallback(async () => {
     if (!firestore || !seasonId) return;
     const batch = writeBatch(firestore);
     
@@ -478,9 +476,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         logAction("RESET_SEASON", `Purged all performance metrics for ${currentSeason?.name}`);
         toast({ title: 'Stats Reset', description: 'Season performance logs have been zeroed.' });
     });
-  };
+  }, [firestore, seasonId, teams, players, matches, logAction, currentSeason, toast]);
 
-  const wipeSeasonData = async () => {
+  const wipeSeasonData = useCallback(async () => {
     if (!firestore || !seasonId) return;
     const batch = writeBatch(firestore);
     
@@ -492,39 +490,42 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         logAction("WIPE_SEASON", `Permanently erased all registries and fixtures for ${currentSeason?.name}`);
         toast({ title: 'Data Wiped', description: 'All season records have been deleted.' });
     });
-  };
+  }, [firestore, seasonId, players, teams, matches, logAction, currentSeason, toast]);
 
-  const importSeasonPreset = async (sourceSeasonId: string) => {
+  const importSeasonPreset = useCallback(async (sourceSeasonId: string) => {
     if (!firestore || !seasonId) return;
-    const sourceTeams = await getDocs(collection(firestore, 'seasons', sourceSeasonId, 'teams'));
-    const sourcePlayers = await getDocs(collection(firestore, 'seasons', sourceSeasonId, 'players'));
+    try {
+        const sourceTeams = await getDocs(collection(firestore, 'seasons', sourceSeasonId, 'teams'));
+        const sourcePlayers = await getDocs(collection(firestore, 'seasons', sourceSeasonId, 'players'));
 
-    const batch = writeBatch(firestore);
-    const sourceName = (await getDoc(doc(firestore, 'config', 'app'))).data()?.seasons?.find((s: any) => s.id === sourceSeasonId)?.name || sourceSeasonId;
+        const batch = writeBatch(firestore);
+        const sourceName = (await getDoc(doc(firestore, 'config', 'app'))).data()?.seasons?.find((s: any) => s.id === sourceSeasonId)?.name || sourceSeasonId;
 
-    sourceTeams.forEach(tDoc => {
-        const { id, ...data } = tDoc.data() as Team;
-        batch.set(doc(firestore, 'seasons', seasonId, 'teams', tDoc.id), {
-            ...data,
-            stats: { totalGoals: 0, totalAssists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, matchesDrawn: 0, goalsAgainst: 0, totalYellowCards: 0, totalRedCards: 0 }
+        sourceTeams.forEach(tDoc => {
+            const { id, ...data } = tDoc.data() as Team;
+            batch.set(doc(firestore, 'seasons', seasonId, 'teams', tDoc.id), {
+                ...data,
+                stats: { totalGoals: 0, totalAssists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, matchesDrawn: 0, goalsAgainst: 0, totalYellowCards: 0, totalRedCards: 0 }
+            });
         });
-    });
 
-    sourcePlayers.forEach(pDoc => {
-        const { id, ...data } = pDoc.data() as Player;
-        batch.set(doc(firestore, 'seasons', seasonId, 'players', pDoc.id), {
-            ...data,
-            goals: 0, assists: 0, matchesPlayed: 0, yellowCards: 0, redCards: 0
+        sourcePlayers.forEach(pDoc => {
+            const { id, ...data } = pDoc.data() as Player;
+            batch.set(doc(firestore, 'seasons', seasonId, 'players', pDoc.id), {
+                ...data,
+                goals: 0, assists: 0, matchesPlayed: 0, yellowCards: 0, redCards: 0
+            });
         });
-    });
 
-    await batch.commit().then(() => {
+        await batch.commit();
         logAction("IMPORT_DATA", `Migrated rosters from ${sourceName} into ${currentSeason?.name}`);
         toast({ title: 'Import Complete', description: `Rosters migrated from ${sourceName} successfully.` });
-    });
-  };
+    } catch (error: any) {
+        toast({ variant: 'destructive', title: 'Import Failed', description: error.message });
+    }
+  }, [firestore, seasonId, logAction, currentSeason, toast]);
 
-  const resetGroups = async () => {
+  const resetGroups = useCallback(async () => {
     if (!firestore || !seasonId) return;
     const batch = writeBatch(firestore);
     teams.forEach(t => {
@@ -534,7 +535,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         logAction("RESET_GROUPS", `Reverted all club group assignments to standalone for ${currentSeason?.name}`);
         toast({ title: 'Groups Reset', description: 'All teams are now unassigned.' });
     });
-  };
+  }, [firestore, seasonId, teams, logAction, currentSeason, toast]);
 
   const value: DataContextState = {
     players, teams, matches, loading, addPlayer, updatePlayer, deletePlayer, addTeam, updateTeam, deleteTeam, addMatch, updateMatch, deleteMatch, logAction,

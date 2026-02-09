@@ -47,21 +47,15 @@ export function AnnouncementBanner() {
 
     return (
         <div className="relative z-50 bg-accent/60 backdrop-blur-2xl border-b border-accent/30 shadow-[0_8px_32px_rgba(255,87,34,0.3)] overflow-hidden h-14 flex items-center">
-            {/* Animated background shimmer */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer pointer-events-none" />
-            
-            {/* Static Prefix Label */}
             <div className="relative z-20 flex items-center gap-3 px-6 h-full bg-accent/40 backdrop-blur-md border-r border-white/20 shadow-[10px_0_30px_rgba(0,0,0,0.1)]">
                 <div className="bg-white rounded-full p-1.5 shadow-[0_0_15px_rgba(255,255,255,0.5)]">
                     <Megaphone className="h-3 w-3 text-accent fill-accent" />
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white drop-shadow-sm">Broadcast</span>
             </div>
-
-            {/* Rolling Content Container */}
             <div className="flex-1 flex overflow-hidden">
                 <div className="flex items-center gap-12 whitespace-nowrap animate-marquee py-2">
-                    {/* Double the content for seamless infinite loop */}
                     {[...Array(10)].map((_, i) => (
                         <div key={i} className="flex items-center gap-12">
                             <p className="font-extrabold tracking-tight text-base uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
@@ -83,12 +77,9 @@ export default function Home() {
 
   const handleDownloadExcel = () => {
     if (!currentSeason || !teams) return;
-
-    // Dynamic filename based on season name (e.g., "Season 4" -> "4")
     const seasonNum = currentSeason.name.split(' ')[1] || currentSeason.id.replace('season-', '');
     const filename = `dfpl_S${seasonNum}.xlsx`;
 
-    // 1. Standings Data
     const standings = teams.map(team => {
       const stats = team.stats;
       return {
@@ -107,7 +98,6 @@ export default function Home() {
     }).sort((a, b) => b.Pts - a.Pts || b.GD - a.GD || b.GF - a.GF || a.Team.localeCompare(b.Team));
     standings.forEach((s, i) => s.Rank = i + 1);
 
-    // 2. Team Statistics
     const teamStats = teams.map(team => ({
       'Team Name': team.name,
       'Owner': team.owner,
@@ -123,7 +113,6 @@ export default function Home() {
       'Red Cards': team.stats.totalRedCards || 0,
     }));
 
-    // 3. Players Data
     const playersData = players.map(p => {
       const team = teams.find(t => t.id === p.teamId);
       return {
@@ -140,7 +129,6 @@ export default function Home() {
       };
     });
 
-    // 4. Matches Data - Synchronized with UI (only export matches from active stages)
     const activeStageKeys = [
         currentSeason.matchConfig.showGroupStage ? 'GROUP_STAGE' : null,
         (currentSeason.matchConfig.showQuarterFinals && teams.length >= 16) ? 'QUARTER_FINALS' : null,
@@ -167,19 +155,11 @@ export default function Home() {
             };
         });
 
-    // Create workbook and add sheets
     const wb = XLSX.utils.book_new();
-    const wsStandings = XLSX.utils.json_to_sheet(standings);
-    const wsTeamStats = XLSX.utils.json_to_sheet(teamStats);
-    const wsPlayers = XLSX.utils.json_to_sheet(playersData);
-    const wsMatches = XLSX.utils.json_to_sheet(matchesData);
-
-    XLSX.utils.book_append_sheet(wb, wsStandings, "Standings");
-    XLSX.utils.book_append_sheet(wb, wsTeamStats, "Team Stats");
-    XLSX.utils.book_append_sheet(wb, wsPlayers, "Players");
-    XLSX.utils.book_append_sheet(wb, wsMatches, "Matches");
-
-    // Download file
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(standings), "Standings");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(teamStats), "Team Stats");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(playersData), "Players");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(matchesData), "Matches");
     XLSX.writeFile(wb, filename);
   };
 
@@ -187,7 +167,6 @@ export default function Home() {
     <div className="flex flex-col overflow-x-hidden">
       <AnnouncementBanner />
       
-      {/* Hero Section */}
       <section className="relative h-[85vh] w-full flex items-center justify-center text-center px-4">
         {heroImage && (
           <div className="absolute inset-0">
@@ -199,8 +178,10 @@ export default function Home() {
               priority
               data-ai-hint={heroImage.imageHint}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background" />
-            <div className="absolute inset-0 bg-black/40" />
+            {/* Professional darkening overlay */}
+            <div className="absolute inset-0 bg-black/50" />
+            {/* Subtle bottom fade to background */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
           </div>
         )}
         
@@ -240,10 +221,8 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Feature Grid */}
       <section className="py-24 bg-background relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent opacity-30" />
-        
         <div className="container mx-auto px-4">
           <motion.div
             className="mb-20"
@@ -289,15 +268,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-24 relative overflow-hidden bg-primary">
         <div className="absolute inset-0 opacity-10">
-          <Image
-            src={heroImage?.imageUrl || ''}
-            alt="background"
-            fill
-            className="object-cover grayscale"
-          />
+          <Image src={heroImage?.imageUrl || ''} alt="background" fill className="object-cover grayscale" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-transparent" />
         <div className="container mx-auto px-4 relative z-10">
@@ -315,7 +288,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Data Export Section */}
       <section className="py-12 bg-card border-t border-white/5 relative z-10">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-center md:text-left">
