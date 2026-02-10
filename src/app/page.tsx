@@ -134,16 +134,16 @@ export default function Home() {
       };
     });
 
-    const activeStageKeys = [
+    const activeStageKeys = ([
         currentSeason.matchConfig.showGroupStage ? 'GROUP_STAGE' : null,
         (currentSeason.matchConfig.showQuarterFinals && teams.length >= 16) ? 'QUARTER_FINALS' : null,
         'SEMI_FINALS',
         'FINALS',
         currentSeason.matchConfig.showOthers ? 'OTHERS' : null
-    ].filter(Boolean);
+    ].filter(Boolean) as string[]);
 
     const matchesData = matches
-        .filter(m => activeStageKeys.includes(m.stage))
+        .filter(m => m.stage && activeStageKeys.includes(m.stage))
         .map(m => {
             const hTeam = teams.find(t => t.id === m.homeTeamId);
             const aTeam = teams.find(t => t.id === m.awayTeamId);
