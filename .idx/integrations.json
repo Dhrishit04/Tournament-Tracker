@@ -1,0 +1,7 @@
+{
+  "firebase_hosting": {
+    "deploymentHostingUrl": "https://studio-686388072-37193.web.app"
+  },
+  "cloud_run_deploy": {},
+  "secrets_manager": {}
+}
