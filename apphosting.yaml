@@ -1,6 +1,3 @@
-
-# The apphosting.yaml file is used to configure the App Hosting backend.
-
 build:
   environmentVariables:
     NEXT_PUBLIC_FIREBASE_API_KEY:
@@ -15,11 +12,5 @@ build:
       secret: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
     NEXT_PUBLIC_FIREBASE_APP_ID:
       secret: NEXT_PUBLIC_FIREBASE_APP_ID
-
 run:
-  cpu: 1
-  memoryMiB: 1024
-  minInstances: 0
-  maxInstances: 5
-  region: [asia-south1]
-  serviceAccount: "998899494340-compute@developer.gserviceaccount.com"
+  serviceAccount: 998899494340-compute@developer.gserviceaccount.com
