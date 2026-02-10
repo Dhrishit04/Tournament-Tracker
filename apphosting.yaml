@@ -14,6 +14,7 @@ build:
       secret: NEXT_PUBLIC_FIREBASE_APP_ID
 run:
   serviceAccount: 998899494340-compute@developer.gserviceaccount.com
+  memoryMiB: 1024
   environmentVariables:
     NEXT_PUBLIC_FIREBASE_API_KEY:
       secret: NEXT_PUBLIC_FIREBASE_API_KEY
