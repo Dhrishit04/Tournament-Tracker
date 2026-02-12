@@ -22,6 +22,7 @@ import { format, parseISO } from 'date-fns';
 import { PlusCircle, Goal, Footprints, Trash2, Pencil, CheckCircle2, Settings2, Timer, Sword, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSeason } from '@/contexts/season-context';
+import { Switch } from '@/components/ui/switch';
 
 const eventSchema = z.object({
   type: z.enum(['Goal', 'Assist', 'Yellow Card', 'Red Card', 'Own Goal']),
@@ -37,6 +38,7 @@ const matchSettingsSchema = z.object({
   time: z.string().min(1, 'Time is required'),
   venue: z.string().optional(),
   description: z.string().optional(),
+  isExtraTime: z.boolean().optional(),
 });
 
 export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: string; isOpen: boolean; onClose: () => void; }) {
@@ -66,6 +68,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             time: match?.time || '',
             venue: match?.venue || '',
             description: match?.description || '',
+            isExtraTime: match?.isExtraTime || false,
         },
     });
 
@@ -74,10 +77,11 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             settingsForm.reset({
                 status: match.status,
                 stage: match.stage,
-                date: format(new Date(match.date), 'yyyy-MM-dd'),
+                date: match.date instanceof Date ? format(match.date, 'yyyy-MM-dd') : format(new Date(match.date), 'yyyy-MM-dd'),
                 time: match.time,
                 venue: match.venue || '',
                 description: match.description || '',
+                isExtraTime: match.isExtraTime || false,
             });
         }
     }, [match, settingsForm]);
@@ -110,7 +114,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     const baseDuration = stageTiming?.duration || 90;
     const extraDuration = stageTiming?.extraTime || 0;
 
-    // Teammate filtering for Assister logic
     const selectedScorerId = eventForm.watch('playerId');
     const selectedScorer = players.find(p => p.id === selectedScorerId);
     const eligibleAssisters = useMemo(() => {
@@ -133,7 +136,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             return;
         }
 
-        // Calculate absolute minute for the database
         const actualMinute = match.isExtraTime ? (baseDuration + inputMinute) : inputMinute;
 
         const { assisterId, ...baseValues } = values;
@@ -199,10 +201,11 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             ...match,
             status: values.status,
             stage: values.stage,
-            date: parseISO(values.date),
+            date: values.date instanceof Date ? values.date : parseISO(values.date),
             time: values.time,
             venue: values.venue,
             description: values.description,
+            isExtraTime: values.isExtraTime,
         };
         await updateMatch(updatedMatch);
         setShowSettingsForm(false);
@@ -300,6 +303,19 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                             )}/>
                                             <FormField control={settingsForm.control} name="time" render={({ field }) => (
                                                 <FormItem><FormLabel className="text-[10px] font-bold uppercase">Kickoff</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
+                                            )}/>
+                                            <FormField control={settingsForm.control} name="isExtraTime" render={({ field }) => (
+                                                <FormItem className="flex flex-col justify-end space-y-2">
+                                                    <FormLabel className="text-[10px] font-black uppercase opacity-50">Extra Time Protocol</FormLabel>
+                                                    <div className="flex items-center space-x-2 bg-white/5 h-9 rounded-md px-3 border border-white/5">
+                                                        <FormControl>
+                                                            <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-accent scale-75" />
+                                                        </FormControl>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                                                            {field.value ? 'Active' : 'Inactive'}
+                                                        </span>
+                                                    </div>
+                                                </FormItem>
                                             )}/>
                                         </div>
                                         <div className="flex justify-end">
@@ -482,7 +498,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                                 setEditingEvent(event); 
                                                                 setShowEventForm(true); 
                                                                 
-                                                                // Convert absolute back to relative for the form if in ET
                                                                 const displayMin = match.isExtraTime && event.minute > baseDuration 
                                                                     ? event.minute - baseDuration 
                                                                     : event.minute;
