@@ -1,9 +1,8 @@
-
 'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, Shield, LogIn, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, Shield, LogIn, LogOut, LayoutDashboard, BarChart3, Trophy, GitBranch } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -29,10 +28,12 @@ import {
 import { useState, useEffect } from 'react';
 
 const navLinks = [
-  { href: '/standings', label: 'Standings' },
-  { href: '/teams', label: 'Teams' },
-  { href: '/players', label: 'Players' },
-  { href: '/matches', label: 'Matches' },
+  { href: '/standings', label: 'Standings', icon: BarChart3 },
+  { href: '/stats', label: 'Stats', icon: Trophy },
+  { href: '/brackets', label: 'Brackets', icon: GitBranch },
+  { href: '/matches', label: 'Matches', icon: null },
+  { href: '/teams', label: 'Teams', icon: null },
+  { href: '/players', label: 'Players', icon: null },
 ];
 
 export function Header() {
@@ -63,12 +64,15 @@ export function Header() {
     <Link
       href={href}
       className={cn(
-        'transition-all hover:text-accent text-sm font-bold uppercase tracking-widest',
-        pathname === href ? 'text-accent' : 'text-foreground/70'
+        'transition-all hover:text-accent text-xs font-black uppercase tracking-[0.2em] relative py-2',
+        pathname === href ? 'text-accent' : 'text-foreground/60'
       )}
       onClick={() => setMobileMenuOpen(false)}
     >
       {children}
+      {pathname === href && (
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent rounded-full animate-in fade-in zoom-in-95 duration-300" />
+      )}
     </Link>
   );
 
@@ -84,9 +88,7 @@ export function Header() {
     <>
       <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="container relative flex h-16 items-center">
-          {/* Left Side */}
           <div className="flex items-center">
-            {/* Mobile Menu */}
             <div className="md:hidden mr-2">
               <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
@@ -95,18 +97,18 @@ export function Header() {
                     <span className="sr-only">Toggle Menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="bg-background border-r-white/5">
+                <SheetContent side="left" className="bg-background border-r-white/5 flex flex-col p-8">
                   <SheetHeader>
                     <SheetTitle className="sr-only">Menu</SheetTitle>
                     <SheetDescription className="sr-only">
                       Navigate the application pages.
                     </SheetDescription>
                   </SheetHeader>
-                  <Link href="/" className="mr-6 flex items-center space-x-2 my-10" onClick={() => setMobileMenuOpen(false)}>
-                    <Shield className="h-8 w-8 text-accent" />
-                    <span className="font-black text-2xl tracking-tighter italic">DFPL</span>
+                  <Link href="/" className="flex items-center space-x-2 mb-12" onClick={() => setMobileMenuOpen(false)}>
+                    <Shield className="h-10 w-10 text-accent" />
+                    <span className="font-black text-3xl tracking-tighter italic">DFPL</span>
                   </Link>
-                  <nav className="flex flex-col space-y-6">
+                  <nav className="flex flex-col space-y-8">
                     {navLinks.map(link => (
                       <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
                     ))}
@@ -114,38 +116,34 @@ export function Header() {
                 </SheetContent>
               </Sheet>
             </div>
-            {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 group">
-              <div className="bg-accent rounded-lg p-1 transition-transform group-hover:rotate-12">
+              <div className="bg-accent rounded-lg p-1.5 transition-transform group-hover:rotate-12 group-hover:scale-110 duration-300">
                   <Shield className="h-5 w-5 text-white" />
               </div>
               <span className="font-black text-2xl tracking-tighter italic hidden sm:inline-block">DFPL</span>
             </Link>
           </div>
 
-          {/* Centered Navigation */}
           <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center space-x-8">
             {navLinks.map(link => (
               <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
             ))}
           </nav>
 
-          {/* Right Side */}
           <div className="flex flex-1 items-center justify-end space-x-3">
             <ThemeToggle />
             {isAdmin ? (
               <div className="flex items-center gap-2">
-                <Button variant="secondary" size="sm" asChild className="hidden sm:flex rounded-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold">
-                  <Link href="/admin"><LayoutDashboard className="mr-2 h-4 w-4 text-accent" />Admin</Link>
+                <Button variant="secondary" size="sm" asChild className="hidden sm:flex rounded-full bg-white/5 hover:bg-white/10 border border-white/10 font-black italic uppercase tracking-tighter text-[10px]">
+                  <Link href="/admin"><LayoutDashboard className="mr-2 h-3.5 w-3.5 text-accent" />Command Center</Link>
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setLogoutDialogOpen(true)} className="rounded-full hover:bg-accent/10 text-destructive hover:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span className="hidden lg:inline">Logout</span>
+                <Button variant="ghost" size="sm" onClick={() => setLogoutDialogOpen(true)} className="rounded-full hover:bg-destructive/10 text-destructive hover:text-destructive group px-4">
+                  <LogOut className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </div>
             ) : (
-              <Button variant="outline" size="sm" asChild className="rounded-full border-accent/30 bg-accent/5 text-accent hover:bg-accent hover:text-white font-bold transition-all">
-                <Link href="/admin-auth"><LogIn className="mr-2 h-4 w-4" />Login</Link>
+              <Button variant="outline" size="sm" asChild className="rounded-full border-accent/30 bg-accent/5 text-accent hover:bg-accent hover:text-white font-black italic uppercase tracking-tighter text-[10px] transition-all">
+                <Link href="/admin-auth"><LogIn className="mr-2 h-3.5 w-3.5" />Admin Portal</Link>
               </Button>
             )}
           </div>
@@ -155,9 +153,9 @@ export function Header() {
       <AlertDialog open={isLogoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
         <AlertDialogContent className="glass-card border-white/10">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-black italic uppercase tracking-tight">Terminate <span className="text-accent">Session?</span></AlertDialogTitle>
+            <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tight">Terminate <span className="text-accent">Session?</span></AlertDialogTitle>
             <AlertDialogDescription className="text-white/70">
-              Are you sure you want to log out of the administrative command center?
+              Are you sure you want to log out of the DFPL administrative command center?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -19,7 +19,7 @@ import { useData } from '@/hooks/use-data';
 import { cn, getImageUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { PlusCircle, Goal, Footprints, Trash2, Pencil, CheckCircle2, Settings2, Timer, Sword, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Goal, Footprints, Trash2, Pencil, CheckCircle2, Settings2, Timer, Sword, AlertTriangle, History } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSeason } from '@/contexts/season-context';
 import { Switch } from '@/components/ui/switch';
@@ -71,6 +71,28 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             isExtraTime: match?.isExtraTime || false,
         },
     });
+
+    const h2hStats = useMemo(() => {
+        if (!match || !teams.length) return null;
+        const past = matches.filter(m => 
+            m.status === 'FINISHED' && 
+            m.id !== match.id &&
+            ((m.homeTeamId === match.homeTeamId && m.awayTeamId === match.awayTeamId) ||
+             (m.homeTeamId === match.awayTeamId && m.awayTeamId === match.homeTeamId))
+        );
+        
+        let homeWins = 0, awayWins = 0, draws = 0;
+        past.forEach(m => {
+            const hWin = (m.homeScore ?? 0) > (m.awayScore ?? 0);
+            const aWin = (m.awayScore ?? 0) > (m.homeScore ?? 0);
+            if (m.homeTeamId === match.homeTeamId) {
+                if (hWin) homeWins++; else if (aWin) awayWins++; else draws++;
+            } else {
+                if (aWin) homeWins++; else if (hWin) awayWins++; else draws++;
+            }
+        });
+        return { homeWins, awayWins, draws, total: past.length };
+    }, [match, matches, teams]);
 
     useEffect(() => {
         if (match) {
@@ -172,7 +194,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     };
 
     const handleDeclareMatch = async () => {
-        const isDraw = match.homeScore === match.awayScore;
+        const isDraw = (match.homeScore ?? 0) === (match.awayScore ?? 0);
         const isKnockout = match.stage !== 'GROUP_STAGE';
 
         if (isDraw && isKnockout && !match.isExtraTime) {
@@ -328,53 +350,78 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="flex flex-col items-center justify-center bg-white/5 p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden h-fit">
-                            <div className="absolute top-0 right-0 p-4 opacity-5">
-                                <Sword className="h-32 w-32 rotate-12" />
-                            </div>
-                            
-                            <div className="flex items-center justify-around w-full mb-8 gap-4 relative z-10">
-                                <div className="flex flex-col items-center w-[40%] text-center min-w-0">
-                                    <div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 border-2 border-accent/20 shadow-xl shrink-0 group">
-                                        <Image src={homeLogo.imageUrl} alt={homeTeam.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" data-ai-hint={homeLogo.imageHint}/>
-                                    </div>
-                                    <span className="font-black text-xs sm:text-sm leading-tight truncate w-full uppercase tracking-tighter">{homeTeam.name}</span>
+                        <div className="space-y-8">
+                            <div className="flex flex-col items-center justify-center bg-white/5 p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden h-fit">
+                                <div className="absolute top-0 right-0 p-4 opacity-5">
+                                    <Sword className="h-32 w-32 rotate-12" />
                                 </div>
-                                <div className="flex flex-col items-center gap-2">
-                                    <div className="text-5xl font-black font-mono tracking-tighter flex items-center gap-3">
-                                        {match.status === 'FINISHED' || match.status === 'LIVE' ? (
-                                        <>
-                                            <span className={cn(match.homeScore! > match.awayScore! ? "text-accent" : "")}>{match.homeScore ?? 0}</span>
-                                            <span className="text-white/10 font-sans">-</span>
-                                            <span className={cn(match.awayScore! > match.homeScore! ? "text-accent" : "")}>{match.awayScore ?? 0}</span>
-                                        </>
-                                        ) : (
-                                        <span className="text-xl text-white/40 font-sans font-black uppercase tracking-[0.2em]">{match.time}</span>
+                                
+                                <div className="flex items-center justify-around w-full mb-8 gap-4 relative z-10">
+                                    <div className="flex flex-col items-center w-[40%] text-center min-w-0">
+                                        <div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 border-2 border-accent/20 shadow-xl shrink-0 group">
+                                            <Image src={homeLogo.imageUrl} alt={homeTeam.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        </div>
+                                        <span className="font-black text-xs sm:text-sm leading-tight truncate w-full uppercase tracking-tighter">{homeTeam.name}</span>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <div className="text-5xl font-black font-mono tracking-tighter flex items-center gap-3">
+                                            {match.status === 'FINISHED' || match.status === 'LIVE' ? (
+                                            <>
+                                                <span className={cn(match.homeScore! > match.awayScore! ? "text-accent" : "")}>{match.homeScore ?? 0}</span>
+                                                <span className="text-white/10 font-sans">-</span>
+                                                <span className={cn(match.awayScore! > match.homeScore! ? "text-accent" : "")}>{match.awayScore ?? 0}</span>
+                                            </>
+                                            ) : (
+                                            <span className="text-xl text-white/40 font-sans font-black uppercase tracking-[0.2em]">{match.time}</span>
+                                            )}
+                                        </div>
+                                        {stageTiming?.duration && (
+                                            <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                                                <Timer className="h-3 w-3" /> {baseDuration}m Base
+                                            </div>
                                         )}
                                     </div>
-                                    {stageTiming?.duration && (
-                                        <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                                            <Timer className="h-3 w-3" /> {baseDuration}m Base
+                                    <div className="flex flex-col items-center w-[40%] text-center min-w-0">
+                                        <div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 border-2 border-accent/20 shadow-xl shrink-0 group">
+                                            <Image src={awayLogo.imageUrl} alt={awayTeam.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
                                         </div>
-                                    )}
-                                </div>
-                                <div className="flex flex-col items-center w-[40%] text-center min-w-0">
-                                    <div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 border-2 border-accent/20 shadow-xl shrink-0 group">
-                                        <Image src={awayLogo.imageUrl} alt={awayTeam.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" data-ai-hint={awayLogo.imageHint} />
+                                        <span className="font-black text-xs sm:text-sm leading-tight truncate w-full uppercase tracking-tighter">{awayTeam.name}</span>
                                     </div>
-                                    <span className="font-black text-xs sm:text-sm leading-tight truncate w-full uppercase tracking-tighter">{awayTeam.name}</span>
                                 </div>
+
+                                {isAdmin && match.status === 'LIVE' && (
+                                    <Button onClick={handleDeclareMatch} className="bg-green-600 hover:bg-green-700 w-full font-black italic uppercase tracking-widest h-12 shadow-lg shadow-green-900/20">
+                                        <CheckCircle2 className="mr-2 h-5 w-5" /> Declare Finished
+                                    </Button>
+                                )}
+                                {match.status === 'FINISHED' && (
+                                    <div className="flex items-center gap-3 text-accent font-black uppercase text-[10px] tracking-[0.3em] bg-accent/10 px-8 py-2 rounded-full border border-accent/20 mt-4 animate-in fade-in zoom-in duration-500">
+                                        <CheckCircle2 className="h-4 w-4" /> Official Protocol Complete
+                                    </div>
+                                )}
                             </div>
 
-                            {isAdmin && match.status === 'LIVE' && (
-                                <Button onClick={handleDeclareMatch} className="bg-green-600 hover:bg-green-700 w-full font-black italic uppercase tracking-widest h-12 shadow-lg shadow-green-900/20">
-                                    <CheckCircle2 className="mr-2 h-5 w-5" /> Declare Finished
-                                </Button>
-                            )}
-                            {match.status === 'FINISHED' && (
-                                <div className="flex items-center gap-3 text-accent font-black uppercase text-[10px] tracking-[0.3em] bg-accent/10 px-8 py-2 rounded-full border border-accent/20 mt-4 animate-in fade-in zoom-in duration-500">
-                                    <CheckCircle2 className="h-4 w-4" /> Official Protocol Complete
-                                </div>
+                            {h2hStats && h2hStats.total > 0 && (
+                                <Card className="glass-card border-white/5">
+                                    <CardHeader className="py-3 px-4 flex flex-row items-center justify-between border-b border-white/5">
+                                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Head-to-Head History</CardTitle>
+                                        <span className="text-[10px] font-bold opacity-30">{h2hStats.total} Encounters</span>
+                                    </CardHeader>
+                                    <CardContent className="p-4 flex justify-between items-center gap-4">
+                                        <div className="flex-1 text-center">
+                                            <p className="text-[8px] font-black text-muted-foreground uppercase mb-1">{homeTeam.name}</p>
+                                            <p className="text-xl font-mono font-black text-accent">{h2hStats.homeWins}</p>
+                                        </div>
+                                        <div className="flex-1 text-center border-x border-white/5">
+                                            <p className="text-[8px] font-black text-muted-foreground uppercase mb-1">Draws</p>
+                                            <p className="text-xl font-mono font-black">{h2hStats.draws}</p>
+                                        </div>
+                                        <div className="flex-1 text-center">
+                                            <p className="text-[8px] font-black text-muted-foreground uppercase mb-1">{awayTeam.name}</p>
+                                            <p className="text-xl font-mono font-black text-accent">{h2hStats.awayWins}</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             )}
                         </div>
 

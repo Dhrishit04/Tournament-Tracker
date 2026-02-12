@@ -1,7 +1,7 @@
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Download, Settings, Trash2, RotateCcw } from 'lucide-react';
+import { AlertTriangle, Download, Settings, Trash2, RotateCcw, Upload, FileUp, Loader2 } from 'lucide-react';
 import { useSeason } from '@/contexts/season-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,32 +17,35 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useData } from '@/hooks/use-data';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { AccessDenied } from '@/components/admin/access-denied';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function AdminSettingsPage() {
     const { isSystemAdmin, user } = useAuth();
     const { seasons, currentSeason, setCurrentSeason, createNextSeason, loading, deleteCurrentSeason } = useSeason();
-    const { resetSeasonStats, wipeSeasonData, importSeasonPreset } = useData();
+    const { resetSeasonStats, wipeSeasonData, importSeasonPreset, bulkImportData } = useData();
+    const { toast } = useToast();
     
     const [isPartialResetDialogOpen, setIsPartialResetDialogOpen] = useState(false);
     const [isFullResetDialogOpen, setIsFullResetDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+    const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
     const [sourceSeasonToImport, setSourceSeasonToImport] = useState('');
+    const [importing, setImporting] = useState(false);
+    
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Dynamic privilege check (Reactive to AuthProvider listener)
     const canAccessSettings = isSystemAdmin || user?.canAccessSettings;
 
-    // Immediate Access Denied check
     if (!canAccessSettings) {
         return <AccessDenied />;
     }
 
-    // Secondary Data Loading check
     if (loading || !currentSeason) {
       return (
         <div className="space-y-8">
@@ -69,6 +72,25 @@ export default function AdminSettingsPage() {
         await importSeasonPreset(sourceSeasonToImport);
         setIsImportDialogOpen(false);
         setSourceSeasonToImport('');
+    };
+
+    const handleBulkFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.name.endsWith('.xlsx')) {
+            toast({ variant: 'destructive', title: 'File Refused', description: 'Only .xlsx Excel files are supported for bulk ingestion.' });
+            return;
+        }
+
+        setImporting(true);
+        try {
+            await bulkImportData(file);
+            setIsBulkImportDialogOpen(false);
+        } finally {
+            setImporting(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
     };
 
     const handleDeleteSeason = async () => {
@@ -119,6 +141,54 @@ export default function AdminSettingsPage() {
                         </SelectContent>
                     </Select>
                 </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card border-white/5 overflow-hidden">
+            <CardHeader className="bg-white/5 border-b border-white/5">
+              <CardTitle className="text-lg font-bold flex items-center gap-3">
+                <FileUp className="h-5 w-5 text-accent" /> Bulk Ingestion
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Populate {currentSeason?.name} registry and stats via professional Excel data.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-8">
+                <AlertDialog open={isBulkImportDialogOpen} onOpenChange={setIsBulkImportDialogOpen}>
+                    <AlertDialogTrigger asChild>
+                        <Button className="w-full h-12 bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg font-black italic uppercase tracking-tighter">
+                            <Upload className="mr-2 h-4 w-4" /> Bulk Data Upload (.xlsx)
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="glass-card border-white/5">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Initiate <span className="text-accent">Bulk Ingestion?</span></AlertDialogTitle>
+                            <AlertDialogDescription className="text-white/70">
+                                This will <strong>overwrite</strong> the current registries for teams, players, and matches in {currentSeason?.name}. Ensure your Excel file contains all 4 required sheets with exact column mapping.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <div className="py-6 flex flex-col items-center gap-4 bg-white/5 rounded-2xl border border-white/5">
+                            <input 
+                                type="file" 
+                                accept=".xlsx" 
+                                className="hidden" 
+                                ref={fileInputRef} 
+                                onChange={handleBulkFileChange}
+                            />
+                            <Button 
+                                onClick={() => fileInputRef.current?.click()} 
+                                disabled={importing}
+                                className="bg-accent hover:bg-accent/90 h-14 px-8 rounded-full shadow-2xl shadow-accent/20"
+                            >
+                                {importing ? <Loader2 className="h-5 w-5 animate-spin" /> : "Select Excel File"}
+                            </Button>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Target: {currentSeason?.name}</p>
+                        </div>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel className="glass-card border-white/10">Abort</AlertDialogCancel>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </CardContent>
           </Card>
 

@@ -1,17 +1,17 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import type { Player, Team, TeamStats } from '@/types';
+import type { Player, Team, TeamStats, Match } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
-import { PlusCircle, Edit, Pencil } from 'lucide-react';
+import { PlusCircle, Edit, Pencil, History, TrendingUp } from 'lucide-react';
 import { useData } from '@/hooks/use-data';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -172,7 +172,7 @@ function TeamStatsEditForm({
 
 export default function TeamDetailPage() {
   const params = useParams<{ teamId: string }>();
-  const { teams, players, loading, updatePlayer, updateTeam } = useData();
+  const { teams, players, matches, loading, updatePlayer, updateTeam } = useData();
   const team = teams.find((t) => t.id === params.teamId);
   const { isAdmin } = useAuth();
   
@@ -180,6 +180,22 @@ export default function TeamDetailPage() {
   const [isPlayerDialogOpen, setIsPlayerDialogOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const { toast } = useToast();
+
+  const teamForm = useMemo(() => {
+    if (!team) return [];
+    return matches
+        .filter(m => m.status === 'FINISHED' && (m.homeTeamId === team.id || m.awayTeamId === team.id))
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5)
+        .map(m => {
+            const isHome = m.homeTeamId === team.id;
+            const score = isHome ? (m.homeScore ?? 0) : (m.awayScore ?? 0);
+            const opponentScore = isHome ? (m.awayScore ?? 0) : (m.homeScore ?? 0);
+            if (score > opponentScore) return 'W';
+            if (score < opponentScore) return 'L';
+            return 'D';
+        });
+  }, [team, matches]);
 
   if (loading) {
       return <div className="container mx-auto px-4 py-8"><Skeleton className="h-96 w-full"/></div>
@@ -265,22 +281,28 @@ export default function TeamDetailPage() {
   const PlayerRow = ({ player }: { player: Player }) => {
     const avatar = getImageUrl(player.avatarUrl);
     return (
-      <TableRow>
+      <TableRow className="border-white/5 hover:bg-white/5 transition-colors">
         <TableCell>
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" data-ai-hint={avatar.imageHint}/>
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10">
+                <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" />
             </div>
-            <span className="font-medium">{player.name}</span>
+            <span className="font-bold uppercase text-xs tracking-tight">{player.name}</span>
           </div>
         </TableCell>
-        <TableCell className="hidden md:table-cell">{player.age || 'N/A'}</TableCell>
-        <TableCell className="hidden sm:table-cell">{player.preferredPosition?.join(', ')}</TableCell>
-        <TableCell className="text-center">{player.goals || 0}</TableCell>
-        <TableCell className="text-center hidden sm:table-cell">{player.assists || 0}</TableCell>
+        <TableCell className="hidden md:table-cell text-xs opacity-60 font-black">{player.age || 'N/A'}</TableCell>
+        <TableCell className="hidden sm:table-cell">
+            <div className="flex gap-1 flex-wrap">
+                {player.preferredPosition?.map(p => (
+                    <span key={p} className="text-[8px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/10">{p}</span>
+                ))}
+            </div>
+        </TableCell>
+        <TableCell className="text-center font-mono font-bold text-accent">{player.goals || 0}</TableCell>
+        <TableCell className="text-center hidden sm:table-cell font-mono font-bold opacity-60">{player.assists || 0}</TableCell>
         {isAdmin && (
             <TableCell className="text-right">
-                <Button variant="ghost" size="icon" onClick={() => handlePlayerEditClick(player)}>
+                <Button variant="ghost" size="icon" onClick={() => handlePlayerEditClick(player)} className="hover:bg-white/10">
                     <Pencil className="h-4 w-4" />
                 </Button>
             </TableCell>
@@ -302,90 +324,124 @@ export default function TeamDetailPage() {
   ];
 
   return (
-    <>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row items-center gap-6 mb-8">
-          <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-primary">
-              <Image src={logo.imageUrl} alt={`${team.name} logo`} fill className="object-cover" data-ai-hint={logo.imageHint} />
+    <div className="container mx-auto px-4 py-12">
+        <div className="flex flex-col md:flex-row items-center gap-8 mb-16 relative">
+          <div className="absolute inset-0 bg-accent/5 blur-[120px] rounded-full -z-10 pointer-events-none" />
+          <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-accent shadow-2xl shadow-accent/20 shrink-0">
+              <Image src={logo.imageUrl} alt={`${team.name} logo`} fill className="object-cover" />
           </div>
-          <div className="text-center md:text-left">
-            <h1 className="text-4xl font-bold font-headline">{team.name}</h1>
-            <p className="text-lg text-muted-foreground">Owner: {team.owner}</p>
+          <div className="text-center md:text-left space-y-4">
+            <div className="space-y-1">
+                <h1 className="text-6xl font-black font-headline italic tracking-tighter uppercase leading-none">{team.name}</h1>
+                <p className="text-accent font-black uppercase tracking-[0.3em] text-xs">Establishment Integrity Checked</p>
+            </div>
+            <div className="flex flex-wrap justify-center md:justify-start gap-6">
+                <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Ownership</p>
+                    <p className="text-sm font-bold">{team.owner}</p>
+                </div>
+                <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Squad Roster</p>
+                    <p className="text-sm font-bold">{teamPlayers.length} Elite Athletes</p>
+                </div>
+                <div className="flex flex-col items-center md:items-start">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Recent Form</p>
+                    <div className="flex gap-1.5">
+                        {teamForm.length > 0 ? teamForm.map((result, i) => (
+                            <div key={i} className={cn(
+                                "w-6 h-6 rounded flex items-center justify-center text-[10px] font-black",
+                                result === 'W' ? "bg-green-500/20 text-green-500 border border-green-500/30" :
+                                result === 'L' ? "bg-red-500/20 text-red-500 border border-red-500/30" :
+                                "bg-white/10 text-white/60 border border-white/10"
+                            )}>
+                                {result}
+                            </div>
+                        )) : <span className="text-[10px] font-bold opacity-30 italic">No matches recorded</span>}
+                    </div>
+                </div>
+            </div>
           </div>
           {isAdmin && (
-            <div className="ml-auto flex gap-2">
-              <Button variant="outline" asChild>
+            <div className="md:ml-auto flex gap-3">
+              <Button variant="outline" asChild className="rounded-full bg-white/5 border-white/10 hover:bg-white/10">
                 <Link href={`/admin/teams`}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Team
+                  <Edit className="mr-2 h-4 w-4" /> Registry
                 </Link>
               </Button>
-              <Button asChild>
+              <Button asChild className="rounded-full bg-accent hover:bg-accent/90">
                 <Link href={`/admin/players`}>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Player
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Athlete
                 </Link>
               </Button>
             </div>
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Team Roster</CardTitle>
+            <Card className="glass-card border-white/5 overflow-hidden">
+              <CardHeader className="bg-white/5 border-b border-white/5">
+                <div className="flex items-center gap-3">
+                    <TrendingUp className="h-5 w-5 text-accent" />
+                    <CardTitle className="text-xl font-black italic tracking-tighter uppercase">Elite Roster</CardTitle>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Player</TableHead>
-                      <TableHead className="hidden md:table-cell">Age</TableHead>
-                      <TableHead className="hidden sm:table-cell">Position</TableHead>
-                      <TableHead className="text-center">Goals</TableHead>
-                      <TableHead className="text-center hidden sm:table-cell">Assists</TableHead>
-                      {isAdmin && <TableHead className="text-right">Actions</TableHead>}
+                  <TableHeader className="bg-white/5">
+                    <TableRow className="border-white/5 hover:bg-transparent">
+                      <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete</TableHead>
+                      <TableHead className="hidden md:table-cell h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</TableHead>
+                      <TableHead className="hidden sm:table-cell h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Position</TableHead>
+                      <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Goals</TableHead>
+                      <TableHead className="text-center hidden sm:table-cell h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Assists</TableHead>
+                      {isAdmin && <TableHead className="text-right h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {teamPlayers.map((player) => <PlayerRow key={player.id} player={player} />)}
+                    {teamPlayers.length > 0 ? teamPlayers.map((player) => <PlayerRow key={player.id} player={player} />) : (
+                        <TableRow>
+                            <TableCell colSpan={isAdmin ? 6 : 5} className="h-32 text-center text-muted-foreground italic text-xs uppercase tracking-widest">No active athletes registered</TableCell>
+                        </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
             </Card>
           </div>
 
-          <div>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Team Statistics</CardTitle>
+          <div className="space-y-8">
+            <Card className="glass-card border-white/5 overflow-hidden">
+              <CardHeader className="bg-white/5 border-b border-white/5 flex flex-row items-center justify-between py-4">
+                <div className="flex items-center gap-3">
+                    <History className="h-5 w-5 text-accent" />
+                    <CardTitle className="text-xl font-black italic tracking-tighter uppercase">Performance Metrics</CardTitle>
+                </div>
                 {isAdmin && (
-                    <Button variant="ghost" size="icon" onClick={() => setIsStatsDialogOpen(true)}>
+                    <Button variant="ghost" size="icon" onClick={() => setIsStatsDialogOpen(true)} className="hover:bg-white/10">
                         <Pencil className="h-4 w-4" />
                     </Button>
                 )}
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-1 gap-4">
                   {statItems.map(stat => (
-                    <li key={stat.label} className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">{stat.label}</span>
-                      <span className="font-semibold">{stat.value}</span>
-                    </li>
+                    <div key={stat.label} className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{stat.label}</span>
+                      <span className="font-mono font-black text-lg text-accent">{stat.value}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
-      </div>
         
       {selectedPlayer && (
         <Dialog open={isPlayerDialogOpen} onOpenChange={setIsPlayerDialogOpen}>
-            <DialogContent>
+            <DialogContent className="glass-card border-white/5">
                 <DialogHeader>
-                    <DialogTitle>Edit Player: {selectedPlayer.name}</DialogTitle>
+                    <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Modify <span className="text-accent">Athlete</span></DialogTitle>
                 </DialogHeader>
                 <PlayerEditForm 
                     player={selectedPlayer}
@@ -398,9 +454,9 @@ export default function TeamDetailPage() {
 
       {team && (
         <Dialog open={isStatsDialogOpen} onOpenChange={setIsStatsDialogOpen}>
-          <DialogContent>
+          <DialogContent className="glass-card border-white/5 sm:max-w-lg">
               <DialogHeader>
-                  <DialogTitle>Edit Team Statistics: {team.name}</DialogTitle>
+                  <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Override <span className="text-accent">Team Stats</span></DialogTitle>
               </DialogHeader>
               <TeamStatsEditForm 
                   team={team}
@@ -410,6 +466,6 @@ export default function TeamDetailPage() {
           </DialogContent>
         </Dialog>
       )}
-    </>
+    </div>
   );
 }
