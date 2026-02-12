@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -27,7 +26,7 @@ import { useSeason } from '@/contexts/season-context';
 const eventSchema = z.object({
   type: z.enum(['Goal', 'Assist', 'Yellow Card', 'Red Card', 'Own Goal']),
   playerId: z.string().min(1, 'Player is required'),
-  minute: z.coerce.number().min(0).max(120),
+  minute: z.coerce.number().min(1, 'Minute must be at least 1'),
   assisterId: z.string().optional(),
 });
 
@@ -55,7 +54,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
     const eventForm = useForm<z.infer<typeof eventSchema>>({
         resolver: zodResolver(eventSchema),
-        defaultValues: { type: 'Goal', minute: 0, assisterId: 'none' },
+        defaultValues: { type: 'Goal', minute: 1, assisterId: 'none' },
     });
 
     const settingsForm = useForm<z.infer<typeof matchSettingsSchema>>({
@@ -110,7 +109,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     const stageTiming = match.stage ? currentSeason?.matchConfig.stageTimings?.[match.stage] : null;
     const baseDuration = stageTiming?.duration || 90;
     const extraDuration = stageTiming?.extraTime || 0;
-    const maxMinute = match.isExtraTime ? (baseDuration + extraDuration) : baseDuration;
 
     // Teammate filtering for Assister logic
     const selectedScorerId = eventForm.watch('playerId');
@@ -121,14 +119,22 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     }, [selectedScorer, players]);
 
     const handleEventSubmit = async (values: z.infer<typeof eventSchema>) => {
-        if (values.minute > maxMinute) {
+        const inputMinute = Number(values.minute);
+        const maxAllowedForPhase = match.isExtraTime ? extraDuration : baseDuration;
+
+        if (inputMinute > maxAllowedForPhase) {
             toast({
                 variant: 'destructive',
                 title: 'Timing Violation',
-                description: `Matches in this stage are limited to ${maxMinute} minutes ${match.isExtraTime ? '(including Extra Time)' : ''}.`
+                description: match.isExtraTime 
+                    ? `Extra Time protocol is configured for ${extraDuration}m. Minute must be between 1-${extraDuration}.`
+                    : `Regular match duration is capped at ${baseDuration}m.`
             });
             return;
         }
+
+        // Calculate absolute minute for the database
+        const actualMinute = match.isExtraTime ? (baseDuration + inputMinute) : inputMinute;
 
         const { assisterId, ...baseValues } = values;
         const player = players.find(p => p.id === values.playerId);
@@ -137,6 +143,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         if (editingEvent) {
             await updateMatchEvent(match.id, editingEvent.id, { 
                 ...baseValues, 
+                minute: actualMinute,
                 teamId: player.teamId, 
                 playerName: player.name,
                 assisterId: (assisterId && assisterId !== 'none') ? assisterId : undefined
@@ -146,17 +153,17 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                 const assister = players.find(p => p.id === assisterId);
                 if (!assister) return;
                 const goalEventId = `evt-${Date.now()}`;
-                await addMatchEvent(match.id, { ...baseValues, id: goalEventId, teamId: player.teamId, playerName: player.name });
+                await addMatchEvent(match.id, { ...baseValues, minute: actualMinute, id: goalEventId, teamId: player.teamId, playerName: player.name });
                 await addMatchEvent(match.id, { 
                     type: 'Assist', 
-                    minute: values.minute, 
+                    minute: actualMinute, 
                     playerId: assister.id, 
                     teamId: assister.teamId, 
                     playerName: assister.name, 
                     linkedGoalId: goalEventId 
                 });
             } else {
-                await addMatchEvent(match.id, { ...baseValues, id: `evt-${Date.now()}`, teamId: player.teamId, playerName: player.name });
+                await addMatchEvent(match.id, { ...baseValues, minute: actualMinute, id: `evt-${Date.now()}`, teamId: player.teamId, playerName: player.name });
             }
         }
         resetEventForm();
@@ -203,7 +210,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     };
 
     const resetEventForm = () => {
-        eventForm.reset({ type: 'Goal', minute: 0, playerId: '', assisterId: 'none' });
+        eventForm.reset({ type: 'Goal', minute: 1, playerId: '', assisterId: 'none' });
         setShowEventForm(false);
         setEditingEvent(null);
     };
@@ -361,7 +368,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                     <Timer className="h-4 w-4" /> Timeline Data
                                 </CardTitle>
                                 {isAdmin && ['FINISHED', 'LIVE'].includes(match.status) && (
-                                    <Button size="sm" variant="ghost" className="h-8 rounded-full bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase tracking-widest px-4" onClick={() => {setShowEventForm(!showEventForm); setEditingEvent(null); eventForm.reset({type: 'Goal', minute: 0, playerId: '', assisterId: 'none'})}}>
+                                    <Button size="sm" variant="ghost" className="h-8 rounded-full bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase tracking-widest px-4" onClick={() => {setShowEventForm(!showEventForm); setEditingEvent(null); eventForm.reset({type: 'Goal', minute: 1, playerId: '', assisterId: 'none'})}}>
                                         {showEventForm ? 'Cancel' : (
                                             <><PlusCircle className="mr-1.5 h-3.5 w-3.5"/> Add Entry</>
                                         )}
@@ -392,14 +399,13 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                 <FormField control={eventForm.control} name="minute" render={({ field }) => (
                                                     <FormItem className="space-y-1">
                                                         <FormLabel className="text-[9px] font-black uppercase opacity-50">
-                                                            {match.isExtraTime ? `Minute (Max ${maxMinute})` : `Minute (Max ${baseDuration})`}
+                                                            {match.isExtraTime ? `Minute in ET (1-${extraDuration})` : `Minute (Max ${baseDuration})`}
                                                         </FormLabel>
                                                         <FormControl>
                                                             <Input 
                                                                 type="number" 
                                                                 className="h-9 text-xs glass-card" 
-                                                                max={maxMinute}
-                                                                placeholder={match.isExtraTime ? `e.g. ${baseDuration + 2}` : "e.g. 15"}
+                                                                placeholder="e.g. 5"
                                                                 {...field}
                                                             />
                                                         </FormControl>
@@ -475,9 +481,15 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                                 const linkedAssist = match.events?.find(e => e.linkedGoalId === event.id);
                                                                 setEditingEvent(event); 
                                                                 setShowEventForm(true); 
+                                                                
+                                                                // Convert absolute back to relative for the form if in ET
+                                                                const displayMin = match.isExtraTime && event.minute > baseDuration 
+                                                                    ? event.minute - baseDuration 
+                                                                    : event.minute;
+
                                                                 eventForm.reset({
                                                                     type: event.type, 
-                                                                    minute: event.minute, 
+                                                                    minute: displayMin, 
                                                                     playerId: event.playerId,
                                                                     assisterId: linkedAssist ? linkedAssist.playerId : 'none'
                                                                 }); 
