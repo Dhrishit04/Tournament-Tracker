@@ -47,10 +47,8 @@ export function AnnouncementBanner() {
 
     return (
         <div className="relative z-50 bg-primary border-b border-primary/20 shadow-xl overflow-hidden h-12 flex items-center">
-            {/* Animated subtle glow */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer pointer-events-none" />
             
-            {/* Sticky "Broadcast" indicator using the accent color for high contrast */}
             <div className="relative z-20 flex items-center gap-3 px-6 h-full bg-accent border-r border-white/10 shadow-[5px_0_15px_rgba(0,0,0,0.3)]">
                 <div className="bg-white rounded-full p-1.5 shadow-sm">
                     <Megaphone className="h-3 w-3 text-accent fill-accent" />
@@ -58,7 +56,6 @@ export function AnnouncementBanner() {
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white drop-shadow-sm">Broadcast</span>
             </div>
             
-            {/* Continuous ticker content */}
             <div className="flex-1 flex overflow-hidden">
                 <div className="flex items-center gap-12 whitespace-nowrap animate-marquee py-1.5">
                     {[...Array(10)].map((_, i) => (
@@ -135,11 +132,11 @@ export default function Home() {
     });
 
     const activeStageKeys = ([
-        currentSeason.matchConfig.showGroupStage ? 'GROUP_STAGE' : null,
-        (currentSeason.matchConfig.showQuarterFinals && teams.length >= 16) ? 'QUARTER_FINALS' : null,
+        currentSeason.matchConfig?.showGroupStage ? 'GROUP_STAGE' : null,
+        (currentSeason.matchConfig?.showQuarterFinals && teams.length >= 16) ? 'QUARTER_FINALS' : null,
         'SEMI_FINALS',
         'FINALS',
-        currentSeason.matchConfig.showOthers ? 'OTHERS' : null
+        currentSeason.matchConfig?.showOthers ? 'OTHERS' : null
     ].filter(Boolean) as string[]);
 
     const matchesData = matches
@@ -183,9 +180,7 @@ export default function Home() {
               priority
               data-ai-hint={heroImage.imageHint}
             />
-            {/* Professional darkening overlay */}
             <div className="absolute inset-0 bg-black/50" />
-            {/* Subtle bottom fade to background */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
           </div>
         )}

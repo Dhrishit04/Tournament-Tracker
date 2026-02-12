@@ -377,7 +377,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     const { assisterId, ...cleanEventData } = newEventData;
     const updatedEvent = { ...cleanEventData, id: eventId } as MatchEvent;
     
-    // Sync Goal Scores
     if (oldEvent.type === 'Goal') {
         const field = oldEvent.teamId === match.homeTeamId ? 'homeScore' : 'awayScore';
         batch.update(matchRef, { [field]: increment(-1) });
@@ -396,7 +395,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
     applyStatChange(batch, firestore, seasonId, match, updatedEvent, 1);
 
-    // Linked Assist Management (Prompt 2, 3, 4)
+    // Linked Assist cleanup and re-creation
     const oldAssistIndex = updatedEvents.findIndex(e => e.linkedGoalId === eventId);
     if (oldAssistIndex !== -1) {
         const oldAssist = updatedEvents[oldAssistIndex];
@@ -441,8 +440,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     if (!event) return;
 
     const batch = writeBatch(firestore);
-    
-    // Linked Assist Deletion (Prompt 4)
     const linkedAssist = match.events?.find(e => e.linkedGoalId === eventId);
     if (linkedAssist) {
         batch.update(matchRef, { events: arrayRemove(linkedAssist) });
