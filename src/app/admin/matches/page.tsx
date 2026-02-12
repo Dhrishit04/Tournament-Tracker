@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -463,12 +464,17 @@ export default function AdminMatchesPage() {
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Badge variant="outline" className={cn(
-                                                            "text-[9px] font-black tracking-widest uppercase border-white/10 px-2 py-0.5",
-                                                            match.status === 'LIVE' ? "bg-red-500/10 text-red-500 border-red-500/20" : ""
-                                                        )}>
-                                                            {match.status}
-                                                        </Badge>
+                                                        <div className="flex items-center gap-1.5">
+                                                            {match.isExtraTime && match.status === 'LIVE' && (
+                                                                <Badge className="bg-accent text-white text-[8px] h-5 font-black animate-pulse border-none">ET</Badge>
+                                                            )}
+                                                            <Badge variant="outline" className={cn(
+                                                                "text-[9px] font-black tracking-widest uppercase border-white/10 px-2 py-0.5",
+                                                                match.status === 'LIVE' ? "bg-red-500/10 text-red-500 border-red-500/20" : ""
+                                                            )}>
+                                                                {match.status}
+                                                            </Badge>
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         {(match.status === 'FINISHED' || match.status === 'LIVE') ? (

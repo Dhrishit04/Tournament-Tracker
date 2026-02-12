@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -107,6 +108,9 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
     const showVenue = currentSeason?.matchConfig.showVenue ?? true;
     const stageTiming = match.stage ? currentSeason?.matchConfig.stageTimings?.[match.stage] : null;
+    const baseDuration = stageTiming?.duration || 90;
+    const extraDuration = stageTiming?.extraTime || 0;
+    const maxMinute = match.isExtraTime ? (baseDuration + extraDuration) : baseDuration;
 
     // Teammate filtering for Assister logic
     const selectedScorerId = eventForm.watch('playerId');
@@ -117,6 +121,15 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     }, [selectedScorer, players]);
 
     const handleEventSubmit = async (values: z.infer<typeof eventSchema>) => {
+        if (values.minute > maxMinute) {
+            toast({
+                variant: 'destructive',
+                title: 'Timing Violation',
+                description: `Matches in this stage are limited to ${maxMinute} minutes ${match.isExtraTime ? '(including Extra Time)' : ''}.`
+            });
+            return;
+        }
+
         const { assisterId, ...baseValues } = values;
         const player = players.find(p => p.id === values.playerId);
         if (!player) return;
@@ -153,7 +166,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         const isDraw = match.homeScore === match.awayScore;
         const isKnockout = match.stage !== 'GROUP_STAGE';
 
-        if (isDraw && isKnockout) {
+        if (isDraw && isKnockout && !match.isExtraTime) {
             setProtocolPhase('EXTRA_TIME_CONFIRM');
         } else {
             await updateMatchStatus(match.id, 'FINISHED');
@@ -163,6 +176,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
     const handleConfirmExtraTime = async () => {
         setProtocolPhase('NONE');
+        await updateMatch({ ...match, isExtraTime: true });
         logAction("EXTRA_TIME", `Initiated Extra Time protocol for ${homeTeam.name} vs ${awayTeam.name}`);
         toast({ title: 'Extra Time Active', description: 'Match remains LIVE. Record additional events below.' });
     };
@@ -217,10 +231,10 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                 <p className="text-white/70 max-w-md mb-8">
                     The fixture has ended in a draw ({match.homeScore}-{match.awayScore}). Since this is a knockout stage, do you want to initiate **Extra Time Protocol** or conclude as a draw?
                 </p>
-                {stageTiming?.extraTime && (
+                {extraDuration > 0 && (
                     <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between w-full max-w-xs mb-8">
                         <span className="text-xs font-bold opacity-50 uppercase tracking-widest">Configured Extra Time</span>
-                        <span className="text-sm font-black text-accent">{stageTiming.extraTime} Minutes</span>
+                        <span className="text-sm font-black text-accent">{extraDuration} Minutes</span>
                     </div>
                 )}
                 <div className="flex gap-4 w-full max-w-sm">
@@ -236,6 +250,9 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                             <div className="flex items-center gap-3 mb-1">
                                 <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Match <span className="text-accent">Protocol</span></DialogTitle>
                                 <Badge variant="outline" className="text-[10px] font-black tracking-widest border-white/10 uppercase">{match.stage?.replace('_', ' ')}</Badge>
+                                {match.isExtraTime && (
+                                    <Badge className="bg-accent text-white border-none text-[10px] font-black animate-pulse">EXTRA TIME</Badge>
+                                )}
                             </div>
                             <DialogDescription className="font-bold text-xs uppercase tracking-widest opacity-50">{format(new Date(match.date), 'EEEE, MMMM d, yyyy')}</DialogDescription>
                         </div>
@@ -314,7 +331,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                     </div>
                                     {stageTiming?.duration && (
                                         <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                                            <Timer className="h-3 w-3" /> {stageTiming.duration}m Base
+                                            <Timer className="h-3 w-3" /> {baseDuration}m Base
                                         </div>
                                     )}
                                 </div>
@@ -373,7 +390,21 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                     </FormItem>
                                                 )}/>
                                                 <FormField control={eventForm.control} name="minute" render={({ field }) => (
-                                                    <FormItem className="space-y-1"><FormLabel className="text-[9px] font-black uppercase opacity-50">Match Minute</FormLabel><FormControl><Input type="number" className="h-9 text-xs glass-card" {...field}/></FormControl><FormMessage className="text-[10px]"/></FormItem>
+                                                    <FormItem className="space-y-1">
+                                                        <FormLabel className="text-[9px] font-black uppercase opacity-50">
+                                                            {match.isExtraTime ? `Minute (Max ${maxMinute})` : `Minute (Max ${baseDuration})`}
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input 
+                                                                type="number" 
+                                                                className="h-9 text-xs glass-card" 
+                                                                max={maxMinute}
+                                                                placeholder={match.isExtraTime ? `e.g. ${baseDuration + 2}` : "e.g. 15"}
+                                                                {...field}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage className="text-[10px]"/>
+                                                    </FormItem>
                                                 )}/>
                                             </div>
                                             <FormField control={eventForm.control} name="playerId" render={({ field }) => (

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, ReactNode, useMemo, useCallback, useContext } from 'react';
@@ -300,6 +301,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     const changes: string[] = [];
     if (old.status !== updatedMatch.status) changes.push(`status: ${old.status} -> ${updatedMatch.status}`);
+    if (old.isExtraTime !== updatedMatch.isExtraTime) changes.push(updatedMatch.isExtraTime ? "Extra Time INITIATED" : "Extra Time RESET");
     if (old.stage !== updatedMatch.stage) changes.push(`stage: ${old.stage} -> ${updatedMatch.stage}`);
     if (old.time !== updatedMatch.time) changes.push(`time: ${old.time} -> ${updatedMatch.time}`);
     if (old.venue !== updatedMatch.venue) changes.push(`venue: ${old.venue} -> ${updatedMatch.venue}`);
@@ -503,7 +505,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     matches.forEach(m => {
         batch.update(doc(firestore, 'seasons', seasonId, 'matches', m.id), {
-            status: 'UPCOMING', homeScore: 0, awayScore: 0, events: []
+            status: 'UPCOMING', homeScore: 0, awayScore: 0, events: [], isExtraTime: false
         });
     });
 

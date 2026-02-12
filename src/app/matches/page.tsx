@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -13,7 +14,7 @@ import { useData } from '@/hooks/use-data';
 import { useAuth } from '@/hooks/use-auth';
 import { useSeason } from '@/contexts/season-context';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, cn } from '@/lib/utils';
 import { MatchDetailsDialog } from '@/components/matches/match-details-dialog';
 
 function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { match: Match, onCardClick: (match: Match) => void, teams: Team[], isGroupMode: boolean, showVenue: boolean }) {
@@ -34,7 +35,14 @@ function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { matc
         <CardHeader className="pb-2 pt-4 px-4">
             <div className="flex justify-between items-start text-xs text-muted-foreground w-full">
                 <span className="font-semibold">{format(new Date(match.date), 'EEE, MMM d')}</span>
-                <Badge variant={match.status === 'FINISHED' ? 'secondary' : 'default'} className={match.status === 'UPCOMING' ? 'bg-accent text-accent-foreground' : ''}>{match.status}</Badge>
+                <div className="flex items-center gap-1.5">
+                    {match.isExtraTime && match.status === 'LIVE' && (
+                        <Badge className="bg-accent text-white text-[8px] h-5 font-black animate-pulse border-none">ET</Badge>
+                    )}
+                    <Badge variant={match.status === 'FINISHED' ? 'secondary' : 'default'} className={cn(match.status === 'UPCOMING' ? 'bg-accent text-accent-foreground' : '', "text-[9px] uppercase font-black")}>
+                        {match.status}
+                    </Badge>
+                </div>
             </div>
         </CardHeader>
         <CardContent className="px-4 pb-4">
@@ -53,10 +61,15 @@ function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { matc
                 
                 <div className="shrink-0 min-w-[60px] text-center px-1">
                     {match.status === 'FINISHED' || match.status === 'LIVE' ? (
-                    <div className="flex items-center justify-center gap-1.5 text-lg font-black font-mono">
-                        <span>{match.homeScore ?? '0'}</span>
-                        <span className="text-muted-foreground/30 font-sans font-normal">-</span>
-                        <span>{match.awayScore ?? '0'}</span>
+                    <div className="flex flex-col items-center gap-0.5">
+                        <div className="flex items-center justify-center gap-1.5 text-lg font-black font-mono">
+                            <span>{match.homeScore ?? '0'}</span>
+                            <span className="text-muted-foreground/30 font-sans font-normal">-</span>
+                            <span>{match.awayScore ?? '0'}</span>
+                        </div>
+                        {match.isExtraTime && (
+                            <span className="text-[8px] font-black text-accent uppercase tracking-tighter">After Extra Time</span>
+                        )}
                     </div>
                     ) : (
                     <span className="text-xs sm:text-sm font-bold text-muted-foreground whitespace-nowrap bg-secondary/50 px-2 py-1 rounded">

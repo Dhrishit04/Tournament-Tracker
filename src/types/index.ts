@@ -63,6 +63,7 @@ export interface Match {
   homeScore?: number;
   awayScore?: number;
   status: 'UPCOMING' | 'LIVE' | 'FINISHED' | 'POSTPONED';
+  isExtraTime?: boolean;
   venue?: string;
   events?: MatchEvent[];
   stage?: MatchStage;
