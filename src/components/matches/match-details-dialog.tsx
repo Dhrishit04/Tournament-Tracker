@@ -75,6 +75,14 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         },
     });
 
+    const currentSettingsStage = settingsForm.watch('stage');
+
+    useEffect(() => {
+        if (currentSettingsStage === 'GROUP_STAGE') {
+            settingsForm.setValue('isExtraTime', false);
+        }
+    }, [currentSettingsStage, settingsForm]);
+
     const h2hStats = useMemo(() => {
         if (!match || !teams.length) return null;
         const past = matches.filter(m => 
@@ -231,7 +239,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             time: values.time,
             venue: values.venue,
             description: values.description,
-            isExtraTime: values.isExtraTime,
+            isExtraTime: values.stage === 'GROUP_STAGE' ? false : values.isExtraTime,
             isThirdPlacePlayoff: values.isThirdPlacePlayoff,
         };
         await updateMatch(updatedMatch);
@@ -331,19 +339,21 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                             <FormField control={settingsForm.control} name="time" render={({ field }) => (
                                                 <FormItem><FormLabel className="text-[10px] font-bold uppercase">Kickoff</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
                                             )}/>
-                                            <FormField control={settingsForm.control} name="isExtraTime" render={({ field }) => (
-                                                <FormItem className="flex flex-col justify-end space-y-2">
-                                                    <FormLabel className="text-[10px] font-black uppercase opacity-50">Extra Time Protocol</FormLabel>
-                                                    <div className="flex items-center space-x-2 bg-white/5 h-9 rounded-md px-3 border border-white/5">
-                                                        <FormControl>
-                                                            <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-accent scale-75" />
-                                                        </FormControl>
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
-                                                            {field.value ? 'Active' : 'Inactive'}
-                                                        </span>
-                                                    </div>
-                                                </FormItem>
-                                            )}/>
+                                            {currentSettingsStage !== 'GROUP_STAGE' && (
+                                                <FormField control={settingsForm.control} name="isExtraTime" render={({ field }) => (
+                                                    <FormItem className="flex flex-col justify-end space-y-2">
+                                                        <FormLabel className="text-[10px] font-black uppercase opacity-50">Extra Time Protocol</FormLabel>
+                                                        <div className="flex items-center space-x-2 bg-white/5 h-9 rounded-md px-3 border border-white/5">
+                                                            <FormControl>
+                                                                <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-accent scale-75" />
+                                                            </FormControl>
+                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                                                                {field.value ? 'Active' : 'Inactive'}
+                                                            </span>
+                                                        </div>
+                                                    </FormItem>
+                                                )}/>
+                                            )}
                                             {settingsForm.watch('stage') === 'OTHERS' && (
                                                 <FormField control={settingsForm.control} name="isThirdPlacePlayoff" render={({ field }) => (
                                                     <FormItem className="flex flex-col justify-end space-y-2">
