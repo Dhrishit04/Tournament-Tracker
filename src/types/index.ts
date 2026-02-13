@@ -64,6 +64,7 @@ export interface Match {
   awayScore?: number;
   status: 'UPCOMING' | 'LIVE' | 'FINISHED' | 'POSTPONED';
   isExtraTime?: boolean;
+  isThirdPlacePlayoff?: boolean;
   venue?: string;
   events?: MatchEvent[];
   stage?: MatchStage;

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useData } from '@/hooks/use-data';
@@ -19,6 +20,10 @@ export default function BracketPage() {
 
   const getMatchByStage = (stage: string, index: number = 0) => {
     return matches.filter(m => m.stage === stage)[index];
+  };
+
+  const getThirdPlaceMatch = () => {
+    return matches.find(m => m.stage === 'OTHERS' && m.isThirdPlacePlayoff === true);
   };
 
   const MatchNode = ({ match }: { match?: Match }) => {
@@ -105,7 +110,7 @@ export default function BracketPage() {
         {/* OTHERS / BRONZE */}
         <div className="flex flex-col items-center">
           <div className="text-center mb-8"><span className="text-[10px] font-black uppercase tracking-[0.3em] bg-white/5 px-4 py-1 rounded-full border border-white/5">Third Place Playoff</span></div>
-          <MatchNode match={getMatchByStage('OTHERS')} />
+          <MatchNode match={getThirdPlaceMatch()} />
         </div>
       </div>
     </div>

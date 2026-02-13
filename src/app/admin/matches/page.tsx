@@ -55,6 +55,7 @@ const matchSchema = z.object({
   status: z.enum(['UPCOMING', 'LIVE', 'FINISHED', 'POSTPONED']),
   stage: z.enum(['GROUP_STAGE', 'QUARTER_FINALS', 'SEMI_FINALS', 'FINALS', 'OTHERS']),
   description: z.string().max(150, "Description must be 150 characters or less.").optional(),
+  isThirdPlacePlayoff: z.boolean().optional(),
 }).refine(data => data.homeTeamId !== data.awayTeamId, {
     message: "Home and away teams cannot be the same.",
     path: ["awayTeamId"],
@@ -210,6 +211,7 @@ function MatchForm({
   match,
   onClose,
   teams,
+  matches,
 }: {
   onSubmit: (data: z.infer<typeof matchSchema>) => void;
   match?: Match | null;
@@ -228,6 +230,7 @@ function MatchForm({
       status: match?.status || 'UPCOMING',
       stage: match?.stage || 'GROUP_STAGE',
       description: match?.description || '',
+      isThirdPlacePlayoff: match?.isThirdPlacePlayoff || false,
     },
   });
 
@@ -251,6 +254,24 @@ function MatchForm({
   }, [currentSeason, teams.length]);
 
   const handleValidationAndSubmit = (data: z.infer<typeof matchSchema>) => {
+      // Restriction: Only 2 Semi-Finals and 1 Final per season
+      if (!match || (match && match.stage !== data.stage)) {
+          if (data.stage === 'SEMI_FINALS') {
+              const count = matches.filter(m => m.stage === 'SEMI_FINALS').length;
+              if (count >= 2) {
+                  form.setError('stage', { message: 'Maximum limit of 2 Semi-Final fixtures reached.' });
+                  return;
+              }
+          }
+          if (data.stage === 'FINALS') {
+              const count = matches.filter(m => m.stage === 'FINALS').length;
+              if (count >= 1) {
+                  form.setError('stage', { message: 'The Final fixture is already scheduled.' });
+                  return;
+              }
+          }
+      }
+
       if (data.stage === 'GROUP_STAGE' && currentSeason?.matchConfig.isGroupModeActive) {
           const homeTeam = teams.find(t => t.id === data.homeTeamId);
           const awayTeam = teams.find(t => t.id === data.awayTeamId);
@@ -296,10 +317,23 @@ function MatchForm({
                 </FormItem>
             )}/>
         </div>
-        {form.watch('stage') === 'OTHERS' && (
-            <FormField control={form.control} name="description" render={({ field }) => (
-                <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Add a short description for this match..." {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
+        {selectedStage === 'OTHERS' && (
+            <div className="space-y-4 pt-2">
+                <FormField control={form.control} name="isThirdPlacePlayoff" render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 bg-white/5">
+                        <div className="space-y-0.5">
+                            <FormLabel>Third Place Playoff</FormLabel>
+                            <p className="text-[10px] text-muted-foreground">Enable to show on tournament brackets.</p>
+                        </div>
+                        <FormControl>
+                            <Switch checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
+                    </FormItem>
+                )}/>
+                <FormField control={form.control} name="description" render={({ field }) => (
+                    <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Add a short description for this match..." {...field} /></FormControl><FormMessage /></FormItem>
+                )}/>
+            </div>
         )}
         <DialogFooter>
           <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
@@ -343,6 +377,7 @@ export default function AdminMatchesPage() {
                 status: data.status,
                 stage: data.stage,
                 description: data.description,
+                isThirdPlacePlayoff: data.isThirdPlacePlayoff,
             };
             updateMatch(updatedMatchData);
         } else {
@@ -359,6 +394,7 @@ export default function AdminMatchesPage() {
                 awayScore: 0,
                 stage: data.stage,
                 description: data.description,
+                isThirdPlacePlayoff: data.isThirdPlacePlayoff,
             };
             addMatch(newMatch);
         }
@@ -460,6 +496,9 @@ export default function AdminMatchesPage() {
                                                             <span className="font-bold text-sm">{getTeamName(match.homeTeamId)} <span className="text-[10px] opacity-30 italic mx-1">vs</span> {getTeamName(match.awayTeamId)}</span>
                                                             {currentSeason.matchConfig.isGroupModeActive && match.stage === 'GROUP_STAGE' && group && group !== 'None' && (
                                                                 <span className="text-[8px] font-black text-accent uppercase tracking-[0.2em] mt-1">Group {group}</span>
+                                                            )}
+                                                            {match.stage === 'OTHERS' && match.isThirdPlacePlayoff && (
+                                                                <span className="text-[8px] font-black text-blue-400 uppercase tracking-widest mt-1">Third Place Playoff</span>
                                                             )}
                                                         </div>
                                                     </TableCell>

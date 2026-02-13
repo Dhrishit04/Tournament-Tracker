@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -39,6 +40,7 @@ const matchSettingsSchema = z.object({
   venue: z.string().optional(),
   description: z.string().optional(),
   isExtraTime: z.boolean().optional(),
+  isThirdPlacePlayoff: z.boolean().optional(),
 });
 
 export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: string; isOpen: boolean; onClose: () => void; }) {
@@ -69,6 +71,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             venue: match?.venue || '',
             description: match?.description || '',
             isExtraTime: match?.isExtraTime || false,
+            isThirdPlacePlayoff: match?.isThirdPlacePlayoff || false,
         },
     });
 
@@ -104,6 +107,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                 venue: match.venue || '',
                 description: match.description || '',
                 isExtraTime: match.isExtraTime || false,
+                isThirdPlacePlayoff: match.isThirdPlacePlayoff || false,
             });
         }
     }, [match, settingsForm]);
@@ -228,6 +232,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             venue: values.venue,
             description: values.description,
             isExtraTime: values.isExtraTime,
+            isThirdPlacePlayoff: values.isThirdPlacePlayoff,
         };
         await updateMatch(updatedMatch);
         setShowSettingsForm(false);
@@ -339,6 +344,21 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                     </div>
                                                 </FormItem>
                                             )}/>
+                                            {settingsForm.watch('stage') === 'OTHERS' && (
+                                                <FormField control={settingsForm.control} name="isThirdPlacePlayoff" render={({ field }) => (
+                                                    <FormItem className="flex flex-col justify-end space-y-2">
+                                                        <FormLabel className="text-[10px] font-black uppercase opacity-50">3rd Place Playoff</FormLabel>
+                                                        <div className="flex items-center space-x-2 bg-white/5 h-9 rounded-md px-3 border border-white/5">
+                                                            <FormControl>
+                                                                <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-blue-500 scale-75" />
+                                                            </FormControl>
+                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                                                                {field.value ? 'Bracket' : 'Match'}
+                                                            </span>
+                                                        </div>
+                                                    </FormItem>
+                                                )}/>
+                                            )}
                                         </div>
                                         <div className="flex justify-end">
                                             <Button type="submit" size="sm" className="h-9 text-[10px] font-black uppercase tracking-widest px-6 bg-accent hover:bg-accent/90">Update Registry</Button>
