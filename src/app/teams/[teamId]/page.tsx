@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import type { Player, Team, TeamStats, Match } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
-import { PlusCircle, Edit, Pencil, History, TrendingUp } from 'lucide-react';
+import { PlusCircle, Edit, Pencil, History, TrendingUp, ShieldCheck } from 'lucide-react';
 import { useData } from '@/hooks/use-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getImageUrl, cn } from '@/lib/utils';
@@ -19,6 +19,7 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { AthleteCardDialog } from '@/components/players/athlete-card-dialog';
 
 const playerEditSchema = z.object({
   age: z.coerce.number().min(1, 'Age is required'),
@@ -179,6 +180,7 @@ export default function TeamDetailPage() {
   const [isStatsDialogOpen, setIsStatsDialogOpen] = useState(false);
   const [isPlayerDialogOpen, setIsPlayerDialogOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [viewingAthlete, setViewingAthlete] = useState<Player | null>(null);
   const { toast } = useToast();
 
   const teamForm = useMemo(() => {
@@ -208,7 +210,8 @@ export default function TeamDetailPage() {
   const teamPlayers = players.filter((p) => p.teamId === team.id);
   const logo = getImageUrl(team.logoUrl);
 
-  const handlePlayerEditClick = (player: Player) => {
+  const handlePlayerEditClick = (e: React.MouseEvent, player: Player) => {
+    e.stopPropagation();
     setSelectedPlayer(player);
     setIsPlayerDialogOpen(true);
   }
@@ -281,13 +284,25 @@ export default function TeamDetailPage() {
   const PlayerRow = ({ player }: { player: Player }) => {
     const avatar = getImageUrl(player.avatarUrl);
     return (
-      <TableRow className="border-white/5 hover:bg-white/5 transition-colors">
+      <TableRow 
+        className="border-white/5 hover:bg-white/5 transition-colors cursor-pointer group"
+        onClick={() => setViewingAthlete(player)}
+      >
         <TableCell>
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10">
+            <div className={cn(
+                "relative w-10 h-10 rounded-xl overflow-hidden border transition-all duration-300 group-hover:border-accent group-hover:scale-105",
+                player.category === 'A' ? "border-accent/40" : "border-white/10"
+            )}>
                 <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" />
             </div>
-            <span className="font-bold uppercase text-xs tracking-tight">{player.name}</span>
+            <div>
+                <span className="font-bold uppercase text-xs tracking-tight block">{player.name}</span>
+                <span className={cn(
+                    "text-[8px] font-black uppercase tracking-widest",
+                    player.category === 'A' ? "text-accent" : "text-muted-foreground"
+                )}>Class {player.category}</span>
+            </div>
           </div>
         </TableCell>
         <TableCell className="hidden md:table-cell text-xs opacity-60 font-black">{player.age || 'N/A'}</TableCell>
@@ -302,7 +317,7 @@ export default function TeamDetailPage() {
         <TableCell className="text-center hidden sm:table-cell font-mono font-bold opacity-60">{player.assists || 0}</TableCell>
         {isAdmin && (
             <TableCell className="text-right">
-                <Button variant="ghost" size="icon" onClick={() => handlePlayerEditClick(player)} className="hover:bg-white/10">
+                <Button variant="ghost" size="icon" onClick={(e) => handlePlayerEditClick(e, player)} className="hover:bg-white/10">
                     <Pencil className="h-4 w-4" />
                 </Button>
             </TableCell>
@@ -333,7 +348,9 @@ export default function TeamDetailPage() {
           <div className="text-center md:text-left space-y-4">
             <div className="space-y-1">
                 <h1 className="text-6xl font-black font-headline italic tracking-tighter uppercase leading-none">{team.name}</h1>
-                <p className="text-accent font-black uppercase tracking-[0.3em] text-xs">Establishment Integrity Checked</p>
+                <p className="text-accent font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center md:justify-start gap-2">
+                    <ShieldCheck className="h-4 w-4" /> Establishment Integrity Checked
+                </p>
             </div>
             <div className="flex flex-wrap justify-center md:justify-start gap-6">
                 <div>
@@ -466,6 +483,13 @@ export default function TeamDetailPage() {
           </DialogContent>
         </Dialog>
       )}
+
+      <AthleteCardDialog 
+        player={viewingAthlete}
+        team={team}
+        isOpen={!!viewingAthlete}
+        onClose={() => setViewingAthlete(null)}
+      />
     </div>
   );
 }
