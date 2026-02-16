@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useData } from '@/hooks/use-data';
@@ -76,7 +75,7 @@ export default function BracketPage() {
   return (
     <div className="container mx-auto px-4 py-16 space-y-16">
       <div className="text-center">
-        <h1 className="text-6xl font-black font-headline tracking-tighter italic uppercase mb-4 leading-none">The <span className="text-accent">Championship</span> Road</h1>
+        <h1 className="text-4xl md:text-6xl font-black font-headline tracking-tighter italic uppercase mb-4 leading-none">The <span className="text-accent">Championship</span> Road</h1>
         <div className="flex items-center justify-center gap-4 text-muted-foreground">
           <div className="h-px w-12 bg-white/10" />
           <span className="text-[10px] font-black uppercase tracking-[0.4em]">Elimination Protocol Active</span>

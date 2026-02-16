@@ -38,16 +38,16 @@ export default function PlayersPage() {
               <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" data-ai-hint={avatar.imageHint} />
             </div>
             <div>
-              <div className="font-medium">{player.name}</div>
-              <div className="text-sm text-muted-foreground hidden sm:block">{getTeamName(player.teamId)}</div>
+              <div className="font-medium whitespace-nowrap">{player.name}</div>
+              <div className="text-sm text-muted-foreground whitespace-nowrap">{getTeamName(player.teamId)}</div>
             </div>
           </div>
         </TableCell>
-        <TableCell className="hidden md:table-cell">{player.category}</TableCell>
-        <TableCell className="hidden lg:table-cell">{player.preferredPosition?.join(', ')}</TableCell>
+        <TableCell>{player.category}</TableCell>
+        <TableCell className="whitespace-nowrap">{player.preferredPosition?.join(', ')}</TableCell>
         <TableCell className="text-center">{player.matchesPlayed}</TableCell>
         <TableCell className="text-center">{player.goals}</TableCell>
-        <TableCell className="text-center hidden sm:table-cell">{player.assists}</TableCell>
+        <TableCell className="text-center">{player.assists}</TableCell>
       </TableRow>
     );
   }
@@ -58,22 +58,22 @@ export default function PlayersPage() {
             <TableHeader>
                 <TableRow>
                     <TableHead>Player</TableHead>
-                    <TableHead className="hidden md:table-cell">Category</TableHead>
-                    <TableHead className="hidden lg:table-cell">Position</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Position</TableHead>
                     <TableHead className="text-center">Played</TableHead>
                     <TableHead className="text-center">Goals</TableHead>
-                    <TableHead className="text-center hidden sm:table-cell">Assists</TableHead>
+                    <TableHead className="text-center">Assists</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {[...Array(5)].map((_, i) => (
                     <TableRow key={i}>
                         <TableCell><div className='flex items-center gap-3'><Skeleton className="h-10 w-10 rounded-full" /><Skeleton className="h-5 w-32" /></div></TableCell>
-                        <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-12" /></TableCell>
-                        <TableCell className="hidden lg:table-cell"><Skeleton className="h-5 w-24" /></TableCell>
+                        <TableCell><Skeleton className="h-5 w-12" /></TableCell>
+                        <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                         <TableCell className="text-center"><Skeleton className="h-5 w-5 mx-auto" /></TableCell>
                         <TableCell className="text-center"><Skeleton className="h-5 w-5 mx-auto" /></TableCell>
-                        <TableCell className="text-center hidden sm:table-cell"><Skeleton className="h-5 w-5 mx-auto" /></TableCell>
+                        <TableCell className="text-center"><Skeleton className="h-5 w-5 mx-auto" /></TableCell>
                     </TableRow>
                 ))}
             </TableBody>
@@ -123,11 +123,11 @@ export default function PlayersPage() {
                     <TableHeader>
                         <TableRow>
                         <TableHead>Player</TableHead>
-                        <TableHead className="hidden md:table-cell">Category</TableHead>
-                        <TableHead className="hidden lg:table-cell">Position</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Position</TableHead>
                         <TableHead className="text-center">Played</TableHead>
                         <TableHead className="text-center">Goals</TableHead>
-                        <TableHead className="text-center hidden sm:table-cell">Assists</TableHead>
+                        <TableHead className="text-center">Assists</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
