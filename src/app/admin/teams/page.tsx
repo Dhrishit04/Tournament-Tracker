@@ -107,7 +107,7 @@ function TeamForm({
     <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
-            control={form.control}
+            with={form.control}
             name="name"
             render={({ field }) => (
                 <FormItem>
@@ -494,7 +494,7 @@ export default function AdminTeamsPage() {
                                 </Button>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDelete(team)}>
+                                        <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive" onClick={() => handleDelete(team)}>
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </AlertDialogTrigger>
@@ -521,6 +521,7 @@ export default function AdminTeamsPage() {
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                 <DialogTitle>{dialogMode === 'edit' ? 'Edit Team' : 'Add New Team'}</DialogTitle>
+                <DialogDescription>Enter the club details and upload a primary identity logo.</DialogDescription>
                 </DialogHeader>
                 <TeamForm 
                     onSubmit={handleFormSubmit}

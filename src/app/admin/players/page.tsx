@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
     AlertDialog,
@@ -259,7 +260,7 @@ export default function AdminPlayersPage() {
             <Card className="glass-card border-white/5">
                 <CardHeader><Skeleton className="h-6 w-32 opacity-10" /></CardHeader>
                 <CardContent><Skeleton className="h-96 w-full opacity-5" /></CardContent>
-            </Card>
+            </div>
         </div>
     )
   }
@@ -384,6 +385,7 @@ export default function AdminPlayersPage() {
             <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
               {dialogMode === 'edit' ? 'Update' : 'Register'} <span className="text-accent">Athlete</span>
             </DialogTitle>
+            <DialogDescription className="text-xs opacity-50">Modify athlete profile and draft class assignment.</DialogDescription>
           </DialogHeader>
           <PlayerForm
             onSubmit={handleFormSubmit}

@@ -52,6 +52,10 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
         isClassA ? "border-accent/40 shadow-[0_0_50px_rgba(255,87,34,0.1)]" : 
         isClassB ? "border-blue-500/40 shadow-[0_0_50px_rgba(59,130,246,0.1)]" : "border-white/10"
       )}>
+        <DialogHeader className="sr-only">
+          <DialogTitle>{player.name} Scout Card</DialogTitle>
+          <DialogDescription>Detailed performance metrics and athlete profile for {player.name}.</DialogDescription>
+        </DialogHeader>
         <div className="relative">
           {/* Elite Background elements */}
           <div className={cn(

@@ -1,4 +1,3 @@
-
 'use client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
     AlertDialog,
@@ -597,6 +597,7 @@ export default function AdminMatchesPage() {
                 <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
                     {dialogMode === 'edit' ? 'Modify' : 'Schedule'} <span className="text-accent">Fixture</span>
                 </DialogTitle>
+                <DialogDescription className="text-xs opacity-50">Set match details, kickoff timing, and tournament stage.</DialogDescription>
             </DialogHeader>
             <MatchForm 
                 onSubmit={handleFormSubmit}
