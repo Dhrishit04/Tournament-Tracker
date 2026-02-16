@@ -571,7 +571,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                     </Form>
                                 )}
                                 
-                                <div className="space-y-4 max-h-[300px] md:max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                <div className="space-y-4 pr-2 custom-scrollbar">
                                     {match.events && match.events.length > 0 ? (
                                         [...match.events].sort((a,b) => a.minute - b.minute).map(event => {
                                             const isLinkedAssist = !!event.linkedGoalId;
