@@ -265,7 +265,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[90vh] flex flex-col p-0 glass-card border-white/5 overflow-hidden">
+      <DialogContent className="w-[calc(100%-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col p-0 glass-card border-white/5 overflow-hidden">
         {protocolPhase === 'EXTRA_TIME_CONFIRM' ? (
             <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center h-full animate-in fade-in zoom-in-95 duration-300 overflow-y-auto">
                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4 md:mb-6">
@@ -322,7 +322,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                     <form onSubmit={settingsForm.handleSubmit(handleSettingsSubmit)} className="space-y-4">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                                             <FormField control={settingsForm.control} name="status" render={({ field }) => (
-                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></Select></FormItem>
+                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></Select></FormItem>
                                             )}/>
                                             <FormField control={settingsForm.control} name="stage" render={({ field }) => (
                                                 <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Stage</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger></FormControl><SelectContent>{availableStages.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent></Select></FormItem>

@@ -48,7 +48,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
-        "w-[95vw] sm:max-w-md p-0 glass-card overflow-hidden border-2",
+        "w-[calc(100%-2rem)] sm:w-full max-w-md p-0 glass-card overflow-hidden border-2 max-h-[90vh] overflow-y-auto custom-scrollbar",
         isClassA ? "border-accent/40 shadow-[0_0_50px_rgba(255,87,34,0.1)]" : 
         isClassB ? "border-blue-500/40 shadow-[0_0_50px_rgba(59,130,246,0.1)]" : "border-white/10"
       )}>
@@ -57,7 +57,6 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
           <DialogDescription>Detailed performance metrics and athlete profile for {player.name}.</DialogDescription>
         </DialogHeader>
         <div className="relative">
-          {/* Elite Background elements */}
           <div className={cn(
             "absolute inset-0 opacity-10 pointer-events-none",
             isClassA ? "bg-gradient-to-b from-accent to-transparent" : "bg-gradient-to-b from-blue-500 to-transparent"
