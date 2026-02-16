@@ -1,5 +1,3 @@
-'use server';
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -21,7 +19,7 @@ import { useData } from '@/hooks/use-data';
 import { cn, getImageUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
-import { PlusCircle, Goal, Footprints, Trash2, Pencil, CheckCircle2, Settings2, Timer, Sword, AlertTriangle, History } from 'lucide-react';
+import { PlusCircle, Goal, Footprints, Trash2, Pencil, CheckCircle2, Settings2, Timer, Sword } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSeason } from '@/contexts/season-context';
 import { Switch } from '@/components/ui/switch';
@@ -67,7 +65,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         defaultValues: {
             status: match?.status || 'UPCOMING',
             stage: match?.stage || 'GROUP_STAGE',
-            date: match ? format(new Date(match.date), 'yyyy-MM-dd') : '',
+            date: match ? (match.date instanceof Date ? format(match.date, 'yyyy-MM-dd') : format(new Date(match.date), 'yyyy-MM-dd')) : '',
             time: match?.time || '',
             venue: match?.venue || '',
             description: match?.description || '',
