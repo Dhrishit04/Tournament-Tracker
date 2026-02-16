@@ -260,7 +260,7 @@ export default function AdminPlayersPage() {
             <Card className="glass-card border-white/5">
                 <CardHeader><Skeleton className="h-6 w-32 opacity-10" /></CardHeader>
                 <CardContent><Skeleton className="h-96 w-full opacity-5" /></CardContent>
-            </div>
+            </Card>
         </div>
     )
   }
