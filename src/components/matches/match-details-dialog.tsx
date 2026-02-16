@@ -267,41 +267,41 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[90vh] flex flex-col p-0 glass-card border-white/5 overflow-hidden">
         {protocolPhase === 'EXTRA_TIME_CONFIRM' ? (
-            <div className="flex flex-col items-center justify-center p-12 text-center h-full animate-in fade-in zoom-in-95 duration-300">
-                <div className="w-20 h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-6">
-                    <Timer className="h-10 w-10 text-accent" />
+            <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center h-full animate-in fade-in zoom-in-95 duration-300 overflow-y-auto">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4 md:mb-6">
+                    <Timer className="h-8 w-8 md:h-10 md:w-10 text-accent" />
                 </div>
-                <h2 className="text-3xl font-black italic tracking-tighter uppercase mb-4">Match <span className="text-accent">Locked</span></h2>
-                <p className="text-white/70 max-w-md mb-8">
+                <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-2 md:mb-4">Match <span className="text-accent">Locked</span></h2>
+                <p className="text-xs md:text-sm text-white/70 max-w-md mb-6 md:mb-8">
                     The fixture has ended in a draw ({match.homeScore}-{match.awayScore}). Since this is a knockout stage, do you want to initiate **Extra Time Protocol** or conclude as a draw?
                 </p>
                 {extraDuration > 0 && (
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between w-full max-w-xs mb-8">
-                        <span className="text-xs font-bold opacity-50 uppercase tracking-widest">Configured Extra Time</span>
-                        <span className="text-sm font-black text-accent">{extraDuration} Minutes</span>
+                    <div className="p-3 md:p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between w-full max-w-xs mb-6 md:mb-8">
+                        <span className="text-[10px] md:text-xs font-bold opacity-50 uppercase tracking-widest">Configured Extra Time</span>
+                        <span className="text-xs md:text-sm font-black text-accent">{extraDuration} Minutes</span>
                     </div>
                 )}
-                <div className="flex gap-4 w-full max-w-sm">
-                    <Button onClick={handleConfirmFinishAsDraw} variant="ghost" className="flex-1 h-14 border border-white/10 hover:bg-white/5 uppercase font-black text-[10px] tracking-widest">Conclude Draw</Button>
-                    <Button onClick={handleConfirmExtraTime} className="flex-1 h-14 bg-accent hover:bg-accent/90 uppercase font-black text-[10px] tracking-widest shadow-lg shadow-accent/20">Initiate ET</Button>
+                <div className="flex gap-3 md:gap-4 w-full max-w-sm">
+                    <Button onClick={handleConfirmFinishAsDraw} variant="ghost" className="flex-1 h-12 md:h-14 border border-white/10 hover:bg-white/5 uppercase font-black text-[9px] md:text-[10px] tracking-widest">Conclude Draw</Button>
+                    <Button onClick={handleConfirmExtraTime} className="flex-1 h-12 md:h-14 bg-accent hover:bg-accent/90 uppercase font-black text-[9px] md:text-[10px] tracking-widest shadow-lg shadow-accent/20">Initiate ET</Button>
                 </div>
             </div>
         ) : (
             <>
-                <DialogHeader className="p-4 md:p-6 pb-0 border-b border-white/5">
-                    <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                <DialogHeader className="p-4 md:p-6 pb-2 border-b border-white/5">
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-3 md:gap-4">
                         <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-2 mb-1">
-                                <DialogTitle className="text-xl md:text-2xl font-black italic tracking-tighter uppercase whitespace-nowrap">Match <span className="text-accent">Protocol</span></DialogTitle>
+                                <DialogTitle className="text-lg md:text-2xl font-black italic tracking-tighter uppercase whitespace-nowrap">Match <span className="text-accent">Protocol</span></DialogTitle>
                                 <Badge variant="outline" className="text-[8px] md:text-[10px] font-black tracking-widest border-white/10 uppercase">{match.stage?.replace('_', ' ')}</Badge>
                                 {match.isExtraTime && (
                                     <Badge className="bg-accent text-white border-none text-[8px] md:text-[10px] font-black animate-pulse">EXTRA TIME</Badge>
                                 )}
                             </div>
-                            <DialogDescription className="font-bold text-[10px] md:text-xs uppercase tracking-widest opacity-50 truncate">{format(new Date(match.date), 'EEEE, MMMM d, yyyy')}</DialogDescription>
+                            <DialogDescription className="font-bold text-[9px] md:text-xs uppercase tracking-widest opacity-50 truncate">{format(new Date(match.date), 'EEEE, MMMM d, yyyy')}</DialogDescription>
                         </div>
                         {isAdmin && (
-                            <div className="flex gap-2 self-end md:self-auto md:mr-8 mb-2 md:mb-0">
+                            <div className="flex gap-2 self-start md:self-auto md:mr-8">
                                 <Button variant="ghost" size="sm" onClick={() => setShowSettingsForm(!showSettingsForm)} className="h-7 md:h-8 rounded-full hover:bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-bold uppercase tracking-widest">
                                     <Settings2 className="w-3 h-3 mr-1.5" /> {showSettingsForm ? 'Close' : 'Config'}
                                 </Button>
@@ -313,40 +313,40 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                     </div>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 p-4 md:p-6">
+                <ScrollArea className="flex-1 p-4 md:p-6 overflow-y-auto">
                     {isAdmin && showSettingsForm && (
                         <Card className="mb-6 bg-white/5 border-white/5 animate-in slide-in-from-top-4 duration-300">
-                            <CardHeader className="py-3 px-4"><CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Administrative Configuration</CardTitle></CardHeader>
+                            <CardHeader className="py-2 md:py-3 px-4"><CardTitle className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Administrative Configuration</CardTitle></CardHeader>
                             <CardContent className="px-4 pb-4">
                                 <Form {...settingsForm}>
                                     <form onSubmit={settingsForm.handleSubmit(handleSettingsSubmit)} className="space-y-4">
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                                             <FormField control={settingsForm.control} name="status" render={({ field }) => (
-                                                <FormItem><FormLabel className="text-[10px] font-bold uppercase">Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></Select></FormItem>
+                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></Select></FormItem>
                                             )}/>
                                             <FormField control={settingsForm.control} name="stage" render={({ field }) => (
-                                                <FormItem><FormLabel className="text-[10px] font-bold uppercase">Stage</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger></FormControl><SelectContent>{availableStages.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent></Select></FormItem>
+                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Stage</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger></FormControl><SelectContent>{availableStages.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent></Select></FormItem>
                                             )}/>
                                             {showVenue && (
                                                 <FormField control={settingsForm.control} name="venue" render={({ field }) => (
-                                                    <FormItem><FormLabel className="text-[10px] font-bold uppercase">Venue</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
+                                                    <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Venue</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
                                                 )}/>
                                             )}
                                             <FormField control={settingsForm.control} name="date" render={({ field }) => (
-                                                <FormItem><FormLabel className="text-[10px] font-bold uppercase">Date</FormLabel><FormControl><Input type="date" className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
+                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Date</FormLabel><FormControl><Input type="date" className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
                                             )}/>
                                             <FormField control={settingsForm.control} name="time" render={({ field }) => (
-                                                <FormItem><FormLabel className="text-[10px] font-bold uppercase">Kickoff</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
+                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Kickoff</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
                                             )}/>
                                             {currentSettingsStage !== 'GROUP_STAGE' && (
                                                 <FormField control={settingsForm.control} name="isExtraTime" render={({ field }) => (
-                                                    <FormItem className="flex flex-col justify-end space-y-2">
-                                                        <FormLabel className="text-[10px] font-black uppercase opacity-50">Extra Time Protocol</FormLabel>
+                                                    <FormItem className="flex flex-col justify-end space-y-1">
+                                                        <FormLabel className="text-[9px] md:text-[10px] font-black uppercase opacity-50">Extra Time Protocol</FormLabel>
                                                         <div className="flex items-center space-x-2 bg-white/5 h-9 rounded-md px-3 border border-white/5">
                                                             <FormControl>
                                                                 <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-accent scale-75" />
                                                             </FormControl>
-                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                                                            <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-white/70">
                                                                 {field.value ? 'Active' : 'Inactive'}
                                                             </span>
                                                         </div>
@@ -355,13 +355,13 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                             )}
                                             {settingsForm.watch('stage') === 'OTHERS' && (
                                                 <FormField control={settingsForm.control} name="isThirdPlacePlayoff" render={({ field }) => (
-                                                    <FormItem className="flex flex-col justify-end space-y-2">
-                                                        <FormLabel className="text-[10px] font-black uppercase opacity-50">3rd Place Playoff</FormLabel>
+                                                    <FormItem className="flex flex-col justify-end space-y-1">
+                                                        <FormLabel className="text-[9px] md:text-[10px] font-black uppercase opacity-50">3rd Place Playoff</FormLabel>
                                                         <div className="flex items-center space-x-2 bg-white/5 h-9 rounded-md px-3 border border-white/5">
                                                             <FormControl>
                                                                 <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-blue-500 scale-75" />
                                                             </FormControl>
-                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
+                                                            <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-white/70">
                                                                 {field.value ? 'Bracket' : 'Match'}
                                                             </span>
                                                         </div>
@@ -369,8 +369,8 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                 )}/>
                                             )}
                                         </div>
-                                        <div className="flex justify-end">
-                                            <Button type="submit" size="sm" className="h-9 text-[10px] font-black uppercase tracking-widest px-6 bg-accent hover:bg-accent/90">Update Registry</Button>
+                                        <div className="flex justify-end pt-2">
+                                            <Button type="submit" size="sm" className="h-9 text-[9px] md:text-[10px] font-black uppercase tracking-widest px-6 bg-accent hover:bg-accent/90">Update Registry</Button>
                                         </div>
                                     </form>
                                 </Form>
@@ -381,7 +381,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div className="space-y-6 md:space-y-8">
                             <div className="flex flex-col items-center justify-center bg-white/5 p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden h-fit">
-                                <div className="absolute top-0 right-0 p-4 opacity-5">
+                                <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                                     <Sword className="h-24 md:h-32 w-24 md:w-32 rotate-12" />
                                 </div>
                                 
@@ -390,10 +390,10 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                         <div className="relative w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden mb-3 md:mb-4 border-2 border-accent/20 shadow-xl shrink-0 group">
                                             <Image src={homeLogo.imageUrl} alt={homeTeam.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
                                         </div>
-                                        <span className="font-black text-[10px] md:text-sm leading-tight truncate w-full uppercase tracking-tighter">{homeTeam.name}</span>
+                                        <span className="font-black text-[9px] md:text-sm leading-tight truncate w-full uppercase tracking-tighter">{homeTeam.name}</span>
                                     </div>
-                                    <div className="flex flex-col items-center gap-1.5 md:gap-2">
-                                        <div className="text-3xl md:text-5xl font-black font-mono tracking-tighter flex items-center gap-2 md:gap-3">
+                                    <div className="flex flex-col items-center gap-1 md:gap-2">
+                                        <div className="text-2xl md:text-5xl font-black font-mono tracking-tighter flex items-center gap-2 md:gap-3">
                                             {match.status === 'FINISHED' || match.status === 'LIVE' ? (
                                             <>
                                                 <span className={cn(match.homeScore! > match.awayScore! ? "text-accent" : "")}>{match.homeScore ?? 0}</span>
@@ -401,11 +401,11 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                 <span className={cn(match.awayScore! > match.homeScore! ? "text-accent" : "")}>{match.awayScore ?? 0}</span>
                                             </>
                                             ) : (
-                                            <span className="text-sm md:text-xl text-white/40 font-sans font-black uppercase tracking-[0.2em]">{match.time}</span>
+                                            <span className="text-xs md:text-xl text-white/40 font-sans font-black uppercase tracking-[0.2em]">{match.time}</span>
                                             )}
                                         </div>
                                         {stageTiming?.duration && (
-                                            <div className="flex items-center gap-1 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-white/30 bg-white/5 px-2.5 py-0.5 md:py-1 rounded-full border border-white/5">
+                                            <div className="flex items-center gap-1 text-[7px] md:text-[9px] font-black uppercase tracking-widest text-white/30 bg-white/5 px-2 py-0.5 md:py-1 rounded-full border border-white/5">
                                                 <Timer className="h-2.5 md:h-3 w-2.5 md:w-3" /> {baseDuration}m Base
                                             </div>
                                         )}
@@ -414,17 +414,17 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                         <div className="relative w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden mb-3 md:mb-4 border-2 border-accent/20 shadow-xl shrink-0 group">
                                             <Image src={awayLogo.imageUrl} alt={awayTeam.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
                                         </div>
-                                        <span className="font-black text-[10px] md:text-sm leading-tight truncate w-full uppercase tracking-tighter">{awayTeam.name}</span>
+                                        <span className="font-black text-[9px] md:text-sm leading-tight truncate w-full uppercase tracking-tighter">{awayTeam.name}</span>
                                     </div>
                                 </div>
 
                                 {isAdmin && match.status === 'LIVE' && (
-                                    <Button onClick={handleDeclareMatch} className="bg-green-600 hover:bg-green-700 w-full font-black italic uppercase tracking-widest h-10 md:h-12 shadow-lg shadow-green-900/20 text-xs">
+                                    <Button onClick={handleDeclareMatch} className="bg-green-600 hover:bg-green-700 w-full font-black italic uppercase tracking-widest h-10 md:h-12 shadow-lg shadow-green-900/20 text-[10px] md:text-xs">
                                         <CheckCircle2 className="mr-2 h-4 md:h-5 w-4 md:w-5" /> Declare Finished
                                     </Button>
                                 )}
                                 {match.status === 'FINISHED' && (
-                                    <div className="flex items-center gap-2 md:gap-3 text-accent font-black uppercase text-[8px] md:text-[10px] tracking-[0.2em] md:tracking-[0.3em] bg-accent/10 px-6 md:px-8 py-1.5 md:py-2 rounded-full border border-accent/20 mt-2 md:mt-4 animate-in fade-in zoom-in duration-500">
+                                    <div className="flex items-center gap-2 md:gap-3 text-accent font-black uppercase text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.3em] bg-accent/10 px-4 md:px-8 py-1.5 md:py-2 rounded-full border border-accent/20 mt-2 md:mt-4 animate-in fade-in zoom-in duration-500">
                                         <CheckCircle2 className="h-3 md:h-4 w-3 md:w-4" /> Official Protocol Complete
                                     </div>
                                 )}
@@ -432,22 +432,22 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
                             {h2hStats && h2hStats.total > 0 && (
                                 <Card className="glass-card border-white/5">
-                                    <CardHeader className="py-3 px-4 flex flex-row items-center justify-between border-b border-white/5">
-                                        <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Head-to-Head History</CardTitle>
-                                        <span className="text-[10px] font-bold opacity-30">{h2hStats.total} Encounters</span>
+                                    <CardHeader className="py-2 md:py-3 px-4 flex flex-row items-center justify-between border-b border-white/5">
+                                        <CardTitle className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-40">H2H History</CardTitle>
+                                        <span className="text-[8px] md:text-[10px] font-bold opacity-30">{h2hStats.total} Encounters</span>
                                     </CardHeader>
-                                    <CardContent className="p-4 flex justify-between items-center gap-4">
-                                        <div className="flex-1 text-center">
-                                            <p className="text-[8px] font-black text-muted-foreground uppercase mb-1 truncate">{homeTeam.name}</p>
-                                            <p className="text-lg md:text-xl font-mono font-black text-accent">{h2hStats.homeWins}</p>
+                                    <CardContent className="p-3 md:p-4 flex justify-between items-center gap-2 md:gap-4">
+                                        <div className="flex-1 text-center min-w-0">
+                                            <p className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase mb-1 truncate">{homeTeam.name}</p>
+                                            <p className="text-base md:text-xl font-mono font-black text-accent">{h2hStats.homeWins}</p>
                                         </div>
-                                        <div className="flex-1 text-center border-x border-white/5">
-                                            <p className="text-[8px] font-black text-muted-foreground uppercase mb-1">Draws</p>
-                                            <p className="text-lg md:text-xl font-mono font-black">{h2hStats.draws}</p>
+                                        <div className="flex-1 text-center border-x border-white/5 px-1">
+                                            <p className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase mb-1">Draws</p>
+                                            <p className="text-base md:text-xl font-mono font-black">{h2hStats.draws}</p>
                                         </div>
-                                        <div className="flex-1 text-center">
-                                            <p className="text-[8px] font-black text-muted-foreground uppercase mb-1 truncate">{awayTeam.name}</p>
-                                            <p className="text-lg md:text-xl font-mono font-black text-accent">{h2hStats.awayWins}</p>
+                                        <div className="flex-1 text-center min-w-0">
+                                            <p className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase mb-1 truncate">{awayTeam.name}</p>
+                                            <p className="text-base md:text-xl font-mono font-black text-accent">{h2hStats.awayWins}</p>
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -470,13 +470,13 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                             <CardContent className="p-4 md:p-6">
                                 {isAdmin && showEventForm && (
                                     <Form {...eventForm}>
-                                        <form onSubmit={eventForm.handleSubmit(handleEventSubmit)} className="space-y-4 p-4 mb-6 border border-accent/20 rounded-2xl bg-accent/5 animate-in slide-in-from-right-4 duration-300">
+                                        <form onSubmit={eventForm.handleSubmit(handleEventSubmit)} className="space-y-3 p-3 md:p-4 mb-6 border border-accent/20 rounded-2xl bg-accent/5 animate-in slide-in-from-right-4 duration-300">
                                             <div className="grid grid-cols-2 gap-3">
                                                 <FormField control={eventForm.control} name="type" render={({ field }) => (
                                                     <FormItem className="space-y-1">
-                                                        <FormLabel className="text-[9px] font-black uppercase opacity-50">Event Identity</FormLabel>
+                                                        <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">Event Identity</FormLabel>
                                                         <Select onValueChange={(val) => { field.onChange(val); if(val !== 'Goal') eventForm.setValue('assisterId', 'none'); }} defaultValue={field.value}>
-                                                            <FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger></FormControl>
+                                                            <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue/></SelectTrigger></FormControl>
                                                             <SelectContent>
                                                                 <SelectItem value="Goal">Goal</SelectItem>
                                                                 <SelectItem value="Assist" disabled={!editingEvent}>Assist (Standalone)</SelectItem>
@@ -485,53 +485,53 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                                 <SelectItem value="Own Goal">Own Goal</SelectItem>
                                                             </SelectContent>
                                                         </Select>
-                                                        <FormMessage className="text-[10px]"/>
+                                                        <FormMessage className="text-[9px] md:text-[10px]"/>
                                                     </FormItem>
                                                 )}/>
                                                 <FormField control={eventForm.control} name="minute" render={({ field }) => (
                                                     <FormItem className="space-y-1">
-                                                        <FormLabel className="text-[9px] font-black uppercase opacity-50">
-                                                            {match.isExtraTime ? `Minute in ET (1-${extraDuration})` : `Minute (Max ${baseDuration})`}
+                                                        <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">
+                                                            {match.isExtraTime ? `Min in ET (1-${extraDuration})` : `Minute (Max ${baseDuration})`}
                                                         </FormLabel>
                                                         <FormControl>
                                                             <Input 
                                                                 type="number" 
-                                                                className="h-9 text-xs glass-card" 
+                                                                className="h-8 md:h-9 text-[10px] md:text-xs glass-card" 
                                                                 placeholder="e.g. 5"
                                                                 {...field}
                                                             />
                                                         </FormControl>
-                                                        <FormMessage className="text-[10px]"/>
+                                                        <FormMessage className="text-[9px] md:text-[10px]"/>
                                                     </FormItem>
                                                 )}/>
                                             </div>
                                             <FormField control={eventForm.control} name="playerId" render={({ field }) => (
                                                 <FormItem className="space-y-1">
-                                                    <FormLabel className="text-[9px] font-black uppercase opacity-50">Subject Athlete</FormLabel>
+                                                    <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">Subject Athlete</FormLabel>
                                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                        <FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue placeholder="Select athlete..."/></SelectTrigger></FormControl>
+                                                        <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue placeholder="Select athlete..."/></SelectTrigger></FormControl>
                                                         <SelectContent>
                                                             <SelectGroup>
-                                                                <SelectLabel className="text-[10px] font-black uppercase tracking-widest text-accent mb-1">{homeTeam.name}</SelectLabel>
+                                                                <SelectLabel className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-accent mb-1">{homeTeam.name}</SelectLabel>
                                                                 {homePlayers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                                                             </SelectGroup>
                                                             <Separator className="my-2 bg-white/5" />
                                                             <SelectGroup>
-                                                                <SelectLabel className="text-[10px] font-black uppercase tracking-widest text-accent mb-1">{awayTeam.name}</SelectLabel>
+                                                                <SelectLabel className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-accent mb-1">{awayTeam.name}</SelectLabel>
                                                                 {awayPlayers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                                                             </SelectGroup>
                                                         </SelectContent>
                                                     </Select>
-                                                    <FormMessage className="text-[10px]"/>
+                                                    <FormMessage className="text-[9px] md:text-[10px]"/>
                                                 </FormItem>
                                             )}/>
 
                                             {eventForm.watch('type') === 'Goal' && (
                                                 <FormField control={eventForm.control} name="assisterId" render={({ field }) => (
                                                     <FormItem className="space-y-1">
-                                                        <FormLabel className="text-[9px] font-black uppercase opacity-50">Assister (Optional)</FormLabel>
+                                                        <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">Assister (Optional)</FormLabel>
                                                         <Select onValueChange={field.onChange} value={field.value}>
-                                                            <FormControl><SelectTrigger className="h-9 text-xs glass-card"><SelectValue placeholder="None"/></SelectTrigger></FormControl>
+                                                            <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue placeholder="None"/></SelectTrigger></FormControl>
                                                             <SelectContent>
                                                                 <SelectItem value="none">None</SelectItem>
                                                                 {eligibleAssisters.map(p => (
@@ -543,7 +543,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                 )}/>
                                             )}
 
-                                            <Button type="submit" className="w-full h-10 text-[10px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-white/20 border border-white/10">{editingEvent ? 'Update Registry' : 'Record Event'}</Button>
+                                            <Button type="submit" className="w-full h-10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-white/20 border border-white/10">{editingEvent ? 'Update Registry' : 'Record Event'}</Button>
                                         </form>
                                     </Form>
                                 )}
@@ -560,7 +560,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                     <div className="bg-white/5 p-1.5 md:p-2 rounded-xl border border-white/5 shrink-0"><EventIcon type={event.type} /></div>
                                                     <div className="flex flex-col min-w-0 flex-1">
                                                         <div className="flex flex-wrap items-baseline gap-x-2">
-                                                            <span className="font-bold text-xs md:text-sm tracking-tight truncate uppercase">{event.playerName}</span>
+                                                            <span className="font-bold text-[11px] md:text-sm tracking-tight truncate uppercase">{event.playerName}</span>
                                                             <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-white/20">
                                                                 {event.type} {isLinkedAssist && linkedGoal ? `(Goal: ${linkedGoal.playerName} - ${linkedGoal.minute}')` : ''}
                                                             </span>
