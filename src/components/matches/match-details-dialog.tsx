@@ -265,7 +265,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[calc(100%-2rem)] sm:w-full sm:max-w-4xl max-h-[90vh] flex flex-col p-0 glass-card border-white/5 overflow-hidden">
+      <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[92vh] flex flex-col p-0 glass-card border-white/5 overflow-hidden gap-0">
         {protocolPhase === 'EXTRA_TIME_CONFIRM' ? (
             <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center h-full animate-in fade-in zoom-in-95 duration-300">
                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4 md:mb-6">
@@ -282,7 +282,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             </div>
         ) : (
             <>
-                <DialogHeader className="p-4 md:p-6 pb-2 border-b border-white/5">
+                <DialogHeader className="p-4 md:p-6 pb-2 border-b border-white/5 flex-shrink-0">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-3 md:gap-4">
                         <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -307,10 +307,10 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                     </div>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 p-0">
-                    <div className="p-4 md:p-6">
+                <ScrollArea className="flex-1 w-full overflow-y-auto">
+                    <div className="p-4 md:p-6 space-y-6">
                         {isAdmin && showSettingsForm && (
-                            <Card className="mb-6 bg-white/5 border-white/5 animate-in slide-in-from-top-4 duration-300">
+                            <Card className="bg-white/5 border-white/5 animate-in slide-in-from-top-4 duration-300">
                                 <CardHeader className="py-2 md:py-3 px-4"><CardTitle className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Administrative Configuration</CardTitle></CardHeader>
                                 <CardContent className="px-4 pb-4">
                                     <Form {...settingsForm}>
@@ -396,7 +396,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                             </Card>
                         )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 pb-10">
                             <div className="space-y-6 md:space-y-8">
                                 <div className="flex flex-col items-center justify-center bg-white/5 p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden h-fit">
                                     <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">

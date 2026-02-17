@@ -226,7 +226,7 @@ function MatchForm({
     defaultValues: {
       homeTeamId: match?.homeTeamId || '',
       awayTeamId: match?.awayTeamId || '',
-      date: match ? format(new Date(match.date), 'yyyy-MM-dd') : '',
+      date: match ? (match.date instanceof Date ? format(match.date, 'yyyy-MM-dd') : format(new Date(match.date), 'yyyy-MM-dd')) : '',
       status: match?.status || 'UPCOMING',
       stage: match?.stage || 'GROUP_STAGE',
       description: match?.description || '',
@@ -335,7 +335,7 @@ function MatchForm({
                 )}/>
             </div>
         )}
-        <DialogFooter>
+        <DialogFooter className="pt-4 sm:pt-0">
           <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
           <Button type="submit">Save Match</Button>
         </DialogFooter>
@@ -592,7 +592,7 @@ export default function AdminMatchesPage() {
         </Card>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogContent className="sm:max-w-lg glass-card border-white/5 p-8">
+            <DialogContent className="w-[95vw] sm:max-w-lg glass-card border-white/5 p-8">
             <DialogHeader>
                 <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
                     {dialogMode === 'edit' ? 'Modify' : 'Schedule'} <span className="text-accent">Fixture</span>
