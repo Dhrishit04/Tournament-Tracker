@@ -14,6 +14,20 @@ import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getImageUrl, cn } from '@/lib/utils';
 import { AthleteCardDialog } from '@/components/players/athlete-card-dialog';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function PlayersPage() {
   const { players, teams, loading } = useData();
@@ -33,18 +47,19 @@ export default function PlayersPage() {
   const PlayerRow = ({ player }: { player: Player }) => {
     const avatar = getImageUrl(player.avatarUrl);
     return (
-      <TableRow 
-        className="cursor-pointer hover:bg-accent/5 transition-colors group"
+      <motion.tr 
+        variants={itemVariants}
+        className="cursor-pointer hover:bg-accent/5 transition-colors group border-b border-white/5"
         onClick={() => setSelectedPlayer(player)}
       >
         <TableCell className="px-6 py-4">
           <div className="flex items-center gap-4">
-            <div className="relative w-12 h-12 rounded-2xl overflow-hidden border border-white/10 group-hover:border-accent/40 transition-colors shrink-0">
+            <div className="relative w-12 h-12 rounded-2xl overflow-hidden border border-white/10 group-hover:border-accent/40 transition-all duration-500 shrink-0 group-hover:scale-105">
               <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" data-ai-hint={avatar.imageHint} />
             </div>
             <div>
               <div className="font-bold text-base uppercase tracking-tight whitespace-nowrap">{player.name}</div>
-              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">{getTeamName(player.teamId)}</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap group-hover:text-accent transition-colors">{getTeamName(player.teamId)}</div>
             </div>
           </div>
         </TableCell>
@@ -68,7 +83,7 @@ export default function PlayersPage() {
         <TableCell className="text-center font-mono font-bold text-sm opacity-60">{player.matchesPlayed}</TableCell>
         <TableCell className="text-center font-mono font-black text-base text-accent">{player.goals}</TableCell>
         <TableCell className="text-center font-mono font-black text-base text-blue-400">{player.assists}</TableCell>
-      </TableRow>
+      </motion.tr>
     );
   }
 
@@ -103,81 +118,95 @@ export default function PlayersPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
+      >
         <div>
             <h1 className="text-5xl font-black font-headline tracking-tighter italic uppercase mb-2">Athlete <span className="text-accent">Directory</span></h1>
             <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Official DFPL central registry and performance records.</p>
         </div>
         {isAdmin && (
-            <Button asChild className="bg-accent hover:bg-accent/90 shadow-lg px-8 h-12 rounded-full font-bold">
+            <Button asChild className="bg-accent hover:bg-accent/90 shadow-lg px-8 h-12 rounded-full font-bold transition-all hover:scale-105">
                 <Link href="/admin/players">
                     <PlusCircle className="mr-2 h-5 w-5" /> Manage Roster
                 </Link>
             </Button>
         )}
-      </div>
+      </motion.div>
 
-      <Card className="glass-card border-white/5 overflow-hidden">
-        <CardHeader className="bg-white/5 border-b border-white/5 px-8 py-6">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-3">
-                <div className="p-3 bg-accent/10 rounded-2xl text-accent"><User className="h-6 w-6" /></div>
-                <CardTitle className="text-xl font-black italic uppercase tracking-tighter">Elite Registry</CardTitle>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                <div className="relative group w-full sm:w-72">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-accent transition-colors" />
-                    <Input
-                        placeholder="Filter by name..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 glass-card bg-background/50 h-11"
-                    />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card className="glass-card border-white/5 overflow-hidden">
+            <CardHeader className="bg-white/5 border-b border-white/5 px-8 py-6">
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+                <div className="flex items-center gap-3">
+                    <div className="p-3 bg-accent/10 rounded-2xl text-accent"><User className="h-6 w-6" /></div>
+                    <CardTitle className="text-xl font-black italic uppercase tracking-tighter">Elite Registry</CardTitle>
                 </div>
-                <Select value={teamFilter} onValueChange={setTeamFilter}>
-                    <SelectTrigger className="w-full sm:w-[200px] glass-card bg-background/50 h-11">
-                        <SelectValue placeholder="Club Alliance" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">Global Roster</SelectItem>
-                        {teams.map(team => (
-                        <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-            {loading ? <LoadingSkeleton/> : (
-                <div className="overflow-x-auto">
-                    <Table>
-                    <TableHeader className="bg-white/5">
-                        <TableRow className="border-white/5">
-                            <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete Profile</TableHead>
-                            <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Draft Class</TableHead>
-                            <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Positions</TableHead>
-                            <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Played</TableHead>
-                            <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Goals</TableHead>
-                            <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Assists</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {filteredPlayers.length > 0 ? (
-                        filteredPlayers.map((player) => <PlayerRow key={player.id} player={player} />)
-                        ) : (
-                        <TableRow>
-                            <TableCell colSpan={6} className="text-center h-64 text-muted-foreground font-medium italic uppercase tracking-widest text-xs">
-                                No intelligence found for current query.
-                            </TableCell>
-                        </TableRow>
-                        )}
-                    </TableBody>
-                    </Table>
+                <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                    <div className="relative group w-full sm:w-72">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-accent transition-colors" />
+                        <Input
+                            placeholder="Filter by name..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10 glass-card bg-background/50 h-11 focus:ring-accent/20"
+                        />
+                    </div>
+                    <Select value={teamFilter} onValueChange={setTeamFilter}>
+                        <SelectTrigger className="w-full sm:w-[200px] glass-card bg-background/50 h-11">
+                            <SelectValue placeholder="Club Alliance" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Global Roster</SelectItem>
+                            {teams.map(team => (
+                            <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
-            )}
-        </CardContent>
-      </Card>
+            </div>
+            </CardHeader>
+            <CardContent className="p-0">
+                {loading ? <LoadingSkeleton/> : (
+                    <div className="overflow-x-auto">
+                        <Table>
+                        <TableHeader className="bg-white/5">
+                            <TableRow className="border-white/5">
+                                <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete Profile</TableHead>
+                                <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Draft Class</TableHead>
+                                <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Positions</TableHead>
+                                <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Played</TableHead>
+                                <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Goals</TableHead>
+                                <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Assists</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <motion.tbody 
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="visible"
+                        >
+                            {filteredPlayers.length > 0 ? (
+                            filteredPlayers.map((player) => <PlayerRow key={player.id} player={player} />)
+                            ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center h-64 text-muted-foreground font-medium italic uppercase tracking-widest text-xs">
+                                    No intelligence found for current query.
+                                </TableCell>
+                            </TableRow>
+                            )}
+                        </motion.tbody>
+                        </Table>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+      </motion.div>
 
       <AthleteCardDialog 
         player={selectedPlayer}

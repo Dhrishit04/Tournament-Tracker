@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -16,13 +15,23 @@ import { useSeason } from '@/contexts/season-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getImageUrl, cn } from '@/lib/utils';
 import { MatchDetailsDialog } from '@/components/matches/match-details-dialog';
+import { motion, AnimatePresence } from 'framer-motion';
+
+function LivePulse() {
+    return (
+        <div className="relative flex h-2 w-2 mr-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+        </div>
+    );
+}
 
 function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { match: Match, onCardClick: (match: Match) => void, teams: Team[], isGroupMode: boolean, showVenue: boolean }) {
   const homeTeam = teams.find(t => t.id === match.homeTeamId);
   const awayTeam = teams.find(t => t.id === match.awayTeamId);
 
   if (!homeTeam || !awayTeam) {
-    return <Card className="h-full"><CardContent className="h-[210px]"><Skeleton className="h-full w-full" /></CardContent></Card>;
+    return <Card className="h-full border-white/5 bg-white/5"><CardContent className="h-[210px] flex items-center justify-center"><Skeleton className="h-12 w-12 rounded-full opacity-10" /></CardContent></Card>;
   }
 
   const homeLogo = getImageUrl(homeTeam.logoUrl);
@@ -30,108 +39,97 @@ function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { matc
   const groupName = isGroupMode && match.stage === 'GROUP_STAGE' ? homeTeam.group : null;
 
   return (
-    <Card className="hover:shadow-md transition-shadow flex flex-col h-full overflow-hidden">
-       <div className="flex-grow cursor-pointer" onClick={() => onCardClick(match)}>
-        <CardHeader className="pb-2 pt-4 px-4">
-            <div className="flex justify-between items-start text-xs text-muted-foreground w-full">
-                <span className="font-semibold">{format(new Date(match.date), 'EEE, MMM d')}</span>
-                <div className="flex items-center gap-1.5">
-                    {match.isExtraTime && match.status === 'LIVE' && (
-                        <Badge className="bg-accent text-white text-[8px] h-5 font-black animate-pulse border-none">ET</Badge>
-                    )}
-                    <Badge variant={match.status === 'FINISHED' ? 'secondary' : 'default'} className={cn(match.status === 'UPCOMING' ? 'bg-accent text-accent-foreground' : '', "text-[9px] uppercase font-black")}>
-                        {match.status}
-                    </Badge>
-                </div>
-            </div>
-        </CardHeader>
-        <CardContent className="px-4 pb-4">
-            {groupName && groupName !== 'None' && (
-                <div className="flex justify-center mb-3">
-                    <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider text-primary border-primary/30">Group {groupName}</Badge>
-                </div>
-            )}
-            <div className="flex items-center justify-center gap-2 w-full">
-                <div className="flex-1 min-w-0 flex flex-col items-center text-center gap-2">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden border shrink-0">
-                        <Image src={homeLogo.imageUrl} alt={homeTeam.name} fill className="object-cover" data-ai-hint={homeLogo.imageHint}/>
+    <motion.div
+        whileHover={{ y: -4, scale: 1.02 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        className="h-full"
+    >
+        <Card className="glass-card border-white/5 hover:border-accent/30 hover:shadow-2xl hover:shadow-accent/5 flex flex-col h-full overflow-hidden transition-colors group">
+        <div className="flex-grow cursor-pointer" onClick={() => onCardClick(match)}>
+            <CardHeader className="pb-2 pt-4 px-4">
+                <div className="flex justify-between items-start text-xs text-muted-foreground w-full">
+                    <span className="font-bold uppercase tracking-widest text-[9px] opacity-60 group-hover:text-accent transition-colors">{format(new Date(match.date), 'EEE, MMM d')}</span>
+                    <div className="flex items-center gap-1.5">
+                        {match.isExtraTime && match.status === 'LIVE' && (
+                            <Badge className="bg-accent text-white text-[8px] h-5 font-black animate-pulse border-none">ET</Badge>
+                        )}
+                        <Badge 
+                            variant={match.status === 'FINISHED' ? 'secondary' : 'default'} 
+                            className={cn(
+                                match.status === 'UPCOMING' ? 'bg-accent/10 text-accent border-accent/20' : '', 
+                                match.status === 'LIVE' ? 'bg-red-500 text-white animate-pulse border-none' : '',
+                                "text-[9px] uppercase font-black px-2 py-0.5 tracking-widest"
+                            )}
+                        >
+                            {match.status === 'LIVE' && <LivePulse />}
+                            {match.status}
+                        </Badge>
                     </div>
-                    <span className="font-bold text-xs sm:text-sm truncate w-full block leading-tight" title={homeTeam.name}>{homeTeam.name}</span>
                 </div>
-                
-                <div className="shrink-0 min-w-[60px] text-center px-1">
-                    {match.status === 'FINISHED' || match.status === 'LIVE' ? (
-                    <div className="flex flex-col items-center gap-0.5">
-                        <div className="flex items-center justify-center gap-1.5 text-lg font-black font-mono">
-                            <span>{match.homeScore ?? '0'}</span>
-                            <span className="text-muted-foreground/30 font-sans font-normal">-</span>
-                            <span>{match.awayScore ?? '0'}</span>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+                {groupName && groupName !== 'None' && (
+                    <div className="flex justify-center mb-4">
+                        <Badge variant="outline" className="text-[8px] font-black uppercase tracking-[0.2em] text-accent border-accent/20 bg-accent/5">Group {groupName}</Badge>
+                    </div>
+                )}
+                <div className="flex items-center justify-center gap-2 w-full mt-2">
+                    <div className="flex-1 min-w-0 flex flex-col items-center text-center gap-3">
+                        <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border border-white/10 shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-500">
+                            <Image src={homeLogo.imageUrl} alt={homeTeam.name} fill className="object-cover" data-ai-hint={homeLogo.imageHint}/>
                         </div>
-                        {match.isExtraTime && (
-                            <span className="text-[8px] font-black text-accent uppercase tracking-tighter">After Extra Time</span>
+                        <span className="font-black text-[10px] md:text-xs uppercase tracking-tighter truncate w-full block leading-none" title={homeTeam.name}>{homeTeam.name}</span>
+                    </div>
+                    
+                    <div className="shrink-0 min-w-[70px] text-center px-1">
+                        {match.status === 'FINISHED' || match.status === 'LIVE' ? (
+                        <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center justify-center gap-2 text-xl md:text-2xl font-black font-mono tracking-tighter">
+                                <span className={cn(match.homeScore! > match.awayScore! ? "text-accent" : "")}>{match.homeScore ?? '0'}</span>
+                                <span className="text-white/10 font-sans font-normal">-</span>
+                                <span className={cn(match.awayScore! > match.homeScore! ? "text-accent" : "")}>{match.awayScore ?? '0'}</span>
+                            </div>
+                            {match.isExtraTime && (
+                                <span className="text-[7px] font-black text-accent uppercase tracking-widest bg-accent/10 px-1.5 rounded-full border border-accent/20">AET</span>
+                            )}
+                        </div>
+                        ) : (
+                        <span className="text-[10px] font-black text-foreground/40 whitespace-nowrap bg-white/5 border border-white/5 px-3 py-1.5 rounded-full tracking-widest">
+                            {match.time}
+                        </span>
                         )}
                     </div>
-                    ) : (
-                    <span className="text-xs sm:text-sm font-bold text-muted-foreground whitespace-nowrap bg-secondary/50 px-2 py-1 rounded">
-                        {match.time}
-                    </span>
-                    )}
-                </div>
 
-                <div className="flex-1 min-w-0 flex flex-col items-center text-center gap-2">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden border shrink-0">
-                        <Image src={awayLogo.imageUrl} alt={awayTeam.name} fill className="object-cover" data-ai-hint={awayLogo.imageHint} />
+                    <div className="flex-1 min-w-0 flex flex-col items-center text-center gap-3">
+                        <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border border-white/10 shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-500">
+                            <Image src={awayLogo.imageUrl} alt={awayTeam.name} fill className="object-cover" data-ai-hint={awayLogo.imageHint} />
+                        </div>
+                        <span className="font-black text-[10px] md:text-xs uppercase tracking-tighter truncate w-full block leading-none" title={awayTeam.name}>{awayTeam.name}</span>
                     </div>
-                    <span className="font-bold text-xs sm:text-sm truncate w-full block leading-tight" title={awayTeam.name}>{awayTeam.name}</span>
                 </div>
-            </div>
-            {showVenue && match.venue && (
-                <p className="text-center text-[9px] uppercase font-black tracking-[0.15em] text-muted-foreground/60 mt-4 truncate px-2">{match.venue}</p>
-            )}
-        </CardContent>
-      </div>
-       {match.stage === 'OTHERS' && match.description && (
-            <div className="text-center text-[10px] text-muted-foreground mt-auto mb-4 border-t mx-6 pt-3 italic line-clamp-2">
-                {match.description}
-            </div>
-       )}
-    </Card>
+                {showVenue && match.venue && (
+                    <p className="text-center text-[8px] uppercase font-black tracking-[0.2em] text-white/20 mt-6 truncate px-2 group-hover:text-accent/40 transition-colors">{match.venue}</p>
+                )}
+            </CardContent>
+        </div>
+        {match.stage === 'OTHERS' && match.description && (
+                <div className="text-center text-[9px] font-bold text-muted-foreground mt-auto mb-4 border-t border-white/5 mx-6 pt-3 italic line-clamp-2 uppercase tracking-widest opacity-40">
+                    {match.description}
+                </div>
+        )}
+        </Card>
+    </motion.div>
   );
 }
 
-function LoadingSkeleton() {
-    return (
-        <div className="space-y-8">
-             <Skeleton className="h-10 w-1/3 mb-4" />
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[...Array(3)].map((_, i) => (
-                    <Card key={i} className="h-full">
-                        <CardHeader className="pb-2">
-                            <div className="flex justify-between items-center">
-                                <Skeleton className="h-4 w-24"/>
-                                <Skeleton className="h-6 w-20"/>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center justify-between">
-                                <div className="flex flex-col items-center w-2/5 text-center">
-                                    <Skeleton className="h-12 w-12 rounded-full mb-2"/>
-                                    <Skeleton className="h-5 w-20"/>
-                                </div>
-                                <Skeleton className="h-7 w-12"/>
-                                <div className="flex flex-col items-center w-2/5 text-center">
-                                    <Skeleton className="h-12 w-12 rounded-full mb-2"/>
-                                    <Skeleton className="h-5 w-20"/>
-                                </div>
-                            </div>
-                            <Skeleton className="h-4 w-1/3 mx-auto mt-3"/>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        </div>
-    )
-}
+const sectionVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" }
+  }
+};
 
 export default function MatchesPage() {
   const { matches, teams, loading } = useData();
@@ -143,9 +141,11 @@ export default function MatchesPage() {
 
   if (pageLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 font-headline">Matches</h1>
-        <LoadingSkeleton />
+      <div className="container mx-auto px-4 py-12">
+        <h1 className="text-5xl font-black mb-10 font-headline italic uppercase tracking-tighter">Matches</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-64 glass-card border-white/5" />)}
+        </div>
       </div>
     )
   }
@@ -171,19 +171,27 @@ export default function MatchesPage() {
   const showVenue = currentSeason?.matchConfig.showVenue ?? true;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold font-headline">Matches</h1>
+    <div className="container mx-auto px-4 py-12">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 border-b border-white/5 pb-8"
+      >
+        <div>
+            <h1 className="text-6xl font-black font-headline tracking-tighter italic uppercase mb-2">Match <span className="text-accent">Center</span></h1>
+            <p className="text-muted-foreground font-medium uppercase tracking-[0.3em] text-[10px]">Strategic fixtures and official protocol history.</p>
+        </div>
         {isAdmin && (
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="rounded-full border-white/10 bg-white/5 hover:bg-accent hover:border-accent hover:text-white transition-all shadow-xl font-bold uppercase tracking-widest text-[10px]">
                 <Link href="/admin/matches">
-                    <PlusCircle className="mr-2 h-4 w-4" /> Schedule New Match
+                    <PlusCircle className="mr-2 h-4 w-4" /> Manage Fixtures
                 </Link>
             </Button>
         )}
-      </div>
-      <div className="space-y-12">
-        {hasAnyMatches ? STAGES.filter(s => s.show).map(stage => {
+      </motion.div>
+
+      <div className="space-y-20">
+        {hasAnyMatches ? STAGES.filter(s => s.show).map((stage, sIdx) => {
           const stageMatches = matchesByStage[stage.key];
           if (stageMatches.length === 0) return null;
           
@@ -194,31 +202,45 @@ export default function MatchesPage() {
               }).filter(Boolean))).sort() as string[];
 
               return (
-                  <div key={stage.key} className="space-y-10">
-                      <h2 className="text-3xl font-semibold mb-6 border-b-2 border-primary pb-2">{stage.label}</h2>
-                      {groups.map(group => {
+                  <motion.div 
+                    key={stage.key} 
+                    variants={sectionVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-100px" }}
+                    className="space-y-12"
+                  >
+                      <div className="flex items-center gap-4">
+                        <h2 className="text-4xl font-black italic uppercase tracking-tighter">{stage.label}</h2>
+                        <div className="flex-1 h-px bg-gradient-to-r from-accent/50 to-transparent" />
+                      </div>
+                      {groups.map((group, gIdx) => {
                           const groupMatches = stageMatches.filter(m => teams.find(t => t.id === m.homeTeamId)?.group === group);
                           const upcoming = groupMatches.filter(m => ['UPCOMING', 'LIVE', 'POSTPONED'].includes(m.status));
                           const finished = groupMatches.filter(m => m.status === 'FINISHED');
 
                           return (
-                              <div key={group} className="pl-4 border-l-4 border-primary/20 bg-primary/5 p-4 rounded-r-lg">
-                                  <h3 className="text-2xl font-bold mb-6 text-primary flex items-center gap-2">
-                                      <div className="w-2 h-2 rounded-full bg-accent" />
-                                      Group {group}
+                              <div key={group} className="relative pl-6 md:pl-8 border-l-2 border-accent/20">
+                                  <div className="absolute left-[-5px] top-0 w-2 h-8 bg-accent rounded-full" />
+                                  <h3 className="text-2xl font-black italic uppercase tracking-tight mb-8 text-foreground/80 flex items-center gap-3">
+                                      Group <span className="text-accent">{group}</span>
                                   </h3>
                                   {upcoming.length > 0 && (
-                                      <div className="mb-8">
-                                          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Fixtures</p>
-                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+                                      <div className="mb-12">
+                                          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-6 flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" /> Fixtures
+                                          </p>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                                               {upcoming.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={true} showVenue={showVenue} />)}
                                           </div>
                                       </div>
                                   )}
                                   {finished.length > 0 && (
                                       <div>
-                                          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Results</p>
-                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+                                          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-6 flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Results
+                                          </p>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                                               {finished.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={true} showVenue={showVenue} />)}
                                           </div>
                                       </div>
@@ -226,7 +248,7 @@ export default function MatchesPage() {
                               </div>
                           );
                       })}
-                  </div>
+                  </motion.div>
               )
           }
 
@@ -234,27 +256,36 @@ export default function MatchesPage() {
           const finished = stageMatches.filter(m => m.status === 'FINISHED');
 
           return (
-            <div key={stage.key}>
-                <h2 className="text-3xl font-semibold mb-6 border-b-2 border-primary pb-2">{stage.label}</h2>
+            <motion.div 
+                key={stage.key}
+                variants={sectionVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+            >
+                <div className="flex items-center gap-4 mb-10">
+                    <h2 className="text-4xl font-black italic uppercase tracking-tighter">{stage.label}</h2>
+                    <div className="flex-1 h-px bg-gradient-to-r from-accent/50 to-transparent" />
+                </div>
                 {upcoming.length > 0 && (
-                    <div className="mb-8">
-                        <h3 className="text-xl font-semibold mb-4 text-muted-foreground">Fixtures</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+                    <div className="mb-12">
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-6">Upcoming Fixtures</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                             {upcoming.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={false} showVenue={showVenue} />)}
                         </div>
                     </div>
                 )}
                  {finished.length > 0 && (
                     <div>
-                        <h3 className="text-xl font-semibold mb-4 text-muted-foreground">Results</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-6">Final Results</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                            {finished.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={false} showVenue={showVenue} />)}
                         </div>
                     </div>
                 )}
-            </div>
+            </motion.div>
           )
-        }) : <p className="text-muted-foreground">No matches scheduled for this season.</p>}
+        }) : <p className="text-muted-foreground text-center py-20 font-bold uppercase tracking-widest text-xs opacity-30 italic">No matches scheduled for this season timeline.</p>}
       </div>
       {selectedMatchId && (
         <MatchDetailsDialog

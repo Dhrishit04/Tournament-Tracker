@@ -28,7 +28,7 @@
  
   .dark {
     --background: 235 80% 2%; /* Ultra Deep Navy */
-    --foreground: 0 0% 98%;
+    --foreground: 0 0% 100%;
     --card: 235 60% 4%;
     --card-foreground: 0 0% 98%;
     --popover: 235 60% 4%;
@@ -54,14 +54,32 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground selection:bg-accent selection:text-accent-foreground;
+    @apply bg-background text-foreground selection:bg-accent selection:text-accent-foreground antialiased;
   }
 }
 
 .glass-card {
-  @apply bg-card/60 backdrop-blur-md border-border/50;
+  @apply bg-card/60 backdrop-blur-xl border-border/50 shadow-xl;
 }
 
 .text-gradient {
   @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/60;
+}
+
+/* Enhanced Animations */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer-fast {
+  animation: shimmer 2s infinite linear;
+}
+
+.glow-orange {
+  box-shadow: 0 0 20px rgba(255, 87, 34, 0.15);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
 }

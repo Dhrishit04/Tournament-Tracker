@@ -18,6 +18,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Pencil } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import type { Standing, Team, TeamStats } from '@/types';
 import { useData } from '@/hooks/use-data';
@@ -41,7 +42,7 @@ function TeamCell({ team }: { team: Standing['team'] }) {
   const logo = getImageUrl(team.logoUrl);
   return (
     <div className="flex items-center gap-3">
-      <div className="relative w-8 h-8 rounded-full overflow-hidden">
+      <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/5 shadow-sm">
         <Image
           src={logo.imageUrl}
           alt={`${team.name} logo`}
@@ -50,7 +51,7 @@ function TeamCell({ team }: { team: Standing['team'] }) {
           data-ai-hint={logo.imageHint}
         />
       </div>
-      <span className="font-medium">{team.name}</span>
+      <span className="font-bold tracking-tight uppercase text-xs">{team.name}</span>
     </div>
   );
 }
@@ -110,40 +111,45 @@ function StandingsTable({ standings, isAdmin, onEditClick }: { standings: Standi
     return (
         <div className="overflow-x-auto">
             <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[50px] text-center">Rank</TableHead>
-                        <TableHead>Team</TableHead>
-                        <TableHead className="text-center">MP</TableHead>
-                        <TableHead className="text-center">W</TableHead>
-                        <TableHead className="text-center">D</TableHead>
-                        <TableHead className="text-center">L</TableHead>
-                        <TableHead className="text-center">GF</TableHead>
-                        <TableHead className="text-center">GA</TableHead>
-                        <TableHead className="text-center">GD</TableHead>
-                        <TableHead className="font-bold text-center">Pts</TableHead>
-                        {isAdmin && <TableHead className="text-right">Actions</TableHead>}
+                <TableHeader className="bg-white/5">
+                    <TableRow className="border-white/10">
+                        <TableHead className="w-[50px] text-center text-[10px] font-black uppercase tracking-widest">Rank</TableHead>
+                        <TableHead className="text-[10px] font-black uppercase tracking-widest">Club</TableHead>
+                        <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">MP</TableHead>
+                        <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">W</TableHead>
+                        <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">D</TableHead>
+                        <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">L</TableHead>
+                        <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">GF</TableHead>
+                        <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">GA</TableHead>
+                        <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">GD</TableHead>
+                        <TableHead className="font-black text-center text-[10px] uppercase tracking-widest text-accent">Pts</TableHead>
+                        {isAdmin && <TableHead className="text-right text-[10px] font-black uppercase tracking-widest">Edit</TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {standings.map((standing) => (
-                        <TableRow key={standing.team.id}>
-                            <TableCell className="font-bold text-center">{standing.rank}</TableCell>
+                    {standings.map((standing, idx) => (
+                        <TableRow key={standing.team.id} className="border-white/5 hover:bg-white/5 transition-colors">
+                            <TableCell className="font-black text-center text-sm opacity-40">{standing.rank}</TableCell>
                             <TableCell>
                                 <TeamCell team={standing.team} />
                             </TableCell>
-                            <TableCell className="text-center">{standing.played}</TableCell>
-                            <TableCell className="text-center">{standing.won}</TableCell>
-                            <TableCell className="text-center">{standing.drawn}</TableCell>
-                            <TableCell className="text-center">{standing.lost}</TableCell>
-                            <TableCell className="text-center">{standing.goalsFor}</TableCell>
-                            <TableCell className="text-center">{standing.goalsAgainst}</TableCell>
-                            <TableCell className="text-center">{standing.goalDifference}</TableCell>
-                            <TableCell className="font-bold text-center">{standing.points}</TableCell>
+                            <TableCell className="text-center font-mono text-sm">{standing.played}</TableCell>
+                            <TableCell className="text-center font-mono text-sm text-green-500/80">{standing.won}</TableCell>
+                            <TableCell className="text-center font-mono text-sm">{standing.drawn}</TableCell>
+                            <TableCell className="text-center font-mono text-sm text-red-500/80">{standing.lost}</TableCell>
+                            <TableCell className="text-center font-mono text-sm">{standing.goalsFor}</TableCell>
+                            <TableCell className="text-center font-mono text-sm">{standing.goalsAgainst}</TableCell>
+                            <TableCell className={cn(
+                                "text-center font-mono text-sm font-bold",
+                                standing.goalDifference > 0 ? "text-blue-400" : standing.goalDifference < 0 ? "text-destructive" : ""
+                            )}>
+                                {standing.goalDifference > 0 ? `+${standing.goalDifference}` : standing.goalDifference}
+                            </TableCell>
+                            <TableCell className="font-black text-center text-base text-accent">{standing.points}</TableCell>
                             {isAdmin && (
                                 <TableCell className="text-right">
-                                    <Button variant="ghost" size="icon" onClick={() => onEditClick(standing.team.id)}>
-                                        <Pencil className="h-4 w-4" />
+                                    <Button variant="ghost" size="icon" onClick={() => onEditClick(standing.team.id)} className="hover:bg-accent/10 hover:text-accent h-8 w-8">
+                                        <Pencil className="h-3.5 w-3.5" />
                                     </Button>
                                 </TableCell>
                             )}
@@ -302,54 +308,80 @@ export default function StandingsPage() {
   const groupKeys = Object.keys(standingsData.groups).sort();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 font-headline">League Standings</h1>
+    <div className="container mx-auto px-4 py-12">
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="mb-8"
+      >
+        <h1 className="text-5xl font-black font-headline tracking-tighter italic uppercase mb-2">League <span className="text-accent">Standings</span></h1>
+        <p className="text-muted-foreground font-medium uppercase tracking-widest text-[10px]">Real-time tournament positioning and competitive analytics.</p>
+      </motion.div>
+
       <div className="space-y-12">
-        {pageLoading ? <Card><CardContent><LoadingSkeleton /></CardContent></Card> : (
+        {pageLoading ? <Card className="glass-card border-white/5"><CardContent className="pt-6"><LoadingSkeleton /></CardContent></Card> : (
             isGroupMode ? (
-                groupKeys.length > 0 ? groupKeys.map(key => (
-                    <Card key={key}>
-                        <CardHeader>
-                            <CardTitle>Group {key}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <StandingsTable 
-                                standings={standingsData.groups[key]} 
-                                isAdmin={isAdmin} 
-                                onEditClick={handleEditClick} 
-                            />
-                        </CardContent>
-                    </Card>
+                groupKeys.length > 0 ? groupKeys.map((key, idx) => (
+                    <motion.div
+                        key={key}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                    >
+                        <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
+                            <CardHeader className="bg-white/5 border-b border-white/5 py-4">
+                                <CardTitle className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
+                                    <div className="w-2 h-6 bg-accent rounded-full" />
+                                    Group {key}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <StandingsTable 
+                                    standings={standingsData.groups[key]} 
+                                    isAdmin={isAdmin} 
+                                    onEditClick={handleEditClick} 
+                                />
+                            </CardContent>
+                        </Card>
+                    </motion.div>
                 )) : (
-                    <Card><CardContent><p className="text-muted-foreground text-center py-10">No groups configured.</p></CardContent></Card>
+                    <Card className="glass-card border-white/5"><CardContent><p className="text-muted-foreground text-center py-20 font-bold uppercase tracking-widest text-xs opacity-30">No groups configured.</p></CardContent></Card>
                 )
             ) : (
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Standalone Standings</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {standingsData.standalone.length > 0 ? (
-                            <StandingsTable 
-                                standings={standingsData.standalone} 
-                                isAdmin={isAdmin} 
-                                onEditClick={handleEditClick} 
-                            />
-                        ) : (
-                            <p className="text-muted-foreground text-center py-10">No teams found for this season.</p>
-                        )}
-                    </CardContent>
-                </Card>
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                >
+                    <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
+                        <CardHeader className="bg-white/5 border-b border-white/5 py-4">
+                            <CardTitle className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
+                                <div className="w-2 h-6 bg-accent rounded-full" />
+                                Global Leaderboard
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            {standingsData.standalone.length > 0 ? (
+                                <StandingsTable 
+                                    standings={standingsData.standalone} 
+                                    isAdmin={isAdmin} 
+                                    onEditClick={handleEditClick} 
+                                />
+                            ) : (
+                                <p className="text-muted-foreground text-center py-20 font-bold uppercase tracking-widest text-xs opacity-30">No teams found for this season.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+                </motion.div>
             )
         )}
       </div>
 
       {selectedTeam && (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent>
+            <DialogContent className="glass-card border-white/5 sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Edit Stats: {selectedTeam.name}</DialogTitle>
-                    <DialogDescription>Manually override team statistics. This will reflect in the standings.</DialogDescription>
+                    <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Override <span className="text-accent">Stats</span></DialogTitle>
+                    <DialogDescription className="text-white/60">Manually adjust performance metrics for {selectedTeam.name}.</DialogDescription>
                 </DialogHeader>
                 <StandingsEditForm
                     team={selectedTeam}
