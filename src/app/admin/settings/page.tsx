@@ -50,7 +50,7 @@ export default function AdminSettingsPage() {
       return (
         <div className="space-y-8">
             <Skeleton className="h-10 w-64 opacity-20" />
-            <Card className="glass-card border-white/5"><CardContent className="h-64 opacity-5"/></Card>
+            <Card className="glass-card border-border/50"><CardContent className="h-64 opacity-5"/></Card>
         </div>
       )
     }
@@ -110,14 +110,14 @@ export default function AdminSettingsPage() {
     return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-4xl font-black font-headline tracking-tighter italic uppercase">System <span className="text-accent">Configuration</span></h1>
+        <h1 className="text-4xl font-black font-headline tracking-tighter italic uppercase text-foreground">System <span className="text-accent">Configuration</span></h1>
         <p className="text-muted-foreground font-medium">Control seasonal scoping and data lifecycle management.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
-          <Card className="glass-card border-white/5 overflow-hidden">
-            <CardHeader className="bg-white/5 border-b border-white/5">
+          <Card className="glass-card border-border/50 overflow-hidden">
+            <CardHeader className="bg-secondary/5 border-b border-border/50">
               <CardTitle className="text-lg font-bold flex items-center gap-3">
                 <Settings className="h-5 w-5 text-accent" /> Active Season
               </CardTitle>
@@ -144,8 +144,8 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="glass-card border-white/5 overflow-hidden">
-            <CardHeader className="bg-white/5 border-b border-white/5">
+          <Card className="glass-card border-border/50 overflow-hidden">
+            <CardHeader className="bg-secondary/5 border-b border-border/50">
               <CardTitle className="text-lg font-bold flex items-center gap-3">
                 <FileUp className="h-5 w-5 text-accent" /> Bulk Ingestion
               </CardTitle>
@@ -156,18 +156,18 @@ export default function AdminSettingsPage() {
             <CardContent className="pt-8">
                 <AlertDialog open={isBulkImportDialogOpen} onOpenChange={setIsBulkImportDialogOpen}>
                     <AlertDialogTrigger asChild>
-                        <Button className="w-full h-12 bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg font-black italic uppercase tracking-tighter">
+                        <Button className="w-full h-12 bg-secondary/10 hover:bg-secondary/20 text-foreground border border-border/50 shadow-lg font-black italic uppercase tracking-tighter">
                             <Upload className="mr-2 h-4 w-4" /> Bulk Data Upload (.xlsx)
                         </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="glass-card border-white/5">
+                    <AlertDialogContent className="glass-card border-border/50">
                         <AlertDialogHeader>
                             <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Initiate <span className="text-accent">Bulk Ingestion?</span></AlertDialogTitle>
-                            <AlertDialogDescription className="text-white/70">
+                            <AlertDialogDescription className="text-muted-foreground">
                                 This will <strong>overwrite</strong> the current registries for teams, players, and matches in {currentSeason?.name}. Ensure your Excel file contains all 4 required sheets with exact column mapping.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
-                        <div className="py-6 flex flex-col items-center gap-4 bg-white/5 rounded-2xl border border-white/5">
+                        <div className="py-6 flex flex-col items-center gap-4 bg-secondary/5 rounded-2xl border border-border/50">
                             <input 
                                 type="file" 
                                 accept=".xlsx" 
@@ -182,18 +182,18 @@ export default function AdminSettingsPage() {
                             >
                                 {importing ? <Loader2 className="h-5 w-5 animate-spin" /> : "Select Excel File"}
                             </Button>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Target: {currentSeason?.name}</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Target: {currentSeason?.name}</p>
                         </div>
                         <AlertDialogFooter>
-                            <AlertDialogCancel className="glass-card border-white/10">Abort</AlertDialogCancel>
+                            <AlertDialogCancel className="glass-card border-border/50">Abort</AlertDialogCancel>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
             </CardContent>
           </Card>
 
-          <Card className="glass-card border-white/5 overflow-hidden">
-            <CardHeader className="bg-white/5 border-b border-white/5">
+          <Card className="glass-card border-border/50 overflow-hidden">
+            <CardHeader className="bg-secondary/5 border-b border-border/50">
               <CardTitle className="text-lg font-bold flex items-center gap-3">
                 <Download className="h-5 w-5 text-accent" /> Data Migration
               </CardTitle>
@@ -216,15 +216,15 @@ export default function AdminSettingsPage() {
                     <AlertDialogTrigger asChild>
                     <Button disabled={!sourceSeasonToImport} className="w-full h-12 bg-accent hover:bg-accent/90 shadow-lg">Execute Import</Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="glass-card border-white/5">
+                    <AlertDialogContent className="glass-card border-border/50">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Initiate <span className="text-accent">Migration?</span></AlertDialogTitle>
-                        <AlertDialogDescription className="text-white/70">
+                        <AlertDialogDescription className="text-muted-foreground">
                             This will overwrite current club and athlete registries in <strong>{currentSeason?.name}</strong>. This process is irreversible.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setSourceSeasonToImport('')} className="glass-card border-white/10">Abort</AlertDialogCancel>
+                        <AlertDialogCancel onClick={() => setSourceSeasonToImport('')} className="glass-card border-border/50">Abort</AlertDialogCancel>
                         <AlertDialogAction onClick={handleImportConfirm} className="bg-accent hover:bg-accent/90">Confirm Migration</AlertDialogAction>
                     </AlertDialogFooter>
                     </AlertDialogContent>
@@ -245,7 +245,7 @@ export default function AdminSettingsPage() {
           <CardContent className="space-y-8 pt-8">
               <div className="flex flex-col gap-4">
                   <div>
-                      <p className="font-bold text-sm tracking-tight">Partial Protocol (Stat Reset)</p>
+                      <p className="font-bold text-sm tracking-tight text-foreground">Partial Protocol (Stat Reset)</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-relaxed">Clears athlete/club performance logs but preserves registry.</p>
                   </div>
                   <AlertDialog open={isPartialResetDialogOpen} onOpenChange={setIsPartialResetDialogOpen}>
@@ -254,15 +254,15 @@ export default function AdminSettingsPage() {
                             <RotateCcw className="mr-2 h-4 w-4" /> Reset Stats
                           </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent className="glass-card border-white/5">
+                      <AlertDialogContent className="glass-card border-border/50">
                           <AlertDialogHeader>
-                              <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Stat <span className="text-orange-500">Purge</span></AlertDialogTitle>
-                              <AlertDialogDescription className="text-white/70">
+                              <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter text-foreground">Stat <span className="text-orange-500">Purge</span></AlertDialogTitle>
+                              <AlertDialogDescription className="text-muted-foreground">
                                 This will zero out all performance metrics for <strong>{currentSeason?.name}</strong>. All match records will be cleared.
                               </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                              <AlertDialogCancel className="glass-card border-white/10">Cancel</AlertDialogCancel>
+                              <AlertDialogCancel className="glass-card border-border/50">Cancel</AlertDialogCancel>
                               <AlertDialogAction onClick={handlePartialReset} className="bg-orange-600 hover:bg-orange-700">Confirm Purge</AlertDialogAction>
                           </AlertDialogFooter>
                       </AlertDialogContent>
@@ -273,7 +273,7 @@ export default function AdminSettingsPage() {
 
                <div className="flex flex-col gap-4">
                   <div>
-                      <p className="font-bold text-sm tracking-tight">Full Protocol (Data Wipe)</p>
+                      <p className="font-bold text-sm tracking-tight text-foreground">Full Protocol (Data Wipe)</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-relaxed">Permanently deletes all clubs, athletes, and fixtures from this season.</p>
                   </div>
                   <AlertDialog open={isFullResetDialogOpen} onOpenChange={setIsFullResetDialogOpen}>
@@ -282,15 +282,15 @@ export default function AdminSettingsPage() {
                             <Trash2 className="mr-2 h-4 w-4" /> Wipe Entire Season
                           </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent className="glass-card border-white/5">
+                      <AlertDialogContent className="glass-card border-border/50">
                           <AlertDialogHeader>
-                              <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Data <span className="text-destructive">Annihilation</span></AlertDialogTitle>
-                              <AlertDialogDescription className="text-white/70">
+                              <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter text-foreground">Data <span className="text-destructive">Annihilation</span></AlertDialogTitle>
+                              <AlertDialogDescription className="text-muted-foreground">
                                 This will permanently erase every club, athlete, and match associated with <strong>{currentSeason?.name}</strong>.
                               </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                              <AlertDialogCancel className="glass-card border-white/10">Cancel</AlertDialogCancel>
+                              <AlertDialogCancel className="glass-card border-border/50">Cancel</AlertDialogCancel>
                               <AlertDialogAction onClick={handleFullReset} className="bg-destructive hover:bg-destructive/90">Confirm Annihilation</AlertDialogAction>
                           </AlertDialogFooter>
                       </AlertDialogContent>
@@ -302,7 +302,7 @@ export default function AdminSettingsPage() {
                     <Separator className="bg-destructive/10" />
                     <div className="flex flex-col gap-4">
                         <div>
-                            <p className="font-bold text-sm tracking-tight">Decommission Season</p>
+                            <p className="font-bold text-sm tracking-tight text-foreground">Decommission Season</p>
                             <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-relaxed">Removes the season entry itself from the global timeline.</p>
                         </div>
                         <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -311,15 +311,15 @@ export default function AdminSettingsPage() {
                                     Terminate Season Timeline
                                 </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent className="glass-card border-white/5">
+                            <AlertDialogContent className="glass-card border-border/50">
                                 <AlertDialogHeader>
-                                    <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Season <span className="text-destructive">Termination</span></AlertDialogTitle>
-                                    <AlertDialogDescription className="text-white/70">
+                                    <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter text-foreground">Season <span className="text-destructive">Termination</span></AlertDialogTitle>
+                                    <AlertDialogDescription className="text-muted-foreground">
                                         This will permanently remove <strong>{currentSeason?.name}</strong> from the DFPL infrastructure. This cannot be undone.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                    <AlertDialogCancel className="glass-card border-white/5">Cancel</AlertDialogCancel>
+                                    <AlertDialogCancel className="glass-card border-border/50">Cancel</AlertDialogCancel>
                                     <AlertDialogAction onClick={handleDeleteSeason} className="bg-destructive hover:bg-destructive/90">Confirm Termination</AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
