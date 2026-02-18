@@ -175,7 +175,7 @@ export default function AdminLogsPage() {
                             transition={{ delay: Math.min(idx * 0.02, 1) }}
                             className="mb-2 group flex flex-col md:flex-row md:items-center gap-1 md:gap-4 hover:bg-white/[0.04] transition-colors -mx-4 px-4 py-1"
                         >
-                            <span className="text-white/20 whitespace-nowrap">[{format(log.timestamp, 'HH:mm:ss')}]</span>
+                            <span className="text-white/20 whitespace-nowrap">[{format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}]</span>
                             <p className="text-white/80 break-all">
                                 <span className="text-blue-400 font-black">{log.adminEmail}</span>{' '}
                                 <span className="text-white/20 font-bold">»</span>{' '}
