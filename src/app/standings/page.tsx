@@ -24,7 +24,7 @@ import type { Standing, Team, TeamStats } from '@/types';
 import { useData } from '@/hooks/use-data';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useSeason } from '@/contexts/season-context';
 
