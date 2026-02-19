@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, Instagram, Shield, Github } from 'lucide-react';
+import { Mail, Instagram, Shield } from 'lucide-react';
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -52,8 +52,8 @@ export function Footer() {
         <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
           <p>&copy; {year} DONGRE FOOTBALL PREMIER LEAGUE. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-8">
-            <button className="hover:text-white transition-colors">PRIVACY POLICY</button>
-            <button className="hover:text-white transition-colors">TERMS OF SERVICE</button>
+            <Link href="/privacy" className="hover:text-white transition-colors uppercase font-bold text-[10px] tracking-widest">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors uppercase font-bold text-[10px] tracking-widest">Terms of Service</Link>
           </div>
         </div>
       </div>
