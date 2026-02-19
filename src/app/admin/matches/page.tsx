@@ -47,6 +47,7 @@ import { useData } from '@/hooks/use-data';
 import { useSeason } from '@/contexts/season-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const matchSchema = z.object({
   homeTeamId: z.string().min(1, 'Home team is required'),
@@ -303,7 +304,7 @@ function MatchForm({
         )}/>
         <div className="grid grid-cols-2 gap-4">
             <FormField control={form.control} name="status" render={({ field }) => (
-                <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></Select></FormItem>
+                <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></Select></FormItem>
             )}/>
             <FormField control={form.control} name="stage" render={({ field }) => (
                 <FormItem>
