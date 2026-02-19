@@ -61,7 +61,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
           <DialogDescription>Detailed performance metrics and athlete profile for {player.name}.</DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 w-full overflow-y-auto">
+        <ScrollArea className="flex-1 w-full">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}

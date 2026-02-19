@@ -303,7 +303,7 @@ function MatchForm({
         )}/>
         <div className="grid grid-cols-2 gap-4">
             <FormField control={form.control} name="status" render={({ field }) => (
-                <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></Select></FormItem>
             )}/>
             <FormField control={form.control} name="stage" render={({ field }) => (
                 <FormItem>
@@ -335,9 +335,9 @@ function MatchForm({
                 )}/>
             </div>
         )}
-        <DialogFooter className="pt-4 sm:pt-0">
-          <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button type="submit">Save Match</Button>
+        <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6 sm:pt-4">
+          <Button type="button" variant="ghost" onClick={onClose} className="w-full sm:w-auto order-2 sm:order-1">Cancel</Button>
+          <Button type="submit" className="w-full sm:w-auto order-1 sm:order-2">Save Fixture</Button>
         </DialogFooter>
       </form>
     </Form>
@@ -592,20 +592,24 @@ export default function AdminMatchesPage() {
         </Card>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogContent className="w-[95vw] sm:max-w-lg glass-card border-white/5 p-8">
-            <DialogHeader>
+            <DialogContent className="w-[95vw] sm:max-w-lg glass-card border-white/5 p-8 h-fit max-h-[92vh] flex flex-col">
+            <DialogHeader className="flex-shrink-0">
                 <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
                     {dialogMode === 'edit' ? 'Modify' : 'Schedule'} <span className="text-accent">Fixture</span>
                 </DialogTitle>
                 <DialogDescription className="text-xs opacity-50">Set match details, kickoff timing, and tournament stage.</DialogDescription>
             </DialogHeader>
-            <MatchForm 
-                onSubmit={handleFormSubmit}
-                match={selectedMatch}
-                onClose={handleCloseDialog}
-                teams={teams}
-                matches={matches}
-            />
+            <ScrollArea className="flex-1 w-full mt-4">
+                <div className="pr-2">
+                    <MatchForm 
+                        onSubmit={handleFormSubmit}
+                        match={selectedMatch}
+                        onClose={handleCloseDialog}
+                        teams={teams}
+                        matches={matches}
+                    />
+                </div>
+            </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
