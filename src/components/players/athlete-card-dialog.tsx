@@ -52,7 +52,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
-        "w-[92vw] sm:max-w-md p-0 glass-card overflow-hidden border-2 flex flex-col h-fit max-h-[90vh] gap-0 transition-all duration-500",
+        "w-[92vw] sm:max-w-md p-0 glass-card overflow-hidden border-2 flex flex-col max-h-[90vh] gap-0 transition-all duration-500",
         isClassA ? "border-accent/40 shadow-[0_0_80px_rgba(255,87,34,0.2)]" : 
         isClassB ? "border-blue-500/40 shadow-[0_0_80px_rgba(59,130,246,0.2)]" : "border-white/10"
       )}>
@@ -65,7 +65,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative"
+            className="relative min-h-[400px]"
           >
             <div className={cn(
               "absolute inset-0 opacity-20 pointer-events-none",

@@ -470,9 +470,9 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                 )}
                             </div>
 
-                            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
-                                <Card className="shadow-none border border-white/5 bg-black/20 rounded-3xl overflow-hidden h-fit">
-                                    <CardHeader className="py-3 md:py-4 px-4 md:px-6 bg-white/5 flex-row items-center justify-between space-y-0 border-b border-white/5">
+                            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="flex flex-col min-h-0">
+                                <Card className="shadow-none border border-white/5 bg-black/20 rounded-3xl overflow-hidden flex flex-col min-h-0">
+                                    <CardHeader className="py-3 md:py-4 px-4 md:px-6 bg-white/5 flex-row items-center justify-between space-y-0 border-b border-white/5 flex-shrink-0">
                                         <CardTitle className="text-[10px] md:text-xs font-black uppercase tracking-widest opacity-60 flex items-center gap-2">
                                             <Timer className="h-3 md:h-4 w-3 md:w-4" /> Timeline Data
                                         </CardTitle>
@@ -484,13 +484,14 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                             </Button>
                                         )}
                                     </CardHeader>
-                                    <CardContent className="p-4 md:p-6">
+                                    <CardContent className="p-4 md:p-6 flex-1 min-h-0 overflow-hidden flex flex-col">
                                         <AnimatePresence mode="wait">
                                             {isAdmin && showEventForm && (
                                                 <motion.div 
                                                     initial={{ opacity: 0, scale: 0.95 }}
                                                     animate={{ opacity: 1, scale: 1 }}
                                                     exit={{ opacity: 0, scale: 0.95 }}
+                                                    className="flex-shrink-0"
                                                 >
                                                     <Form {...eventForm}>
                                                         <form onSubmit={eventForm.handleSubmit(handleEventSubmit)} className="space-y-3 p-3 md:p-4 mb-6 border border-accent/20 rounded-2xl bg-accent/5 shadow-inner">
@@ -573,62 +574,64 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                             )}
                                         </AnimatePresence>
                                         
-                                        <div className="space-y-4 pr-2">
-                                            {match.events && match.events.length > 0 ? (
-                                                [...match.events].sort((a,b) => a.minute - b.minute).map((event, idx) => {
-                                                    const isLinkedAssist = !!event.linkedGoalId;
-                                                    const linkedGoal = event.linkedGoalId ? match.events?.find(e => e.id === event.linkedGoalId) : null;
-                                                    
-                                                    return (
-                                                        <motion.div 
-                                                            key={event.id} 
-                                                            initial={{ opacity: 0, x: -10 }}
-                                                            animate={{ opacity: 1, x: 0 }}
-                                                            transition={{ delay: idx * 0.05 }}
-                                                            className="flex items-center gap-3 md:gap-4 text-xs group transition-colors"
-                                                        >
-                                                            <span className="font-mono w-6 md:w-8 text-[9px] md:text-[10px] font-black text-accent">{event.minute}'</span>
-                                                            <div className="bg-white/5 p-1.5 md:p-2 rounded-xl border border-white/5 shrink-0 group-hover:border-accent/30 transition-colors shadow-sm"><EventIcon type={event.type} /></div>
-                                                            <div className="flex flex-col min-w-0 flex-1">
-                                                                <div className="flex flex-wrap items-baseline gap-x-2">
-                                                                    <span className="font-bold text-[11px] md:text-sm tracking-tight truncate uppercase group-hover:text-accent transition-colors">{event.playerName}</span>
-                                                                    <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-white/20">
-                                                                        {event.type} {isLinkedAssist && linkedGoal ? `(Goal: ${linkedGoal.playerName} - ${linkedGoal.minute}')` : ''}
-                                                                    </span>
+                                        <ScrollArea className="flex-1 pr-2">
+                                            <div className="space-y-4">
+                                                {match.events && match.events.length > 0 ? (
+                                                    [...match.events].sort((a,b) => a.minute - b.minute).map((event, idx) => {
+                                                        const isLinkedAssist = !!event.linkedGoalId;
+                                                        const linkedGoal = event.linkedGoalId ? match.events?.find(e => e.id === event.linkedGoalId) : null;
+                                                        
+                                                        return (
+                                                            <motion.div 
+                                                                key={event.id} 
+                                                                initial={{ opacity: 0, x: -10 }}
+                                                                animate={{ opacity: 1, x: 0 }}
+                                                                transition={{ delay: idx * 0.05 }}
+                                                                className="flex items-center gap-3 md:gap-4 text-xs group transition-colors"
+                                                            >
+                                                                <span className="font-mono w-6 md:w-8 text-[9px] md:text-[10px] font-black text-accent">{event.minute}'</span>
+                                                                <div className="bg-white/5 p-1.5 md:p-2 rounded-xl border border-white/5 shrink-0 group-hover:border-accent/30 transition-colors shadow-sm"><EventIcon type={event.type} /></div>
+                                                                <div className="flex flex-col min-w-0 flex-1">
+                                                                    <div className="flex flex-wrap items-baseline gap-x-2">
+                                                                        <span className="font-bold text-[11px] md:text-sm tracking-tight truncate uppercase group-hover:text-accent transition-colors">{event.playerName}</span>
+                                                                        <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-white/20">
+                                                                            {event.type} {isLinkedAssist && linkedGoal ? `(Goal: ${linkedGoal.playerName} - ${linkedGoal.minute}')` : ''}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.15em] text-white/30 truncate">{event.teamId === homeTeam.id ? homeTeam.name : awayTeam.name}</span>
                                                                 </div>
-                                                                <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.15em] text-white/30 truncate">{event.teamId === homeTeam.id ? homeTeam.name : awayTeam.name}</span>
-                                                            </div>
-                                                            {isAdmin && !isLinkedAssist && (
-                                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0 translate-x-2 group-hover:translate-x-0">
-                                                                    <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 hover:bg-white/5 hover:text-accent" onClick={() => { 
-                                                                        const linkedAssist = match.events?.find(e => e.linkedGoalId === event.id);
-                                                                        setEditingEvent(event); 
-                                                                        setShowEventForm(true); 
-                                                                        
-                                                                        const displayMin = match.isExtraTime && event.minute > baseDuration 
-                                                                            ? event.minute - baseDuration 
-                                                                            : event.minute;
+                                                                {isAdmin && !isLinkedAssist && (
+                                                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0 translate-x-2 group-hover:translate-x-0">
+                                                                        <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 hover:bg-white/5 hover:text-accent" onClick={() => { 
+                                                                            const linkedAssist = match.events?.find(e => e.linkedGoalId === event.id);
+                                                                            setEditingEvent(event); 
+                                                                            setShowEventForm(true); 
+                                                                            
+                                                                            const displayMin = match.isExtraTime && event.minute > baseDuration 
+                                                                                ? event.minute - baseDuration 
+                                                                                : event.minute;
 
-                                                                        eventForm.reset({
-                                                                            type: event.type, 
-                                                                            minute: displayMin, 
-                                                                            playerId: event.playerId,
-                                                                            assisterId: linkedAssist ? linkedAssist.playerId : 'none'
-                                                                        }); 
-                                                                    }}><Pencil className="h-3 md:h-3.5 w-3 md:w-3.5"/></Button>
-                                                                    <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 text-destructive hover:bg-destructive/10" onClick={() => deleteMatchEvent(match.id, event.id)}><Trash2 className="h-3 md:h-3.5 w-3 md:w-3.5"/></Button>
-                                                                </div>
-                                                            )}
-                                                        </motion.div>
-                                                    )
-                                                })
-                                            ) : (
-                                                <div className="flex flex-col items-center justify-center py-10 text-white/10">
-                                                    <Sword className="h-10 md:h-12 w-10 md:w-12 mb-4 opacity-5 animate-pulse" />
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Protocol Recorded</p>
-                                                </div>
-                                            )}
-                                        </div>
+                                                                            eventForm.reset({
+                                                                                type: event.type, 
+                                                                                minute: displayMin, 
+                                                                                playerId: event.playerId,
+                                                                                assisterId: linkedAssist ? linkedAssist.playerId : 'none'
+                                                                            }); 
+                                                                        }}><Pencil className="h-3 md:h-3.5 w-3 md:w-3.5"/></Button>
+                                                                        <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 text-destructive hover:bg-destructive/10" onClick={() => deleteMatchEvent(match.id, event.id)}><Trash2 className="h-3 md:h-3.5 w-3 md:w-3.5"/></Button>
+                                                                    </div>
+                                                                )}
+                                                            </motion.div>
+                                                        )
+                                                    })
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center py-10 text-white/10">
+                                                        <Sword className="h-10 md:h-12 w-10 md:w-12 mb-4 opacity-5 animate-pulse" />
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Protocol Recorded</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </ScrollArea>
                                     </CardContent>
                                 </Card>
                             </motion.div>
