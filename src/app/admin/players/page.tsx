@@ -50,6 +50,7 @@ const playerSchema = z.object({
   teamId: z.string().min(1, 'Team is required'),
   category: z.string().min(1, 'Category is required'),
   preferredFoot: z.string().min(1, 'Preferred foot is required'),
+  age: z.coerce.number().min(1, 'Age is required'),
   avatarUrl: z.string().optional(),
 });
 
@@ -71,6 +72,7 @@ function PlayerForm({
       teamId: player?.teamId || '',
       category: player?.category || 'C',
       preferredFoot: player?.preferredFoot || 'Right',
+      age: player?.age || 18,
       avatarUrl: player?.avatarUrl || '',
     },
   });
@@ -150,6 +152,19 @@ function PlayerForm({
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
+            name="age"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Athlete Age</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Years" className="glass-card h-12" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="category"
             render={({ field }) => (
               <FormItem>
@@ -170,29 +185,29 @@ function PlayerForm({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="preferredFoot"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Preferred Foot</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="glass-card h-12">
-                      <SelectValue placeholder="Foot" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Right">Right</SelectItem>
-                    <SelectItem value="Left">Left</SelectItem>
-                    <SelectItem value="Both">Both</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
+
+        <FormField
+          control={form.control}
+          name="preferredFoot"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Preferred Foot</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="glass-card h-12">
+                    <SelectValue placeholder="Foot" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Right">Right</SelectItem>
+                  <SelectItem value="Left">Left</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
             control={form.control}
@@ -254,7 +269,6 @@ export default function AdminPlayersPage() {
             basePrice: 'N/A',
             preferredPosition: [],
             remarks: [],
-            age: 0,
             goals: 0,
             assists: 0,
             matchesPlayed: 0,
