@@ -31,6 +31,7 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -48,6 +49,7 @@ const playerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   teamId: z.string().min(1, 'Team is required'),
   category: z.string().min(1, 'Category is required'),
+  preferredFoot: z.string().min(1, 'Preferred foot is required'),
   avatarUrl: z.string().optional(),
 });
 
@@ -68,6 +70,7 @@ function PlayerForm({
       name: player?.name || '',
       teamId: player?.teamId || '',
       category: player?.category || 'C',
+      preferredFoot: player?.preferredFoot || 'Right',
       avatarUrl: player?.avatarUrl || '',
     },
   });
@@ -114,35 +117,37 @@ function PlayerForm({
             <FormItem>
               <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Athlete Name</FormLabel>
               <FormControl>
-                <Input placeholder="Full legal name" className="glass-card" {...field} />
+                <Input placeholder="Full legal name" className="glass-card h-12" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        
+        <FormField
+          control={form.control}
+          name="teamId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Assigned Club</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="glass-card h-12">
+                    <SelectValue placeholder="Select club" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {teams.map((team) => (
+                    <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="teamId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Assigned Club</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="glass-card">
-                      <SelectValue placeholder="Select club" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {teams.map((team) => (
-                      <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="category"
@@ -151,7 +156,7 @@ function PlayerForm({
                 <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Draft Class</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="glass-card">
+                    <SelectTrigger className="glass-card h-12">
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
                   </FormControl>
@@ -165,7 +170,30 @@ function PlayerForm({
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="preferredFoot"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Preferred Foot</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="glass-card h-12">
+                      <SelectValue placeholder="Foot" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Right">Right</SelectItem>
+                    <SelectItem value="Left">Left</SelectItem>
+                    <SelectItem value="Both">Both</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+
         <FormField
             control={form.control}
             name="avatarUrl"
@@ -184,9 +212,9 @@ function PlayerForm({
                 </FormItem>
             )}
             />
-        <DialogFooter className="pt-4">
-          <Button type="button" variant="ghost" onClick={onClose} className="hover:bg-white/5">Cancel</Button>
-          <Button type="submit" className="bg-accent hover:bg-accent/90 shadow-[0_0_15px_rgba(255,87,34,0.3)]">Finalize Athlete</Button>
+        <DialogFooter className="pt-4 gap-3">
+          <Button type="button" variant="ghost" onClick={onClose} className="hover:bg-white/5 h-12 px-8 uppercase font-black text-[10px] tracking-widest">Cancel</Button>
+          <Button type="submit" className="bg-accent hover:bg-accent/90 shadow-[0_0_15px_rgba(255,87,34,0.3)] h-12 px-8 uppercase font-black text-[10px] tracking-widest">Finalize Athlete</Button>
         </DialogFooter>
       </form>
     </Form>
@@ -225,7 +253,6 @@ export default function AdminPlayersPage() {
             avatarUrl: data.avatarUrl || `player-avatar-${(Math.floor(Math.random() * 4) + 1)}`,
             basePrice: 'N/A',
             preferredPosition: [],
-            preferredFoot: 'N/A',
             remarks: [],
             age: 0,
             goals: 0,
@@ -380,19 +407,21 @@ export default function AdminPlayersPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] glass-card border-white/5 p-8">
-          <DialogHeader>
+        <DialogContent className="w-[95vw] sm:max-w-[500px] glass-card border-white/5 p-0 max-h-[92vh] flex flex-col overflow-hidden gap-0">
+          <DialogHeader className="p-8 pb-4 flex-shrink-0">
             <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
               {dialogMode === 'edit' ? 'Update' : 'Register'} <span className="text-accent">Athlete</span>
             </DialogTitle>
             <DialogDescription className="text-xs opacity-50">Modify athlete profile and draft class assignment.</DialogDescription>
           </DialogHeader>
-          <PlayerForm
-            onSubmit={handleFormSubmit}
-            player={selectedPlayer}
-            onClose={handleCloseDialog}
-            teams={teams}
-          />
+          <ScrollArea className="flex-1 px-8 pb-8">
+            <PlayerForm
+              onSubmit={handleFormSubmit}
+              player={selectedPlayer}
+              onClose={handleCloseDialog}
+              teams={teams}
+            />
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
