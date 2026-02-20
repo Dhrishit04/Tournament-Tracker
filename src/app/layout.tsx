@@ -13,6 +13,15 @@ import { SeasonProvider } from '@/contexts/season-context';
 export const metadata: Metadata = {
   title: 'Dongre Football Premier League',
   description: 'The official page for the Dongre Football Premier League tournament.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({
