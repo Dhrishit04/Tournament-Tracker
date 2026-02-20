@@ -304,7 +304,7 @@ function MatchForm({
         )}/>
         <div className="grid grid-cols-2 gap-4">
             <FormField control={form.control} name="status" render={({ field }) => (
-                <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></Select></FormItem>
+                <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></FormItem>
             )}/>
             <FormField control={form.control} name="stage" render={({ field }) => (
                 <FormItem>
@@ -593,7 +593,7 @@ export default function AdminMatchesPage() {
         </Card>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogContent className="w-[95vw] sm:max-w-lg glass-card border-white/5 p-8 h-fit max-h-[92vh] flex flex-col">
+            <DialogContent className="w-[95vw] sm:max-w-lg glass-card border-white/5 p-8 max-h-[92vh] flex flex-col">
             <DialogHeader className="flex-shrink-0">
                 <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
                     {dialogMode === 'edit' ? 'Modify' : 'Schedule'} <span className="text-accent">Fixture</span>

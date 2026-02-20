@@ -26,7 +26,7 @@ import { Switch } from '@/components/ui/switch';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const eventSchema = z.object({
-  type: z.enum(['Goal', 'Assist', 'Yellow Card', 'Red Card', 'Own Goal']),
+  type: z.enum(['Goal', 'Yellow Card', 'Red Card', 'Own Goal']),
   playerId: z.string().min(1, 'Player is required'),
   minute: z.coerce.number().min(1, 'Minute must be at least 1'),
   assisterId: z.string().optional(),
@@ -183,7 +183,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                 teamId: player.teamId, 
                 playerName: player.name,
                 assisterId: (assisterId && assisterId !== 'none') ? assisterId : undefined
-            });
+            } as any);
         } else {
             if (values.type === 'Goal' && assisterId && assisterId !== 'none') {
                 const assister = players.find(p => p.id === assisterId);
@@ -611,7 +611,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                                                 : event.minute;
 
                                                                             eventForm.reset({
-                                                                                type: event.type, 
+                                                                                type: event.type as any, 
                                                                                 minute: displayMin, 
                                                                                 playerId: event.playerId,
                                                                                 assisterId: linkedAssist ? linkedAssist.playerId : 'none'

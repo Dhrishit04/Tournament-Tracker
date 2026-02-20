@@ -107,7 +107,7 @@ function TeamForm({
     <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
-            with={form.control}
+            control={form.control}
             name="name"
             render={({ field }) => (
                 <FormItem>
@@ -150,7 +150,7 @@ function TeamForm({
                 </FormItem>
               )}
             />
-            <DialogFooter>
+            <DialogFooter className="pt-4">
                 <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
                 <Button type="submit">Save Team</Button>
             </DialogFooter>
@@ -311,14 +311,14 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                 )}
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogContent className="sm:max-w-2xl">
-                        <DialogHeader>
+                    <DialogContent className="sm:max-w-2xl max-h-[92vh] flex flex-col p-0 overflow-hidden">
+                        <DialogHeader className="p-6 pb-2">
                             <DialogTitle>Assign Teams to Groups</DialogTitle>
                             <DialogDescription>
                                 Every group must contain exactly 4 teams. Total groups possible: {numGroups}
                             </DialogDescription>
                         </DialogHeader>
-                        <ScrollArea className="max-h-[60vh] pr-4">
+                        <ScrollArea className="flex-1 px-6">
                             <div className="space-y-4 py-4">
                                 {teams.map(team => (
                                     <div key={team.id} className="flex items-center justify-between p-3 border rounded-md">
@@ -346,7 +346,7 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                                 ))}
                             </div>
                         </ScrollArea>
-                        <DialogFooter>
+                        <DialogFooter className="p-6 pt-2">
                             <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
                             <Button onClick={handleSaveGroups}><Save className="h-4 w-4 mr-2" /> Save All Assignments</Button>
                         </DialogFooter>
@@ -518,16 +518,18 @@ export default function AdminTeamsPage() {
         </Card>
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-[425px] max-h-[92vh] flex flex-col p-0 overflow-hidden">
+                <DialogHeader className="p-6 pb-2">
                 <DialogTitle>{dialogMode === 'edit' ? 'Edit Team' : 'Add New Team'}</DialogTitle>
                 <DialogDescription>Enter the club details and upload a primary identity logo.</DialogDescription>
                 </DialogHeader>
-                <TeamForm 
-                    onSubmit={handleFormSubmit}
-                    team={selectedTeam}
-                    onClose={handleCloseDialog}
-                />
+                <ScrollArea className="flex-1 px-6 pb-6">
+                    <TeamForm 
+                        onSubmit={handleFormSubmit}
+                        team={selectedTeam}
+                        onClose={handleCloseDialog}
+                    />
+                </ScrollArea>
             </DialogContent>
       </Dialog>
 
