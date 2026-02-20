@@ -503,7 +503,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                                             <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue/></SelectTrigger></FormControl>
                                                                             <SelectContent>
                                                                                 <SelectItem value="Goal">Goal</SelectItem>
-                                                                                <SelectItem value="Assist" disabled={!editingEvent}>Assist (Standalone)</SelectItem>
                                                                                 <SelectItem value="Yellow Card">Yellow Card</SelectItem>
                                                                                 <SelectItem value="Red Card">Red Card</SelectItem>
                                                                                 <SelectItem value="Own Goal">Own Goal</SelectItem>
