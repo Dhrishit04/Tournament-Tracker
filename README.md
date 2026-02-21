@@ -40,20 +40,6 @@
   <li style="margin-bottom: 10px; color: #1A237E;"><strong style="color: #1A237E;">Audit Engine</strong>: A built-in logging system tracks every administrative action for total accountability.</li>
 </ul>
 
-<h2 style="color: #1A237E; border-bottom: 2px solid #FF5722; padding-bottom: 5px; font-family: 'Inter', sans-serif;">Domain Infrastructure</h2>
-
-<p style="font-family: 'Inter', sans-serif;">Mapped to official domain: <strong>dongrefootballpremierleague.online</strong></p>
-<ul style="font-family: 'Inter', sans-serif; list-style-type: '✔  '; padding-left: 20px;">
-  <li style="margin-bottom: 10px; color: #1A237E;">Verified via Firebase App Hosting (FAH) ownership claims.</li>
-  <li style="margin-bottom: 10px; color: #1A237E;">Automatic SSL certificate provisioning via Google Trust Services.</li>
-  <li style="margin-bottom: 10px; color: #1A237E;">Global CDN distribution for low-latency tournament updates.</li>
-</ul>
-
-<h3 style="color: #1A237E; font-family: 'Inter', sans-serif;">DNS Troubleshooting Notes</h3>
-<p style="font-family: 'Inter', sans-serif; font-size: 0.9em; background-color: #FFF3E0; padding: 10px; border-left: 4px solid #FF5722;">
-  <strong>Note on ACME Challenge</strong>: When configuring the CNAME record for SSL verification in Namecheap, ensure the <strong>Host</strong> field only contains the unique subdomain (e.g., <code>_acme-challenge_xxx</code>) and does <strong>not</strong> include the root domain string.
-</p>
-
 <h2 style="color: #1A237E; border-bottom: 2px solid #FF5722; padding-bottom: 5px; font-family: 'Inter', sans-serif;">Color Palette</h2>
 
 <div style="display: flex; gap: 10px; font-family: 'Inter', sans-serif;">
