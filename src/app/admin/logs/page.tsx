@@ -29,7 +29,6 @@ export default function AdminLogsPage() {
     return <AccessDenied />;
   }
 
-  // Sort logs by timestamp descending
   const sortedLogs = [...logs].sort((a, b) => b.timestamp - a.timestamp);
 
   const formatLogLine = (log: LogEntry) => {
@@ -46,9 +45,7 @@ export default function AdminLogsPage() {
 
   const handleDownloadLogs = () => {
     if (logs.length === 0) return;
-
     const logContent = sortedLogs.map(formatLogLine).join('\n');
-
     const blob = new Blob([logContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -58,8 +55,7 @@ export default function AdminLogsPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
-    toast({ title: "Export Complete", description: "Audit trail downloaded as dfpl_logs.txt" });
+    toast({ title: "Export Complete", description: "Audit trail downloaded." });
   };
 
   const handleClearLogs = async () => {
@@ -68,7 +64,7 @@ export default function AdminLogsPage() {
     const snap = await getDocs(collection(firestore, 'logs'));
     snap.forEach(doc => batch.delete(doc.ref));
     await batch.commit();
-    toast({ title: "Logs Purged", description: "Audit history has been cleared from the database." });
+    toast({ title: "Logs Purged", description: "Audit history cleared." });
   };
 
   return (
@@ -76,18 +72,18 @@ export default function AdminLogsPage() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6"
+        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
       >
         <div>
           <h1 className="text-4xl font-black font-headline tracking-tighter italic uppercase">System <span className="text-accent">Terminal</span></h1>
-          <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Infrastructure audit and security monitoring.</p>
+          <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Infrastructure audit and monitoring.</p>
         </div>
-        <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+        <div className="flex flex-wrap gap-3 w-full sm:w-auto">
             <Button 
                 onClick={handleDownloadLogs} 
                 disabled={logs.length === 0}
                 variant="outline"
-                className="glass-card border-white/10 hover:bg-white/5 h-12 px-6 rounded-xl font-bold transition-all hover:scale-105 flex-1 md:flex-none"
+                className="glass-card border-white/10 hover:bg-white/5 h-12 px-6 rounded-xl font-bold transition-all flex-1 sm:flex-none"
             >
                 <Download className="mr-2 h-4 w-4" /> Export Txt
             </Button>
@@ -95,19 +91,15 @@ export default function AdminLogsPage() {
                 onClick={handleClearLogs} 
                 disabled={logs.length === 0}
                 variant="destructive"
-                className="h-12 px-6 rounded-xl font-bold transition-all hover:scale-105 flex-1 md:flex-none"
+                className="h-12 px-6 rounded-xl font-bold transition-all flex-1 sm:flex-none"
             >
                 <Trash2 className="mr-2 h-4 w-4" /> Purge History
             </Button>
         </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1 }}
-      >
-        <Card className="glass-card border-accent/20 bg-accent/5 overflow-hidden shadow-2xl">
+      <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
+        <Card className="glass-card border-accent/20 bg-accent/5 overflow-hidden">
             <CardHeader className="bg-accent/10 border-b border-accent/10 flex flex-row items-center justify-between py-4">
             <div className="flex items-center gap-3">
                 <div className="relative">
@@ -116,10 +108,9 @@ export default function AdminLogsPage() {
                 </div>
                 <div>
                 <CardTitle className="text-sm font-black uppercase italic tracking-widest">Protocol Monitor</CardTitle>
-                <CardDescription className="text-[10px] uppercase font-bold opacity-60">Master Authority Oversight</CardDescription>
                 </div>
             </div>
-            <div className="flex items-center gap-4 bg-background/40 px-4 py-2 rounded-full border border-white/10 shadow-inner">
+            <div className="flex items-center gap-4 bg-background/40 px-4 py-2 rounded-full border border-white/10">
                 <Label htmlFor="logging-toggle" className="text-[10px] font-black uppercase tracking-widest text-accent">
                     {isLoggingEnabled ? "Monitoring Active" : "Audit Paused"}
                 </Label>
@@ -134,12 +125,8 @@ export default function AdminLogsPage() {
         </Card>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <Card className="border-white/5 bg-[#050505] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)] rounded-2xl border-2">
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <Card className="border-white/5 bg-[#050505] overflow-hidden rounded-2xl border-2">
             <CardHeader className="bg-white/5 border-b border-white/5 flex flex-row items-center justify-between py-3 px-6">
                 <div className="flex items-center gap-3">
                     <div className="flex gap-1.5">
@@ -150,22 +137,19 @@ export default function AdminLogsPage() {
                     <div className="h-4 w-px bg-white/10 mx-2" />
                     <div className="flex items-center gap-2 text-white/40">
                         <Terminal className="h-3 w-3" />
-                        <span className="text-[10px] font-mono uppercase tracking-widest font-black">dfpl_root_authority_session</span>
+                        <span className="text-[10px] font-mono uppercase tracking-widest font-black">dfpl_audit_session</span>
                     </div>
                 </div>
-                <span className="text-[10px] font-mono text-white/20 uppercase font-black">v1.2.0-stable</span>
             </CardHeader>
             <CardContent className="p-0">
-            <ScrollArea className="h-[600px] w-full bg-[#050505]" orientation="both">
+            <ScrollArea className="h-[600px] w-full" orientation="both">
                 {loading ? (
                 <div className="p-8 space-y-4">
                     <Skeleton className="h-4 w-[80%] bg-white/5" />
                     <Skeleton className="h-4 w-[60%] bg-white/5" />
-                    <Skeleton className="h-4 w-[70%] bg-white/5" />
-                    <Skeleton className="h-4 w-[50%] bg-white/5" />
                 </div>
                 ) : sortedLogs.length > 0 ? (
-                <div className="p-8 font-mono text-xs md:text-sm leading-relaxed whitespace-nowrap select-all min-w-max">
+                <div className="p-8 font-mono text-xs md:text-sm leading-relaxed whitespace-nowrap min-w-max">
                     <AnimatePresence mode="popLayout">
                         {sortedLogs.map((log, idx) => (
                         <motion.div 
@@ -186,15 +170,11 @@ export default function AdminLogsPage() {
                         </motion.div>
                         ))}
                     </AnimatePresence>
-                    <div className="mt-8 flex items-center gap-3 text-white/10 animate-pulse border-t border-white/5 pt-4">
-                        <span className="w-2 h-4 bg-accent/50" />
-                        <span className="italic uppercase font-black text-[10px] tracking-widest">Listening for incoming audit packets...</span>
-                    </div>
                 </div>
                 ) : (
-                <div className="flex flex-col items-center justify-center h-[500px] text-white/10 italic font-mono uppercase tracking-widest text-xs">
+                <div className="flex flex-col items-center justify-center h-[500px] text-white/10 font-mono uppercase tracking-widest text-xs">
                     <Terminal className="h-16 w-16 mb-6 opacity-5" />
-                    <p>NULL_LOG_BUFFER: NO RECORDS DETECTED</p>
+                    <p>NULL_LOG_BUFFER</p>
                 </div>
                 )}
                 <ScrollBar orientation="horizontal" className="bg-white/5" />

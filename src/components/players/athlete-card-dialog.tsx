@@ -7,7 +7,6 @@ import { getImageUrl, cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Goal, Footprints, Shield, TrendingUp } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from 'framer-motion';
 
 interface AthleteCardDialogProps {
@@ -52,7 +51,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
-        "w-[92vw] sm:max-w-md p-0 glass-card overflow-hidden border-2 flex flex-col max-h-[92vh] gap-0",
+        "w-[92vw] sm:max-w-md p-0 glass-card border-2 flex flex-col max-h-[92vh] gap-0 overflow-hidden",
         isClassA ? "border-accent/40 shadow-[0_0_80px_rgba(255,87,34,0.2)]" : 
         isClassB ? "border-blue-500/40 shadow-[0_0_80px_rgba(59,130,246,0.2)]" : "border-white/10"
       )}>
@@ -61,8 +60,8 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
           <DialogDescription>Detailed performance metrics and athlete profile for {player.name}.</DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 w-full h-full">
-          <div className="min-h-full">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
+          <div className="min-h-full pb-10">
             <motion.div 
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -73,7 +72,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
                 isClassA ? "bg-gradient-to-b from-accent to-transparent" : "bg-gradient-to-b from-blue-500 to-transparent"
               )} />
               
-              <div className="relative p-6 md:p-8 space-y-6 md:space-y-8 pb-12">
+              <div className="relative p-6 md:p-8 space-y-6 md:space-y-8">
                 <div className="flex flex-col items-center text-center space-y-4 pt-2">
                   <motion.div 
                       initial={{ y: 20, opacity: 0 }}
@@ -174,17 +173,17 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
                   </div>
                   <div className="flex gap-2">
                     {player.yellowCards > 0 && (
-                      <div className="w-3 md:w-4 h-5 md:h-6 bg-yellow-400/80 rounded-sm border border-black/20 animate-in fade-in zoom-in" title={`${player.yellowCards} Yellow Cards`} />
+                      <div className="w-3 md:w-4 h-5 md:h-6 bg-yellow-400/80 rounded-sm border border-black/20" title={`${player.yellowCards} Yellow Cards`} />
                     )}
                     {player.redCards > 0 && (
-                      <div className="w-3 md:w-4 h-5 md:h-6 bg-red-600/80 rounded-sm border border-black/20 animate-in fade-in zoom-in" title={`${player.redCards} Red Cards`} />
+                      <div className="w-3 md:w-4 h-5 md:h-6 bg-red-600/80 rounded-sm border border-black/20" title={`${player.redCards} Red Cards`} />
                     )}
                   </div>
                 </motion.div>
               </div>
             </motion.div>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
