@@ -107,7 +107,6 @@ function TeamForm({
     <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
-            border-accent/40
             control={form.control}
             name="name"
             render={({ field }) => (
