@@ -31,7 +31,6 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -428,14 +427,14 @@ export default function AdminPlayersPage() {
             </DialogTitle>
             <DialogDescription className="text-xs opacity-50">Modify athlete profile and draft class assignment.</DialogDescription>
           </DialogHeader>
-          <ScrollArea className="flex-1 px-8 pb-8">
+          <div className="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
             <PlayerForm
               onSubmit={handleFormSubmit}
               player={selectedPlayer}
               onClose={handleCloseDialog}
               teams={teams}
             />
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

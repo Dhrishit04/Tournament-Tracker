@@ -107,6 +107,7 @@ function TeamForm({
     <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
+            border-accent/40
             control={form.control}
             name="name"
             render={({ field }) => (
@@ -256,7 +257,7 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
     return (
         <Card className="mb-6 border-primary/20 bg-primary/5">
             <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
                         <CardTitle className="flex items-center gap-2"><LayoutGrid className="h-5 w-5" /> Group Management</CardTitle>
                         <CardDescription>Configure league groups (exactly 4 teams per group)</CardDescription>
@@ -279,15 +280,15 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                         <span>Group mode requires a multiple of 4 teams (min 8). Current teams: {teams.length}</span>
                     </div>
                 ) : (
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <div className="text-sm font-medium">
                             Status: <span className={currentSeason.matchConfig.isGroupModeActive ? 'text-primary' : 'text-muted-foreground'}>
                                 {currentSeason.matchConfig.isGroupModeActive ? `${numGroups} Groups Active (A-${availableGroups[availableGroups.length-1]})` : 'Inactive (Standalone Mode)'}
                             </span>
                         </div>
                         {canEnableGroupMode && (
-                            <div className="flex items-center gap-2">
-                                <Button size="sm" onClick={() => setIsDialogOpen(true)}><Edit className="h-4 w-4 mr-2" /> Assign Teams to Groups</Button>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Button size="sm" onClick={() => setIsDialogOpen(true)}><Edit className="h-4 w-4 mr-2" /> Assign Teams</Button>
                                 <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
                                     <AlertDialogTrigger asChild>
                                         <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive hover:text-destructive-foreground"><RotateCcw className="h-4 w-4 mr-2" /> Reset Groups</Button>
@@ -318,7 +319,7 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                                 Every group must contain exactly 4 teams. Total groups possible: {numGroups}
                             </DialogDescription>
                         </DialogHeader>
-                        <ScrollArea className="flex-1 px-6">
+                        <div className="flex-1 overflow-y-auto px-6">
                             <div className="space-y-4 py-4">
                                 {teams.map(team => (
                                     <div key={team.id} className="flex items-center justify-between p-3 border rounded-md">
@@ -345,8 +346,8 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                                     </div>
                                 ))}
                             </div>
-                        </ScrollArea>
-                        <DialogFooter className="p-6 pt-2">
+                        </div>
+                        <DialogFooter className="p-6 pt-2 border-t mt-auto">
                             <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
                             <Button onClick={handleSaveGroups}><Save className="h-4 w-4 mr-2" /> Save All Assignments</Button>
                         </DialogFooter>
