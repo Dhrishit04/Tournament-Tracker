@@ -114,6 +114,7 @@ export interface Season {
 export interface SeasonConfig {
   currentSeasonId: string;
   isLoggingEnabled?: boolean;
+  isSessionActive?: boolean;
   seasons: Season[];
   globalAnnouncement?: GlobalAnnouncement;
 }

@@ -1,7 +1,8 @@
+
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Download, Settings, Trash2, RotateCcw, Upload, FileUp, Loader2 } from 'lucide-react';
+import { AlertTriangle, Download, Settings, Trash2, RotateCcw, Upload, FileUp, Loader2, Power } from 'lucide-react';
 import { useSeason } from '@/contexts/season-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,11 +23,13 @@ import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { AccessDenied } from '@/components/admin/access-denied';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 
 export default function AdminSettingsPage() {
     const { isSystemAdmin, user } = useAuth();
-    const { seasons, currentSeason, setCurrentSeason, createNextSeason, loading, deleteCurrentSeason } = useSeason();
+    const { seasons, currentSeason, setCurrentSeason, createNextSeason, loading, deleteCurrentSeason, isSessionActive, setSessionActive } = useSeason();
     const { resetSeasonStats, wipeSeasonData, importSeasonPreset, bulkImportData } = useData();
     const { toast } = useToast();
     
@@ -116,6 +119,33 @@ export default function AdminSettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
+          <Card className="glass-card border-border/50 overflow-hidden">
+            <CardHeader className="bg-secondary/5 border-b border-border/50">
+              <CardTitle className="text-lg font-bold flex items-center gap-3">
+                <Power className="h-5 w-5 text-accent" /> System Status
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Toggle overall application visibility for non-administrative users.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-8">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                    <div className="space-y-0.5">
+                        <Label htmlFor="session-active-toggle" className="text-sm font-bold uppercase tracking-tight">Public Session</Label>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                            {isSessionActive ? "Site is visible to the public." : "Site is hidden (Maintenance Mode)."}
+                        </p>
+                    </div>
+                    <Switch 
+                        id="session-active-toggle" 
+                        checked={isSessionActive} 
+                        onCheckedChange={setSessionActive}
+                        className="data-[state=checked]:bg-accent"
+                    />
+                </div>
+            </CardContent>
+          </Card>
+
           <Card className="glass-card border-border/50 overflow-hidden">
             <CardHeader className="bg-secondary/5 border-b border-border/50">
               <CardTitle className="text-lg font-bold flex items-center gap-3">

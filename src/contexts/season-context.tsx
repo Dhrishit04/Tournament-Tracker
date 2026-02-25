@@ -13,12 +13,14 @@ interface SeasonContextState {
     currentSeason: Season | null;
     globalAnnouncement: GlobalAnnouncement | null;
     isLoggingEnabled: boolean;
+    isSessionActive: boolean;
     setCurrentSeason: (seasonId: string) => Promise<void>;
     createNextSeason: () => Promise<void>;
     deleteCurrentSeason: () => Promise<void>;
     updateMatchConfig: (newConfig: MatchConfig) => Promise<void>;
     updateGlobalAnnouncement: (announcement: GlobalAnnouncement) => Promise<void>;
     setLoggingEnabled: (enabled: boolean) => Promise<void>;
+    setSessionActive: (enabled: boolean) => Promise<void>;
     loading: boolean;
 }
 
@@ -31,6 +33,7 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
     const [currentSeason, setInternalCurrentSeason] = useState<Season | null>(null);
     const [globalAnnouncement, setGlobalAnnouncement] = useState<GlobalAnnouncement | null>(null);
     const [isLoggingEnabled, setInternalLoggingEnabled] = useState(true);
+    const [isSessionActive, setInternalSessionActive] = useState(true);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -60,6 +63,7 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
                 setInternalCurrentSeason(current);
                 setGlobalAnnouncement(configData.globalAnnouncement || { message: '', isActive: false });
                 setInternalLoggingEnabled(configData.isLoggingEnabled ?? true);
+                setInternalSessionActive(configData.isSessionActive ?? true);
             }
             setLoading(false);
         }, (error) => {
@@ -98,6 +102,20 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
             }));
         });
     }, [firestore, logAction]);
+
+    const setSessionActive = useCallback(async (enabled: boolean) => {
+        if (!firestore) return;
+        const configRef = doc(firestore, 'config', 'app');
+        updateDoc(configRef, { isSessionActive: enabled }).then(() => {
+            logAction("SESSION_CONTROL", `Public Access ${enabled ? 'ACTIVATED' : 'DEACTIVATED'}`);
+            toast({ title: 'Status Updated', description: `Application session is now ${enabled ? 'Active' : 'Offline'}.` });
+        }).catch(async () => {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({
+                path: configRef.path,
+                operation: 'update'
+            }));
+        });
+    }, [firestore, logAction, toast]);
 
     const setCurrentSeason = useCallback(async (seasonId: string) => {
         if (!firestore) return;
@@ -203,7 +221,7 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
         });
     }, [firestore, seasons, currentSeason, logAction]);
 
-    const value = { seasons, currentSeason, globalAnnouncement, isLoggingEnabled, setCurrentSeason, createNextSeason, deleteCurrentSeason, updateMatchConfig, updateGlobalAnnouncement, setLoggingEnabled, loading };
+    const value = { seasons, currentSeason, globalAnnouncement, isLoggingEnabled, isSessionActive, setCurrentSeason, createNextSeason, deleteCurrentSeason, updateMatchConfig, updateGlobalAnnouncement, setLoggingEnabled, setSessionActive, loading };
     return <SeasonContext.Provider value={value}>{children}</SeasonContext.Provider>;
 };
 

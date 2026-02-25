@@ -14,10 +14,11 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { analyzeSeason, type AnalyzeSeasonOutput } from '@/ai/flows/season-scout-flow';
 import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
 
 export default function AdminDashboardPage() {
   const { teams, players, matches, loading } = useData();
-  const { globalAnnouncement, updateGlobalAnnouncement, currentSeason } = useSeason();
+  const { globalAnnouncement, updateGlobalAnnouncement, currentSeason, isSessionActive } = useSeason();
   const { isSystemAdmin, user } = useAuth();
   
   const [announcementText, setAnnouncementText] = useState('');
@@ -92,9 +93,12 @@ export default function AdminDashboardPage() {
           <h1 className="text-4xl font-black font-headline tracking-tighter italic mb-2 uppercase">Command <span className="text-accent">Center</span></h1>
           <p className="text-muted-foreground font-medium">Tournament intelligence and administrative gateway.</p>
         </div>
-        <div className="flex items-center gap-2 bg-accent/5 border border-accent/20 px-4 py-2 rounded-full">
-            <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-accent">Session Active</span>
+        <div className={cn(
+            "flex items-center gap-2 border px-4 py-2 rounded-full transition-colors",
+            isSessionActive ? "bg-accent/5 border-accent/20 text-accent" : "bg-white/5 border-white/10 text-muted-foreground"
+        )}>
+            <div className={cn("w-2 h-2 rounded-full animate-pulse", isSessionActive ? "bg-accent" : "bg-muted-foreground")} />
+            <span className="text-[10px] font-bold uppercase tracking-widest">{isSessionActive ? "Session Active" : "Session Offline"}</span>
         </div>
       </div>
 

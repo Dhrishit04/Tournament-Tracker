@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/theme-provider';
@@ -9,6 +10,7 @@ import { QueryProvider } from '@/components/providers/query-provider';
 import { DataProvider } from '@/contexts/data-context';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { SeasonProvider } from '@/contexts/season-context';
+import { SessionGuard } from '@/components/layout/session-guard';
 
 export const metadata: Metadata = {
   title: 'Dongre Football Premier League',
@@ -51,11 +53,13 @@ export default function RootLayout({
               <AuthProvider>
                 <SeasonProvider>
                   <DataProvider>
-                    <div className="flex min-h-screen flex-col">
-                      <Header />
-                      <main className="flex-grow">{children}</main>
-                      <Footer />
-                    </div>
+                    <SessionGuard>
+                      <div className="flex min-h-screen flex-col">
+                        <Header />
+                        <main className="flex-grow">{children}</main>
+                        <Footer />
+                      </div>
+                    </SessionGuard>
                     <Toaster />
                   </DataProvider>
                 </SeasonProvider>
