@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { AccessDenied } from '@/components/admin/access-denied';
 import { collection, getDocs, writeBatch } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -76,18 +76,18 @@ export default function AdminLogsPage() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6"
       >
         <div>
           <h1 className="text-4xl font-black font-headline tracking-tighter italic uppercase">System <span className="text-accent">Terminal</span></h1>
           <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Infrastructure audit and security monitoring.</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3 w-full lg:w-auto">
             <Button 
                 onClick={handleDownloadLogs} 
                 disabled={logs.length === 0}
                 variant="outline"
-                className="glass-card border-white/10 hover:bg-white/5 h-12 px-6 rounded-xl font-bold transition-all hover:scale-105"
+                className="glass-card border-white/10 hover:bg-white/5 h-12 px-6 rounded-xl font-bold transition-all hover:scale-105 flex-1 md:flex-none"
             >
                 <Download className="mr-2 h-4 w-4" /> Export Txt
             </Button>
@@ -95,7 +95,7 @@ export default function AdminLogsPage() {
                 onClick={handleClearLogs} 
                 disabled={logs.length === 0}
                 variant="destructive"
-                className="h-12 px-6 rounded-xl font-bold transition-all hover:scale-105"
+                className="h-12 px-6 rounded-xl font-bold transition-all hover:scale-105 flex-1 md:flex-none"
             >
                 <Trash2 className="mr-2 h-4 w-4" /> Purge History
             </Button>
@@ -156,7 +156,7 @@ export default function AdminLogsPage() {
                 <span className="text-[10px] font-mono text-white/20 uppercase font-black">v1.2.0-stable</span>
             </CardHeader>
             <CardContent className="p-0">
-            <ScrollArea className="h-[600px] w-full bg-[#050505]">
+            <ScrollArea className="h-[600px] w-full bg-[#050505]" orientation="both">
                 {loading ? (
                 <div className="p-8 space-y-4">
                     <Skeleton className="h-4 w-[80%] bg-white/5" />
@@ -165,7 +165,7 @@ export default function AdminLogsPage() {
                     <Skeleton className="h-4 w-[50%] bg-white/5" />
                 </div>
                 ) : sortedLogs.length > 0 ? (
-                <div className="p-8 font-mono text-xs md:text-sm leading-relaxed whitespace-pre select-all">
+                <div className="p-8 font-mono text-xs md:text-sm leading-relaxed whitespace-nowrap select-all min-w-max">
                     <AnimatePresence mode="popLayout">
                         {sortedLogs.map((log, idx) => (
                         <motion.div 
@@ -173,10 +173,10 @@ export default function AdminLogsPage() {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: Math.min(idx * 0.02, 1) }}
-                            className="mb-2 group flex flex-col md:flex-row md:items-center gap-1 md:gap-4 hover:bg-white/[0.04] transition-colors -mx-4 px-4 py-1"
+                            className="mb-2 group flex items-center gap-4 hover:bg-white/[0.04] transition-colors -mx-4 px-4 py-1"
                         >
                             <span className="text-white/20 whitespace-nowrap">[{format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}]</span>
-                            <p className="text-white/80 break-all">
+                            <p className="text-white/80">
                                 <span className="text-blue-400 font-black">{log.adminEmail}</span>{' '}
                                 <span className="text-white/20 font-bold">»</span>{' '}
                                 <span className={cn("font-black", getActionColor(log.action))}>{log.action}</span>{' '}
@@ -197,6 +197,7 @@ export default function AdminLogsPage() {
                     <p>NULL_LOG_BUFFER: NO RECORDS DETECTED</p>
                 </div>
                 )}
+                <ScrollBar orientation="horizontal" className="bg-white/5" />
             </ScrollArea>
             </CardContent>
         </Card>
