@@ -1,25 +1,27 @@
-
 'use client';
 
 import { useSeason } from '@/contexts/season-context';
 import { useAuth } from '@/hooks/use-auth';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, LogIn } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export function SessionGuard({ children }: { children: React.ReactNode }) {
   const { isSessionActive, loading: seasonLoading } = useSeason();
   const { isAdmin, loading: authLoading } = useAuth();
   const pathname = usePathname();
 
-  // Always allow access to admin routes and the login page
-  const isAdminRoute = pathname?.startsWith('/admin');
+  // The login portal must always be accessible so admins can establish a session
   const isAuthRoute = pathname === '/admin-auth';
 
   if (seasonLoading || authLoading) return <>{children}</>;
 
-  // If session is inactive and user is not an admin, block access except for login portal
-  if (!isSessionActive && !isAdmin && !isAdminRoute && !isAuthRoute) {
+  // If session is inactive and user is not an admin, block access to EVERYTHING except the login portal.
+  // This ensures that even direct URL navigation to /admin/* results in the maintenance screen
+  // instead of the Access Denied screen when the system is offline.
+  if (!isSessionActive && !isAdmin && !isAuthRoute) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-6 bg-background relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,87,34,0.05)_0%,transparent_70%)] pointer-events-none" />
@@ -46,8 +48,16 @@ export function SessionGuard({ children }: { children: React.ReactNode }) {
             </p>
           </div>
 
-          <div className="px-8 py-4 bg-white/5 rounded-2xl border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-accent shadow-xl backdrop-blur-sm inline-block">
-            Please contact Admins for protocol information
+          <div className="flex flex-col items-center gap-6">
+            <div className="px-8 py-4 bg-white/5 rounded-2xl border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-accent shadow-xl backdrop-blur-sm inline-block">
+                Please contact Admins for protocol information
+            </div>
+            
+            <Button asChild variant="ghost" className="text-muted-foreground hover:text-white hover:bg-white/5 text-xs font-bold uppercase tracking-widest gap-2">
+                <Link href="/admin-auth">
+                    <LogIn className="h-4 w-4" /> Admin Login Portal
+                </Link>
+            </Button>
           </div>
         </motion.div>
       </div>
