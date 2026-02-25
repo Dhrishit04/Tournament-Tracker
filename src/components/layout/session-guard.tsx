@@ -15,13 +15,14 @@ export function SessionGuard({ children }: { children: React.ReactNode }) {
 
   // The login portal must always be accessible so admins can establish a session
   const isAuthRoute = pathname === '/admin-auth';
+  // Legal documentation must remain accessible even if the app is offline
+  const isExceptionRoute = pathname === '/privacy' || pathname === '/terms';
 
   if (seasonLoading || authLoading) return <>{children}</>;
 
-  // If session is inactive and user is not an admin, block access to EVERYTHING except the login portal.
-  // This ensures that even direct URL navigation to /admin/* results in the maintenance screen
-  // instead of the Access Denied screen when the system is offline.
-  if (!isSessionActive && !isAdmin && !isAuthRoute) {
+  // If session is inactive and user is not an admin, block access to EVERYTHING except specified routes.
+  // This ensures that even direct URL navigation results in the maintenance screen when the system is offline.
+  if (!isSessionActive && !isAdmin && !isAuthRoute && !isExceptionRoute) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-6 bg-background relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,87,34,0.05)_0%,transparent_70%)] pointer-events-none" />
@@ -53,11 +54,17 @@ export function SessionGuard({ children }: { children: React.ReactNode }) {
                 Please contact Admins for protocol information
             </div>
             
-            <Button asChild variant="ghost" className="text-muted-foreground hover:text-white hover:bg-white/5 text-xs font-bold uppercase tracking-widest gap-2">
-                <Link href="/admin-auth">
-                    <LogIn className="h-4 w-4" /> Admin Login Portal
-                </Link>
-            </Button>
+            <div className="flex flex-col gap-3">
+                <Button asChild variant="ghost" className="text-muted-foreground hover:text-white hover:bg-white/5 text-xs font-bold uppercase tracking-widest gap-2">
+                    <Link href="/admin-auth">
+                        <LogIn className="h-4 w-4" /> Admin Login Portal
+                    </Link>
+                </Button>
+                <div className="flex gap-4 justify-center">
+                    <Link href="/privacy" className="text-[10px] uppercase font-bold text-muted-foreground hover:text-accent transition-colors">Privacy</Link>
+                    <Link href="/terms" className="text-[10px] uppercase font-bold text-muted-foreground hover:text-accent transition-colors">Terms</Link>
+                </div>
+            </div>
           </div>
         </motion.div>
       </div>
