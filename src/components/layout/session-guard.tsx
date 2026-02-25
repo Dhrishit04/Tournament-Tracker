@@ -2,7 +2,7 @@
 
 import { useSeason } from '@/contexts/season-context';
 import { useAuth } from '@/hooks/use-auth';
-import { ShieldAlert, LogIn } from 'lucide-react';
+import { ShieldAlert, LogIn, Loader2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,14 @@ export function SessionGuard({ children }: { children: React.ReactNode }) {
   // Legal documentation must remain accessible even if the app is offline
   const isExceptionRoute = pathname === '/privacy' || pathname === '/terms';
 
-  if (seasonLoading || authLoading) return <>{children}</>;
+  // Prevent flash of content by showing a neutral loader while verifying session state
+  if (seasonLoading || authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-accent animate-spin opacity-20" />
+      </div>
+    );
+  }
 
   // If session is inactive and user is not an admin, block access to EVERYTHING except specified routes.
   // This ensures that even direct URL navigation results in the maintenance screen when the system is offline.
