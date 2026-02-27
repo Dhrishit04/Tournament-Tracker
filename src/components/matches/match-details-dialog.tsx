@@ -278,7 +278,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                 </p>
                 <div className="flex gap-3 md:gap-4 w-full max-w-sm">
                     <Button onClick={handleConfirmFinishAsDraw} variant="ghost" className="flex-1 h-12 md:h-14 border border-white/10 hover:bg-white/5 uppercase font-black text-[9px] md:text-[10px] tracking-widest">Conclude Draw</Button>
-                    <Button onClick={handleConfirmExtraTime} className="flex-1 h-12 md:h-14 bg-accent hover:bg-accent/90 uppercase font-black text-[9px] md:text-[10px] tracking-widest shadow-lg shadow-accent/20">Initiate ET</Button>
+                    <Button onClick={handleConfirmExtraTime} className="flex-1 h-12 md:h-14 bg-accent hover:bg-accent/90 uppercase font-black text-[9px] md:text-[10px] tracking-widest shadow-lg shadow-accent/20 text-accent-foreground">Initiate ET</Button>
                 </div>
             </div>
         ) : (
@@ -308,7 +308,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                     </div>
                 </DialogHeader>
 
-                <ScrollArea className="flex-1 w-full overflow-y-auto">
+                <div className="flex-1 w-full overflow-y-auto custom-scrollbar">
                     <div className="p-4 md:p-6 space-y-6">
                         {isAdmin && showSettingsForm && (
                             <motion.div 
@@ -379,7 +379,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                     )}
                                                 </div>
                                                 <div className="flex justify-end pt-2">
-                                                    <Button type="submit" size="sm" className="h-9 text-[9px] md:text-[10px] font-black uppercase tracking-widest px-6 bg-accent hover:bg-accent/90 transition-all hover:scale-105">Update Registry</Button>
+                                                    <Button type="submit" size="sm" className="h-9 text-[9px] md:text-[10px] font-black uppercase tracking-widest px-6 bg-accent hover:bg-accent/90 transition-all hover:scale-105 text-accent-foreground">Update Registry</Button>
                                                 </div>
                                             </form>
                                         </Form>
@@ -566,14 +566,14 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                                 )}/>
                                                             )}
 
-                                                            <Button type="submit" className="w-full h-10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-accent hover:text-white border border-white/10 shadow-lg transition-all">Record Event</Button>
+                                                            <Button type="submit" className="w-full h-10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-accent hover:text-white border border-white/10 shadow-lg transition-all text-accent-foreground">Record Event</Button>
                                                         </form>
                                                     </Form>
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
                                         
-                                        <ScrollArea className="flex-1 pr-2">
+                                        <div className="flex-1 pr-2 overflow-y-auto custom-scrollbar">
                                             <div className="space-y-4">
                                                 {match.events && match.events.length > 0 ? (
                                                     [...match.events].sort((a,b) => a.minute - b.minute).map((event, idx) => {
@@ -630,13 +630,13 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                     </div>
                                                 )}
                                             </div>
-                                        </ScrollArea>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </motion.div>
                         </div>
                     </div>
-                </ScrollArea>
+                </div>
             </>
         )}
       </DialogContent>

@@ -1,4 +1,3 @@
-
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Shield, Calendar, Settings, ArrowUpRight, Radio, Sparkles, Send, Loader2, Save } from 'lucide-react';
@@ -158,7 +157,7 @@ export default function AdminDashboardPage() {
                         onChange={(e) => setAnnouncementText(e.target.value)}
                         className="glass-card bg-background/50 h-12"
                     />
-                    <Button onClick={handleSaveMessage} className="bg-accent hover:bg-accent/90 text-white px-6 h-12 shadow-lg transition-all">
+                    <Button onClick={handleSaveMessage} className="bg-accent hover:bg-accent/90 text-accent-foreground px-6 h-12 shadow-lg transition-all">
                         <Save className="h-4 w-4 mr-2" /> Save
                     </Button>
                 </div>

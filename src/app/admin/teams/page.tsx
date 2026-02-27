@@ -142,7 +142,7 @@ function TeamForm({
                     <Input type="file" accept="image/png, image/jpeg, image/jpg" onChange={handleFileChange} />
                   </FormControl>
                   {preview && (
-                    <div className="relative w-20 h-20 rounded-full mt-2 overflow-hidden">
+                    <div className="relative w-20 h-20 rounded-full mt-2 overflow-hidden border border-accent/20">
                         <Image src={preview} alt="Logo preview" fill className="object-cover"/>
                     </div>
                   )}
@@ -256,10 +256,10 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
     return (
         <Card className="mb-6 border-primary/20 bg-primary/5">
             <CardHeader>
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
                         <CardTitle className="flex items-center gap-2"><LayoutGrid className="h-5 w-5" /> Group Management</CardTitle>
-                        <CardDescription>Configure league groups (exactly 4 teams per group)</CardDescription>
+                        <CardDescription className="text-xs">Configure league groups (exactly 4 teams per group)</CardDescription>
                     </div>
                     <div className="flex items-center space-x-2">
                         <Switch 
@@ -268,7 +268,7 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                             onCheckedChange={handleToggleMode}
                             disabled={!canEnableGroupMode && !currentSeason.matchConfig.isGroupModeActive}
                         />
-                        <Label htmlFor="group-mode-toggle">Enable Group Mode</Label>
+                        <Label htmlFor="group-mode-toggle" className="text-xs font-bold uppercase">Enable Group Mode</Label>
                     </div>
                 </div>
             </CardHeader>
@@ -276,23 +276,23 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                 {!canEnableGroupMode && !currentSeason.matchConfig.isGroupModeActive ? (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground bg-background p-3 rounded-md border">
                         <AlertCircle className="h-4 w-4" />
-                        <span>Group mode requires a multiple of 4 teams (min 8). Current teams: {teams.length}</span>
+                        <span className="text-xs">Group mode requires a multiple of 4 teams (min 8). Current teams: {teams.length}</span>
                     </div>
                 ) : (
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                        <div className="text-sm font-medium">
+                        <div className="text-xs font-bold uppercase">
                             Status: <span className={currentSeason.matchConfig.isGroupModeActive ? 'text-primary' : 'text-muted-foreground'}>
                                 {currentSeason.matchConfig.isGroupModeActive ? `${numGroups} Groups Active (A-${availableGroups[availableGroups.length-1]})` : 'Inactive (Standalone Mode)'}
                             </span>
                         </div>
                         {canEnableGroupMode && (
                             <div className="flex flex-wrap items-center gap-2">
-                                <Button size="sm" onClick={() => setIsDialogOpen(true)}><Edit className="h-4 w-4 mr-2" /> Assign Teams</Button>
+                                <Button size="sm" onClick={() => setIsDialogOpen(true)} className="h-8 text-[10px] font-black uppercase tracking-widest"><Edit className="h-3 w-3 mr-2" /> Assign Teams</Button>
                                 <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
                                     <AlertDialogTrigger asChild>
-                                        <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive hover:text-destructive-foreground"><RotateCcw className="h-4 w-4 mr-2" /> Reset Groups</Button>
+                                        <Button size="sm" variant="outline" className="h-8 text-[10px] font-black uppercase tracking-widest text-destructive hover:bg-destructive hover:text-destructive-foreground"><RotateCcw className="h-3 w-3 mr-2" /> Reset Groups</Button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent>
+                                    <AlertDialogContent className="glass-card">
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Reset all groups?</AlertDialogTitle>
                                             <AlertDialogDescription>
@@ -311,28 +311,28 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                 )}
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogContent className="sm:max-w-2xl max-h-[92vh] flex flex-col p-0 overflow-hidden">
+                    <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[92vh] flex flex-col p-0 overflow-hidden glass-card border-white/5">
                         <DialogHeader className="p-6 pb-2">
-                            <DialogTitle>Assign Teams to Groups</DialogTitle>
-                            <DialogDescription>
+                            <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Assign <span className="text-accent">Groups</span></DialogTitle>
+                            <DialogDescription className="text-xs">
                                 Every group must contain exactly 4 teams. Total groups possible: {numGroups}
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="flex-1 overflow-y-auto px-6">
+                        <div className="flex-1 overflow-y-auto px-6 custom-scrollbar">
                             <div className="space-y-4 py-4">
                                 {teams.map(team => (
-                                    <div key={team.id} className="flex items-center justify-between p-3 border rounded-md">
+                                    <div key={team.id} className="flex items-center justify-between p-3 border border-white/5 rounded-xl bg-white/5">
                                         <div className="flex items-center gap-3">
-                                            <div className="relative w-8 h-8 rounded-full overflow-hidden border">
+                                            <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/10">
                                                 <Image src={getImageUrl(team.logoUrl).imageUrl} alt={team.name} fill className="object-cover" />
                                             </div>
-                                            <span className="font-medium">{team.name}</span>
+                                            <span className="font-bold text-sm truncate max-w-[120px] sm:max-w-none">{team.name}</span>
                                         </div>
                                         <Select 
                                             value={pendingGroups[team.id] || 'None'} 
                                             onValueChange={(val) => setPendingGroups(prev => ({ ...prev, [team.id]: val }))}
                                         >
-                                            <SelectTrigger className="w-32">
+                                            <SelectTrigger className="w-28 sm:w-32 h-9 text-xs glass-card">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -346,9 +346,9 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                                 ))}
                             </div>
                         </div>
-                        <DialogFooter className="p-6 pt-2 border-t mt-auto">
-                            <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                            <Button onClick={handleSaveGroups}><Save className="h-4 w-4 mr-2" /> Save All Assignments</Button>
+                        <DialogFooter className="p-6 pt-2 border-t border-white/5 mt-auto bg-background/50">
+                            <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-10 text-[10px] font-black uppercase tracking-widest">Cancel</Button>
+                            <Button onClick={handleSaveGroups} className="bg-accent hover:bg-accent/90 h-10 text-[10px] font-black uppercase tracking-widest"><Save className="h-3 w-3 mr-2" /> Save All Assignments</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
@@ -418,10 +418,6 @@ export default function AdminTeamsPage() {
         handleCloseDialog();
     };
 
-    const handleDelete = (team: Team) => {
-        setTeamToDelete(team);
-    }
-
     const confirmDelete = () => {
         if(teamToDelete) {
             deleteTeam(teamToDelete.id);
@@ -448,67 +444,69 @@ export default function AdminTeamsPage() {
   }
 
   return (
-    <div>
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold font-headline">Manage Teams</h1>
-            <Button onClick={() => handleOpenDialog('add')}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add New Team
+    <div className="space-y-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+          <h1 className="text-4xl font-black font-headline tracking-tighter italic uppercase">Club <span className="text-accent">Operations</span></h1>
+            <Button onClick={() => handleOpenDialog('add')} className="bg-accent hover:bg-accent/90 shadow-lg text-accent-foreground font-bold">
+            <PlusCircle className="mr-2 h-4 w-4" /> Deploy New Club
             </Button>
         </div>
         
         <GroupManager teams={teams} updateTeam={updateTeam} />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Team List</CardTitle>
+        <Card className="glass-card border-white/5 overflow-hidden">
+          <CardHeader className="bg-white/5 border-b border-white/5">
+            <CardTitle className="text-xl font-bold">Club Registry</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Team</TableHead>
-                        <TableHead>Owner</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                <TableHeader className="bg-white/5">
+                    <TableRow className="border-white/5">
+                        <TableHead className="px-8 h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Identity</TableHead>
+                        <TableHead className="h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Proprietor</TableHead>
+                        <TableHead className="px-8 h-12 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {teams.map((team) => {
                         const logo = getImageUrl(team.logoUrl);
                         return (
-                        <TableRow key={team.id}>
-                            <TableCell>
-                                <div className="flex items-center gap-3">
-                                    <div className="relative w-10 h-10 rounded-full overflow-hidden border">
+                        <TableRow key={team.id} className="border-white/5 hover:bg-white/5 transition-colors group">
+                            <TableCell className="px-8 py-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10 group-hover:border-accent/40 transition-colors">
                                         <Image src={logo.imageUrl} alt={team.name} fill className="object-cover" data-ai-hint={logo.imageHint} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="font-medium">{team.name}</span>
-                                        {team.group && team.group !== 'None' && <span className="text-xs text-primary font-semibold">Group {team.group}</span>}
+                                        <span className="font-bold text-sm tracking-tight">{team.name}</span>
+                                        {team.group && team.group !== 'None' && <span className="text-[8px] font-black text-accent uppercase tracking-widest">Group {team.group}</span>}
                                     </div>
                                 </div>
                             </TableCell>
-                            <TableCell>{team.owner}</TableCell>
-                            <TableCell className="text-right">
-                                <Button variant="ghost" size="icon" onClick={() => handleOpenDialog('edit', team)}>
-                                    <Edit className="h-4 w-4" />
-                                </Button>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive" onClick={() => handleDelete(team)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                            <AlertDialogDescription>This action cannot be undone. This will permanently delete the team.</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel onClick={() => setTeamToDelete(null)}>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                            <TableCell className="font-medium text-xs opacity-70">{team.owner}</TableCell>
+                            <TableCell className="px-8 py-4 text-right">
+                                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button variant="ghost" size="icon" onClick={() => handleOpenDialog('edit', team)} className="h-8 w-8 hover:bg-white/10">
+                                        <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setTeamToDelete(team)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent className="glass-card border-white/5">
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Decommission <span className="text-destructive">Club</span></AlertDialogTitle>
+                                                <AlertDialogDescription className="text-white/70">This will permanently remove the club from the DFPL infrastructure. This operation is irreversible.</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel onClick={() => setTeamToDelete(null)}>Abort</AlertDialogCancel>
+                                                <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">Confirm Termination</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
                             </TableCell>
                         </TableRow>
                     )})}
@@ -518,31 +516,31 @@ export default function AdminTeamsPage() {
         </Card>
         
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogContent className="sm:max-w-[425px] max-h-[92vh] flex flex-col p-0 overflow-hidden">
-                <DialogHeader className="p-6 pb-2">
-                <DialogTitle>{dialogMode === 'edit' ? 'Edit Team' : 'Add New Team'}</DialogTitle>
-                <DialogDescription>Enter the club details and upload a primary identity logo.</DialogDescription>
+            <DialogContent className="w-[95vw] sm:max-w-[450px] max-h-[92vh] flex flex-col p-0 overflow-hidden glass-card border-white/5">
+                <DialogHeader className="p-8 pb-2 flex-shrink-0">
+                <DialogTitle className="text-3xl font-black italic uppercase tracking-tighter">{dialogMode === 'edit' ? 'Modify' : 'Deploy'} <span className="text-accent">Club</span></DialogTitle>
+                <DialogDescription className="text-xs opacity-50">Enter the club details and upload a primary identity logo.</DialogDescription>
                 </DialogHeader>
-                <ScrollArea className="flex-1 px-6 pb-6">
+                <div className="flex-1 px-8 pb-8 custom-scrollbar overflow-y-auto">
                     <TeamForm 
                         onSubmit={handleFormSubmit}
                         team={selectedTeam}
                         onClose={handleCloseDialog}
                     />
-                </ScrollArea>
+                </div>
             </DialogContent>
       </Dialog>
 
       <AlertDialog open={showViolationDialog} onOpenChange={setShowViolationDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="glass-card border-white/5">
             <AlertDialogHeader>
-                <AlertDialogTitle>Group Criteria Not Met</AlertDialogTitle>
-                <AlertDialogDescription>
+                <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter text-destructive">Protocol <span className="text-white">Violation</span></AlertDialogTitle>
+                <AlertDialogDescription className="text-white/70">
                     The group mode requirement (exactly 4 teams per group) is no longer satisfied due to recent changes in the team list. The tournament has defaulted to Standalone Standings.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogAction onClick={() => setShowViolationDialog(false)}>OK</AlertDialogAction>
+                <AlertDialogAction onClick={() => setShowViolationDialog(false)} className="bg-accent hover:bg-accent/90">Acknowledge</AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

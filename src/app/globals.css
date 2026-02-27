@@ -58,6 +58,17 @@
   }
 }
 
+@layer utilities {
+  /* Stealth Scrollbar Protocol: Maintain functionality while hiding UI */
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .custom-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 .glass-card {
   @apply bg-card/60 backdrop-blur-xl border-border/50 shadow-xl;
 }

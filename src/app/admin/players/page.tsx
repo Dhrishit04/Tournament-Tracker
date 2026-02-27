@@ -228,7 +228,7 @@ function PlayerForm({
             />
         <DialogFooter className="pt-4 gap-3">
           <Button type="button" variant="ghost" onClick={onClose} className="hover:bg-white/5 h-12 px-8 uppercase font-black text-[10px] tracking-widest">Cancel</Button>
-          <Button type="submit" className="bg-accent hover:bg-accent/90 shadow-[0_0_15px_rgba(255,87,34,0.3)] h-12 px-8 uppercase font-black text-[10px] tracking-widest">Finalize Athlete</Button>
+          <Button type="submit" className="bg-accent hover:bg-accent/90 shadow-[0_0_15px_rgba(255,87,34,0.3)] h-12 px-8 uppercase font-black text-[10px] tracking-widest text-accent-foreground">Finalize Athlete</Button>
         </DialogFooter>
       </form>
     </Form>
@@ -312,7 +312,7 @@ export default function AdminPlayersPage() {
           <h1 className="text-4xl font-black font-headline tracking-tighter italic uppercase">Athlete <span className="text-accent">Roster</span></h1>
           <p className="text-muted-foreground font-medium">Manage player registration and club assignments.</p>
         </div>
-        <Button onClick={() => handleOpenDialog('add')} className="bg-accent hover:bg-accent/90 shadow-[0_0_20px_rgba(255,87,34,0.3)] px-8 h-12 rounded-full font-bold">
+        <Button onClick={() => handleOpenDialog('add')} className="bg-accent hover:bg-accent/90 shadow-[0_0_20px_rgba(255,87,34,0.3)] px-8 h-12 rounded-full font-bold text-accent-foreground">
           <PlusCircle className="mr-2 h-5 w-5" /> Deploy New Athlete
         </Button>
       </div>

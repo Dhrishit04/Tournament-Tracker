@@ -142,7 +142,7 @@ export default function AdminLogsPage() {
                 </div>
             </CardHeader>
             <CardContent className="p-0">
-            <ScrollArea className="h-[600px] w-full" orientation="both">
+            <ScrollArea className="h-[600px] w-full custom-scrollbar" orientation="both">
                 {loading ? (
                 <div className="p-8 space-y-4">
                     <Skeleton className="h-4 w-[80%] bg-white/5" />
@@ -177,7 +177,8 @@ export default function AdminLogsPage() {
                     <p>NULL_LOG_BUFFER</p>
                 </div>
                 )}
-                <ScrollBar orientation="horizontal" className="bg-white/5" />
+                <ScrollBar orientation="horizontal" className="hidden" />
+                <ScrollBar orientation="vertical" className="hidden" />
             </ScrollArea>
             </CardContent>
         </Card>
