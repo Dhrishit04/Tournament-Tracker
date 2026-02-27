@@ -47,7 +47,7 @@ import { useData } from '@/hooks/use-data';
 import { useSeason } from '@/contexts/season-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const matchSchema = z.object({
   homeTeamId: z.string().min(1, 'Home team is required'),
@@ -600,7 +600,7 @@ export default function AdminMatchesPage() {
                 </DialogTitle>
                 <DialogDescription className="text-xs opacity-50">Set match details, kickoff timing, and tournament stage.</DialogDescription>
             </DialogHeader>
-            <ScrollArea className="flex-1 w-full mt-4">
+            <ScrollArea className="flex-1 w-full mt-4 custom-scrollbar">
                 <div className="pr-2">
                     <MatchForm 
                         onSubmit={handleFormSubmit}
@@ -610,6 +610,7 @@ export default function AdminMatchesPage() {
                         matches={matches}
                     />
                 </div>
+                <ScrollBar orientation="vertical" className="hidden" />
             </ScrollArea>
         </DialogContent>
       </Dialog>

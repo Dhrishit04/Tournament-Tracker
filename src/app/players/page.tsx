@@ -88,7 +88,7 @@ export default function PlayersPage() {
   }
 
   const LoadingSkeleton = () => (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto custom-scrollbar">
         <Table>
             <TableHeader className="bg-white/5">
                 <TableRow className="border-white/5">
@@ -174,7 +174,7 @@ export default function PlayersPage() {
             </CardHeader>
             <CardContent className="p-0">
                 {loading ? <LoadingSkeleton/> : (
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto custom-scrollbar">
                         <Table>
                         <TableHeader className="bg-white/5">
                             <TableRow className="border-white/5">

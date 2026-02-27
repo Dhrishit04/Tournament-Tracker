@@ -109,7 +109,7 @@ function StandingsEditForm({
 
 function StandingsTable({ standings, isAdmin, onEditClick }: { standings: Standing[], isAdmin: boolean, onEditClick: (id: string) => void }) {
     return (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto custom-scrollbar">
             <Table>
                 <TableHeader className="bg-white/5">
                     <TableRow className="border-white/10">
@@ -163,7 +163,7 @@ function StandingsTable({ standings, isAdmin, onEditClick }: { standings: Standi
 
 function LoadingSkeleton() {
     return (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto custom-scrollbar">
             <Table>
               <TableHeader>
                 <TableRow>
