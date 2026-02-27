@@ -158,7 +158,7 @@ export default function AdminDashboardPage() {
                         onChange={(e) => setAnnouncementText(e.target.value)}
                         className="glass-card bg-background/50 h-12"
                     />
-                    <Button onClick={handleSaveMessage} className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 h-12">
+                    <Button onClick={handleSaveMessage} className="bg-accent hover:bg-accent/90 text-white px-6 h-12 shadow-lg transition-all">
                         <Save className="h-4 w-4 mr-2" /> Save
                     </Button>
                 </div>
