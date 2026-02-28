@@ -73,13 +73,12 @@ export default function BracketPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-16 space-y-16">
+    <div className="container mx-auto px-4 py-24 max-w-6xl relative z-10 space-y-16">
       <div className="text-center">
-        <h1 className="text-4xl md:text-6xl font-black font-headline tracking-tighter italic uppercase mb-4 leading-none">The <span className="text-accent">Championship</span> Road</h1>
-        <div className="flex items-center justify-center gap-4 text-muted-foreground">
-          <div className="h-px w-12 bg-border" />
-          <span className="text-[10px] font-black uppercase tracking-[0.4em]">Elimination Protocol Active</span>
-          <div className="h-px w-12 bg-border" />
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">The Championship <span className="text-gradient-purple">Road</span></h1>
+        <p className="text-muted-foreground text-lg">Elimination Protocol Active</p>
+        <div className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
+          {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
         </div>
       </div>
 

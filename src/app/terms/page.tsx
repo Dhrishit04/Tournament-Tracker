@@ -6,8 +6,8 @@ import { Gavel, Scale, AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export default function TermsOfServicePage() {
   return (
-    <div className="container mx-auto px-4 py-16 max-w-4xl space-y-12">
-      <motion.div 
+    <div className="container mx-auto px-4 py-16 pt-32 max-w-4xl space-y-12">
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-4"

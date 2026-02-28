@@ -1,52 +1,58 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 230 20% 98%;
-    --foreground: 240 10% 3.9%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 4%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 240 10% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 235 75% 15%; /* Deep Space Navy */
+    --popover-foreground: 240 10% 4%;
+    --primary: 250 100% 64%;
+    /* Vibrant Indigo/Purple */
     --primary-foreground: 0 0% 98%;
-    --secondary: 235 20% 90%;
-    --secondary-foreground: 235 75% 15%;
-    --muted: 235 20% 95%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 16 100% 55%; /* Electric Orange */
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 250 100% 64%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 250 100% 64%;
+    /* Vibrant Indigo/Purple */
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 235 20% 88%;
-    --input: 235 20% 88%;
-    --ring: 16 100% 55%;
-    --radius: 0.75rem;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 250 100% 64%;
+    --radius: 1rem;
+    /* Softer, slightly larger radius for SaaS feel */
   }
- 
+
   .dark {
-    --background: 235 80% 2%; /* Ultra Deep Navy */
-    --foreground: 0 0% 100%;
-    --card: 235 60% 4%;
+    --background: 240 10% 4%;
+    /* Near black */
+    --foreground: 0 0% 98%;
+    --card: 240 10% 6%;
+    /* Slightly elevated dark gray */
     --card-foreground: 0 0% 98%;
-    --popover: 235 60% 4%;
+    --popover: 240 10% 6%;
     --popover-foreground: 0 0% 98%;
-    --primary: 235 80% 65%;
-    --primary-foreground: 235 80% 5%;
-    --secondary: 235 30% 10%;
+    --primary: 250 100% 70%;
+    /* Soft glow Indigo/Purple */
+    --primary-foreground: 240 10% 4%;
+    --secondary: 240 10% 12%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 235 30% 12%;
-    --muted-foreground: 235 20% 65%;
-    --accent: 16 100% 55%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --muted: 240 10% 12%;
+    --muted-foreground: 240 4% 65%;
+    --accent: 250 100% 70%;
+    --accent-foreground: 240 10% 4%;
+    --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 235 30% 15%;
-    --input: 235 30% 15%;
-    --ring: 16 100% 55%;
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 250 100% 70%;
+    --radius: 1rem;
   }
 }
 
@@ -54,19 +60,28 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground selection:bg-accent selection:text-accent-foreground antialiased;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply tracking-tight;
   }
 }
 
 @layer utilities {
+
   /* Stealth Scrollbar Protocol: Maintain functionality while hiding UI */
   .custom-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .custom-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -74,27 +89,162 @@
 }
 
 .glass-card {
-  @apply bg-card/60 backdrop-blur-xl border-border/50 shadow-xl;
+  @apply bg-card/40 backdrop-blur-2xl border-white/5 shadow-2xl transition-all duration-500 hover:border-white/10;
+}
+
+.glass-card:hover {
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+}
+
+.bento-card {
+  @apply bg-card/30 border border-white/5 backdrop-blur-md rounded-2xl overflow-hidden relative transition-all duration-500 hover:bg-card/50 hover:border-accent/40 hover:-translate-y-2;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+.bento-card:hover {
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
 }
 
 .text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/60;
+  @apply bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60;
+}
+
+.text-gradient-purple {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#9b8afb] to-[#7f61fc];
 }
 
 /* Enhanced Animations */
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
 }
 
 .animate-shimmer-fast {
   animation: shimmer 2s infinite linear;
 }
 
-.glow-orange {
-  box-shadow: 0 0 20px rgba(255, 87, 34, 0.15);
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+@keyframes marquee-linear {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-linear {
+  animation: marquee-linear 40s linear infinite;
+}
+
+.glow-purple {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
 }
 
 .glow-blue {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+}
+
+.hover-lift {
+  @apply transition-transform duration-500 hover:-translate-y-1 hover:shadow-xl;
+}
+
+.hover-glow {
+  @apply transition-all duration-500;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+}
+
+/* Premium Noise Texture Overlay */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+}
+
+/* Animated Gradient Borders */
+@keyframes border-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animated-border {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.animated-border::before {
+  content: "";
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: conic-gradient(transparent, transparent, transparent, #8b5cf6, transparent);
+  animation: border-spin 4s linear infinite;
+  z-index: -2;
+}
+
+.animated-border::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  background: hsl(var(--primary));
+  border-radius: inherit;
+  z-index: -1;
+  transition: background-color 0.3s ease;
+}
+
+.animated-border:hover::after {
+  background: hsl(var(--primary));
+  opacity: 0.9;
 }

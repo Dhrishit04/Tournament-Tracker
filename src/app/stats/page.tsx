@@ -8,9 +8,11 @@ import Image from 'next/image';
 import { getImageUrl, cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useSeason } from '@/contexts/season-context';
 
 export default function StatisticsPage() {
   const { players, teams, loading } = useData();
+  const { currentSeason } = useSeason();
 
   const topScorers = [...players].sort((a, b) => (b.goals || 0) - (a.goals || 0)).slice(0, 10);
   const topPlaymakers = [...players].sort((a, b) => (b.assists || 0) - (a.assists || 0)).slice(0, 10);
@@ -34,10 +36,10 @@ export default function StatisticsPage() {
           return (
             <TableRow key={player.id} className="border-white/5 hover:bg-white/5 transition-colors group">
               <TableCell className="text-center">
-                {idx === 0 ? <Trophy className="h-5 w-5 text-yellow-500 mx-auto" /> : 
-                 idx === 1 ? <Medal className="h-5 w-5 text-slate-300 mx-auto" /> :
-                 idx === 2 ? <Medal className="h-5 w-5 text-orange-400 mx-auto" /> :
-                 <span className="font-mono font-black text-xs opacity-30">{idx + 1}</span>}
+                {idx === 0 ? <Trophy className="h-5 w-5 text-yellow-500 mx-auto" /> :
+                  idx === 1 ? <Medal className="h-5 w-5 text-slate-300 mx-auto" /> :
+                    idx === 2 ? <Medal className="h-5 w-5 text-orange-400 mx-auto" /> :
+                      <span className="font-mono font-black text-xs opacity-30">{idx + 1}</span>}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-3">
@@ -81,10 +83,13 @@ export default function StatisticsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-12">
-      <div>
-        <h1 className="text-5xl font-black font-headline tracking-tighter italic uppercase mb-2">Elite <span className="text-accent">Stats</span></h1>
-        <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Season Leaderboards and Individual Brilliance.</p>
+    <div className="container mx-auto px-4 py-24 max-w-6xl relative z-10 space-y-12">
+      <div className="text-center md:text-left">
+        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">Elite <span className="text-gradient-purple">Stats</span></h1>
+        <p className="text-muted-foreground text-lg">Season Leaderboards and Individual Brilliance.</p>
+        <div className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
+          {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

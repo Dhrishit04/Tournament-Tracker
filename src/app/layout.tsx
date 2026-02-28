@@ -11,6 +11,7 @@ import { DataProvider } from '@/contexts/data-context';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { SeasonProvider } from '@/contexts/season-context';
 import { SessionGuard } from '@/components/layout/session-guard';
+import { SmoothScrolling } from '@/components/providers/smooth-scrolling';
 
 export const metadata: Metadata = {
   title: 'Dongre Football Premier League',
@@ -42,31 +43,34 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <QueryProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <FirebaseClientProvider>
-              <AuthProvider>
-                <SeasonProvider>
-                  <DataProvider>
-                    <SessionGuard>
-                      <div className="flex min-h-screen flex-col">
-                        <Header />
-                        <main className="flex-grow">{children}</main>
-                        <Footer />
-                      </div>
-                    </SessionGuard>
-                    <Toaster />
-                  </DataProvider>
-                </SeasonProvider>
-              </AuthProvider>
-            </FirebaseClientProvider>
-          </ThemeProvider>
-        </QueryProvider>
+        <SmoothScrolling>
+          <QueryProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <FirebaseClientProvider>
+                <AuthProvider>
+                  <SeasonProvider>
+                    <DataProvider>
+                      <SessionGuard>
+                        <div className="flex min-h-screen flex-col">
+                          <Header />
+                          <main className="flex-grow">{children}</main>
+                          <Footer />
+                        </div>
+                        <div className="noise-overlay" />
+                      </SessionGuard>
+                      <Toaster />
+                    </DataProvider>
+                  </SeasonProvider>
+                </AuthProvider>
+              </FirebaseClientProvider>
+            </ThemeProvider>
+          </QueryProvider>
+        </SmoothScrolling>
       </body>
     </html>
   );
