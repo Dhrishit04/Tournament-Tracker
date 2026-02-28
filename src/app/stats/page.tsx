@@ -34,7 +34,7 @@ export default function StatisticsPage() {
           const avatar = getImageUrl(player.avatarUrl);
           const isTop3 = idx < 3;
           return (
-            <TableRow key={player.id} className="border-white/5 hover:bg-white/5 transition-colors group">
+            <TableRow key={player.id} className="border-white/5 transition-all duration-300 hover:bg-accent/5 hover:shadow-[inset_2px_0_0_0_hsl(var(--accent))] relative group">
               <TableCell className="text-center">
                 {idx === 0 ? <Trophy className="h-5 w-5 text-yellow-500 mx-auto" /> :
                   idx === 1 ? <Medal className="h-5 w-5 text-slate-300 mx-auto" /> :

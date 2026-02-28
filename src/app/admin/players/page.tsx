@@ -2,7 +2,8 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Edit, Trash2, Search } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Search, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import {
   Table,
   TableBody,
@@ -20,15 +21,15 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
@@ -124,7 +125,7 @@ function PlayerForm({
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="teamId"
@@ -209,26 +210,26 @@ function PlayerForm({
         />
 
         <FormField
-            control={form.control}
-            name="avatarUrl"
-            render={() => (
-                <FormItem>
-                <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Profile Visualization</FormLabel>
-                <FormControl>
-                    <Input type="file" accept="image/png, image/jpeg, image/jpg" onChange={handleFileChange} className="glass-card h-fit py-2" />
-                </FormControl>
-                {preview && (
-                    <div className="relative w-24 h-24 rounded-2xl mt-4 overflow-hidden border-2 border-accent/20">
-                        <Image src={preview} alt="Avatar preview" fill className="object-cover"/>
-                    </div>
-                )}
-                <FormMessage />
-                </FormItem>
-            )}
-            />
+          control={form.control}
+          name="avatarUrl"
+          render={() => (
+            <FormItem>
+              <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Profile Visualization</FormLabel>
+              <FormControl>
+                <Input type="file" accept="image/png, image/jpeg, image/jpg" onChange={handleFileChange} className="glass-card h-fit py-2" />
+              </FormControl>
+              {preview && (
+                <div className="relative w-24 h-24 rounded-2xl mt-4 overflow-hidden border-2 border-accent/20">
+                  <Image src={preview} alt="Avatar preview" fill className="object-cover" />
+                </div>
+              )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <DialogFooter className="pt-4 gap-3">
           <Button type="button" variant="ghost" onClick={onClose} className="hover:bg-white/5 h-12 px-8 uppercase font-black text-[10px] tracking-widest">Cancel</Button>
-          <Button type="submit" className="bg-accent hover:bg-accent/90 shadow-[0_0_15px_rgba(255,87,34,0.3)] h-12 px-8 uppercase font-black text-[10px] tracking-widest text-accent-foreground">Finalize Athlete</Button>
+          <Button type="submit" className="hover-lift glow-purple bg-accent hover:bg-accent/90 h-12 px-8 uppercase font-black text-[10px] tracking-widest text-accent-foreground">Finalize Athlete</Button>
         </DialogFooter>
       </form>
     </Form>
@@ -251,7 +252,7 @@ export default function AdminPlayersPage() {
     setSelectedPlayer(player || null);
     setDialogOpen(true);
   };
-  
+
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedPlayer(null);
@@ -261,60 +262,65 @@ export default function AdminPlayersPage() {
     if (dialogMode === 'edit' && selectedPlayer) {
       updatePlayer({ ...selectedPlayer, ...data });
     } else {
-        const newPlayer: Player = {
-            id: `p${Date.now()}`,
-            ...data,
-            avatarUrl: data.avatarUrl || `player-avatar-${(Math.floor(Math.random() * 4) + 1)}`,
-            basePrice: 'N/A',
-            preferredPosition: [],
-            remarks: [],
-            goals: 0,
-            assists: 0,
-            matchesPlayed: 0,
-            yellowCards: 0,
-            redCards: 0,
-        }
+      const newPlayer: Player = {
+        id: `p${Date.now()}`,
+        ...data,
+        avatarUrl: data.avatarUrl || `player-avatar-${(Math.floor(Math.random() * 4) + 1)}`,
+        basePrice: 'N/A',
+        preferredPosition: [],
+        remarks: [],
+        goals: 0,
+        assists: 0,
+        matchesPlayed: 0,
+        yellowCards: 0,
+        redCards: 0,
+      }
       addPlayer(newPlayer);
     }
     handleCloseDialog();
   };
-  
+
   const handleDelete = (player: Player) => {
-      setPlayerToDelete(player);
+    setPlayerToDelete(player);
   }
-  
+
   const confirmDelete = () => {
-      if(playerToDelete) {
-          deletePlayer(playerToDelete.id);
-          setPlayerToDelete(null);
-      }
+    if (playerToDelete) {
+      deletePlayer(playerToDelete.id);
+      setPlayerToDelete(null);
+    }
   }
 
   if (loading) {
     return (
-        <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <Skeleton className="h-10 w-64 opacity-20" />
-                <Skeleton className="h-12 w-48 opacity-20" />
-            </div>
-            <Card className="glass-card border-white/5">
-                <CardHeader><Skeleton className="h-6 w-32 opacity-10" /></CardHeader>
-                <CardContent><Skeleton className="h-96 w-full opacity-5" /></CardContent>
-            </Card>
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-10 w-64 opacity-20" />
+          <Skeleton className="h-12 w-48 opacity-20" />
         </div>
+        <Card className="glass-card border-white/5">
+          <CardHeader><Skeleton className="h-6 w-32 opacity-10" /></CardHeader>
+          <CardContent><Skeleton className="h-96 w-full opacity-5" /></CardContent>
+        </Card>
+      </div>
     )
   }
 
   return (
     <div className="space-y-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="text-4xl font-black font-headline tracking-tighter italic uppercase">Athlete <span className="text-accent">Roster</span></h1>
-          <p className="text-muted-foreground font-medium">Manage player registration and club assignments.</p>
+      <div className="flex flex-col gap-2">
+        <Link href="/admin" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-accent transition-colors flex items-center gap-1 w-fit mb-2">
+          <ArrowLeft className="h-3 w-3" /> Back to Command Center
+        </Link>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
+            <h1 className="text-4xl font-black font-headline tracking-tighter italic uppercase">Athlete <span className="text-accent">Roster</span></h1>
+            <p className="text-muted-foreground font-medium">Manage player registration and club assignments.</p>
+          </div>
+          <Button onClick={() => handleOpenDialog('add')} className="hover-lift glow-purple bg-accent hover:bg-accent/90 px-8 h-12 rounded-full font-bold text-accent-foreground">
+            <PlusCircle className="mr-2 h-5 w-5" /> Deploy New Athlete
+          </Button>
         </div>
-        <Button onClick={() => handleOpenDialog('add')} className="bg-accent hover:bg-accent/90 shadow-[0_0_20px_rgba(255,87,34,0.3)] px-8 h-12 rounded-full font-bold text-accent-foreground">
-          <PlusCircle className="mr-2 h-5 w-5" /> Deploy New Athlete
-        </Button>
       </div>
 
       <Card className="glass-card border-white/5 overflow-hidden">
@@ -323,9 +329,9 @@ export default function AdminPlayersPage() {
             <CardTitle className="text-xl font-bold">Registry</CardTitle>
             <div className="relative w-full sm:w-72 group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-accent transition-colors" />
-              <Input 
-                placeholder="Search athlete..." 
-                className="pl-10 glass-card bg-background/50" 
+              <Input
+                placeholder="Search athlete..."
+                className="pl-10 glass-card bg-background/50"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -346,18 +352,18 @@ export default function AdminPlayersPage() {
               {filteredPlayers.length > 0 ? filteredPlayers.map((player) => {
                 const avatar = getImageUrl(player.avatarUrl);
                 return (
-                  <TableRow key={player.id} className="border-white/5 hover:bg-white/5 transition-colors group">
+                  <TableRow key={player.id} className="border-white/5 transition-all duration-300 hover:bg-accent/5 hover:shadow-[inset_2px_0_0_0_hsl(var(--accent))] relative group">
                     <TableCell className="px-8 py-4">
                       <div className="flex items-center gap-4">
-                          <div className="relative w-12 h-12 rounded-2xl overflow-hidden border border-white/10 group-hover:border-accent/40 transition-colors">
-                            <Image
-                                src={avatar.imageUrl}
-                                alt={player.name}
-                                fill
-                                className="object-cover scale-105"
-                                data-ai-hint={avatar.imageHint}
-                            />
-                          </div>
+                        <div className="relative w-12 h-12 rounded-2xl overflow-hidden border border-white/10 group-hover:border-accent/40 transition-colors">
+                          <Image
+                            src={avatar.imageUrl}
+                            alt={player.name}
+                            fill
+                            className="object-cover scale-105"
+                            data-ai-hint={avatar.imageHint}
+                          />
+                        </div>
                         <div>
                           <p className="font-bold text-base">{player.name}</p>
                           <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">Active Roster</p>
@@ -373,8 +379,8 @@ export default function AdminPlayersPage() {
                       <div className="flex items-center gap-2">
                         <div className={cn(
                           "w-2 h-2 rounded-full",
-                          player.category === 'A' ? "bg-accent shadow-[0_0_10px_rgba(255,87,34,0.5)]" : 
-                          player.category === 'B' ? "bg-blue-500" : "bg-muted"
+                          player.category === 'A' ? "bg-accent shadow-[0_0_10px_rgba(255,87,34,0.5)]" :
+                            player.category === 'B' ? "bg-blue-500" : "bg-muted"
                         )} />
                         <span className="font-bold text-sm tracking-wide">Class {player.category}</span>
                       </div>
@@ -385,23 +391,23 @@ export default function AdminPlayersPage() {
                           <Edit className="h-4 w-4" />
                         </Button>
                         <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(player)}>
-                                  <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="glass-card border-white/5">
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Decommission <span className="text-destructive">Athlete</span></AlertDialogTitle>
-                                    <AlertDialogDescription className="text-white/70">
-                                      This will permanently remove the athlete from the DFPL central registry. This operation cannot be undone.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel onClick={() => setPlayerToDelete(null)} className="glass-card border-white/10">Abort</AlertDialogCancel>
-                                    <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">Confirm Deletion</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(player)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="glass-card border-white/5">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Decommission <span className="text-destructive">Athlete</span></AlertDialogTitle>
+                              <AlertDialogDescription className="text-white/70">
+                                This will permanently remove the athlete from the DFPL central registry. This operation cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={() => setPlayerToDelete(null)} className="glass-card border-white/10">Abort</AlertDialogCancel>
+                              <AlertDialogAction onClick={confirmDelete} className="hover-lift bg-destructive hover:bg-destructive/90 text-shadow-sm">Confirm Deletion</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
                         </AlertDialog>
                       </div>
                     </TableCell>

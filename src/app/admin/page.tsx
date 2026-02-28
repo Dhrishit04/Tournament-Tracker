@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useData } from '@/hooks/use-data';
 import { useSeason } from '@/contexts/season-context';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
@@ -19,7 +20,7 @@ export default function AdminDashboardPage() {
   const { teams, players, matches, loading } = useData();
   const { globalAnnouncement, updateGlobalAnnouncement, currentSeason, isSessionActive } = useSeason();
   const { isSystemAdmin, user } = useAuth();
-  
+
   const [announcementText, setAnnouncementText] = useState('');
   const [isBroadcastActive, setIsBroadcastActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -35,13 +36,13 @@ export default function AdminDashboardPage() {
 
   const dashboardCards = useMemo(() => {
     const cards = [
-        { title: 'Players', icon: <Users className="h-5 w-5"/>, href: '/admin/players', description: 'Roster & performance control' },
-        { title: 'Teams', icon: <Shield className="h-5 w-5"/>, href: '/admin/teams', description: 'Team identities & global stats' },
-        { title: 'Fixtures', icon: <Calendar className="h-5 w-5"/>, href: '/admin/matches', description: 'Schedule & live match engine' },
+      { title: 'Players', icon: <Users className="h-5 w-5" />, href: '/admin/players', description: 'Roster & performance control' },
+      { title: 'Teams', icon: <Shield className="h-5 w-5" />, href: '/admin/teams', description: 'Team identities & global stats' },
+      { title: 'Fixtures', icon: <Calendar className="h-5 w-5" />, href: '/admin/matches', description: 'Schedule & live match engine' },
     ];
 
     if (isSystemAdmin || user?.canAccessSettings) {
-        cards.push({ title: 'Settings', icon: <Settings className="h-5 w-5"/>, href: '/admin/settings', description: 'System-wide season settings' });
+      cards.push({ title: 'Settings', icon: <Settings className="h-5 w-5" />, href: '/admin/settings', description: 'System-wide season settings' });
     }
 
     return cards;
@@ -55,16 +56,16 @@ export default function AdminDashboardPage() {
 
   const handleSaveMessage = () => {
     updateGlobalAnnouncement({
-        message: announcementText,
-        isActive: isBroadcastActive
+      message: announcementText,
+      isActive: isBroadcastActive
     });
   };
 
   const handleToggleBroadcast = (checked: boolean) => {
     setIsBroadcastActive(checked);
     updateGlobalAnnouncement({
-        message: announcementText,
-        isActive: checked
+      message: announcementText,
+      isActive: checked
     });
   };
 
@@ -72,16 +73,16 @@ export default function AdminDashboardPage() {
     if (!currentSeason) return;
     setIsAnalyzing(true);
     try {
-        const result = await analyzeSeason({
-            teams,
-            players,
-            seasonName: currentSeason.name
-        });
-        setAiReport(result);
+      const result = await analyzeSeason({
+        teams,
+        players,
+        seasonName: currentSeason.name
+      });
+      setAiReport(result);
     } catch (error) {
-        console.error("AI Scout failed:", error);
+      console.error("AI Scout failed:", error);
     } finally {
-        setIsAnalyzing(false);
+      setIsAnalyzing(false);
     }
   };
 
@@ -93,11 +94,11 @@ export default function AdminDashboardPage() {
           <p className="text-muted-foreground font-medium">Tournament intelligence and administrative gateway.</p>
         </div>
         <div className={cn(
-            "flex items-center gap-2 border px-4 py-2 rounded-full transition-colors",
-            isSessionActive ? "bg-accent/5 border-accent/20 text-accent" : "bg-white/5 border-white/10 text-muted-foreground"
+          "flex items-center gap-2 border px-4 py-2 rounded-full transition-colors",
+          isSessionActive ? "bg-accent/5 border-accent/20 text-accent" : "bg-white/5 border-white/10 text-muted-foreground"
         )}>
-            <div className={cn("w-2 h-2 rounded-full animate-pulse", isSessionActive ? "bg-accent" : "bg-muted-foreground")} />
-            <span className="text-[10px] font-bold uppercase tracking-widest">{isSessionActive ? "Session Active" : "Session Offline"}</span>
+          <div className={cn("w-2 h-2 rounded-full animate-pulse", isSessionActive ? "bg-accent" : "bg-muted-foreground")} />
+          <span className="text-[10px] font-bold uppercase tracking-widest">{isSessionActive ? "Session Active" : "Session Offline"}</span>
         </div>
       </div>
 
@@ -109,21 +110,23 @@ export default function AdminDashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1 }}
           >
-            <Link href={card.href} className="group">
-              <Card className="glass-card h-full transition-all duration-500 hover:border-accent/40 hover:-translate-y-1 overflow-hidden relative border-white/5">
-                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowUpRight className="h-4 w-4 text-accent" />
-                </div>
-                <CardHeader className="pb-2">
-                  <div className="p-3 bg-accent/10 rounded-xl w-fit mb-4 group-hover:bg-accent/20 transition-colors">
-                    <div className="text-accent">{card.icon}</div>
+            <Link href={card.href} className="group block h-full">
+              <SpotlightCard className="h-full bg-card/40 border-white/5 transition-all p-0 rounded-2xl">
+                <Card className="bg-transparent border-0 shadow-none h-full relative overflow-hidden group-hover:-translate-y-1 transition-transform duration-500">
+                  <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ArrowUpRight className="h-4 w-4 text-accent" />
                   </div>
-                  <CardTitle className="text-lg font-bold tracking-tight">{card.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{card.description}</p>
-                </CardContent>
-              </Card>
+                  <CardHeader className="pb-2">
+                    <div className="p-3 bg-accent/10 rounded-xl w-fit mb-4 group-hover:bg-accent/20 transition-colors">
+                      <div className="text-accent">{card.icon}</div>
+                    </div>
+                    <CardTitle className="text-lg font-bold tracking-tight">{card.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{card.description}</p>
+                  </CardContent>
+                </Card>
+              </SpotlightCard>
             </Link>
           </motion.div>
         ))}
@@ -140,84 +143,89 @@ export default function AdminDashboardPage() {
             <CardContent className="pt-6 space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                        <Label htmlFor="broadcast-toggle" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Public Ticker Status</Label>
-                        <p className="text-[10px] text-muted-foreground/60 italic">Live updates appear on the homepage ecosystem.</p>
-                    </div>
-                    <Switch 
-                        id="broadcast-toggle" 
-                        checked={isBroadcastActive} 
-                        onCheckedChange={handleToggleBroadcast} 
-                    />
+                  <div className="space-y-0.5">
+                    <Label htmlFor="broadcast-toggle" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Public Ticker Status</Label>
+                    <p className="text-[10px] text-muted-foreground/60 italic">Live updates appear on the homepage ecosystem.</p>
+                  </div>
+                  <Switch
+                    id="broadcast-toggle"
+                    checked={isBroadcastActive}
+                    onCheckedChange={handleToggleBroadcast}
+                  />
                 </div>
                 <div className="flex gap-3">
-                    <Input 
-                        placeholder="Type a flash announcement (e.g., Match delayed, Results updated...)" 
-                        value={announcementText}
-                        onChange={(e) => setAnnouncementText(e.target.value)}
-                        className="glass-card bg-background/50 h-12"
-                    />
-                    <Button onClick={handleSaveMessage} className="bg-accent hover:bg-accent/90 text-accent-foreground px-6 h-12 shadow-lg transition-all">
-                        <Save className="h-4 w-4 mr-2" /> Save
-                    </Button>
+                  <Input
+                    placeholder="Type a flash announcement (e.g., Match delayed, Results updated...)"
+                    value={announcementText}
+                    onChange={(e) => setAnnouncementText(e.target.value)}
+                    className="glass-card bg-background/50 h-12"
+                  />
+                  <Button onClick={handleSaveMessage} className="bg-accent hover:bg-accent/90 text-accent-foreground px-6 h-12 shadow-lg transition-all">
+                    <Save className="h-4 w-4 mr-2" /> Save
+                  </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-card border-white/5 overflow-hidden">
-            <CardHeader className="border-b border-white/5 bg-white/5 flex flex-row items-center justify-between">
-              <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-accent" /> AI Season Scout
-              </CardTitle>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="rounded-full border-accent/20 text-accent hover:bg-accent/10"
-                onClick={handleRunAiScout}
-                disabled={isAnalyzing || loading}
-              >
-                {isAnalyzing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                {aiReport ? "Re-Analyze Data" : "Generate Scout Report"}
-              </Button>
-            </CardHeader>
-            <CardContent className="pt-6">
+          <div className="relative group rounded-xl">
+            <div className="absolute -inset-[1px] bg-gradient-to-r from-accent/50 via-purple-500 to-accent/50 rounded-xl blur opacity-30 group-hover:opacity-75 transition duration-1000 group-hover:duration-500" />
+            <Card className="glass-card border-white/5 overflow-hidden relative z-10">
+              <CardHeader className="border-b border-white/5 bg-white/5 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-bold flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-accent animate-pulse-slow" /> AI Season Scout
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border-accent/20 text-accent hover:bg-accent/10 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)] transition-all"
+                  onClick={handleRunAiScout}
+                  disabled={isAnalyzing || loading}
+                >
+                  {isAnalyzing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                  {aiReport ? "Re-Analyze Data" : "Generate Scout Report"}
+                </Button>
+              </CardHeader>
+              <CardContent className="pt-6">
                 <AnimatePresence mode="wait">
-                    {aiReport ? (
-                        <motion.div 
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="space-y-6"
-                        >
-                            <div className="p-4 bg-accent/5 border border-accent/10 rounded-2xl">
-                                <p className="text-sm italic leading-relaxed text-foreground/80">"{aiReport.summary}"</p>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase">Dominant Force</p>
-                                    <p className="text-base font-bold text-accent">{aiReport.topTeam}</p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase">Key Performer</p>
-                                    <p className="text-base font-bold text-accent">{aiReport.topPlayer}</p>
-                                </div>
-                                <div className="sm:col-span-2 space-y-1">
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase">Tactical Alert</p>
-                                    <p className="text-xs font-medium text-destructive">{aiReport.alert}</p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center py-8 text-center">
-                            <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                                <Sparkles className="h-6 w-6 text-muted-foreground/30" />
-                            </div>
-                            <p className="text-sm text-muted-foreground">Click generate to let AI analyze the current tournament momentum.</p>
+                  {aiReport ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-6"
+                    >
+                      <div className="p-4 bg-accent/5 border border-accent/10 rounded-2xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-accent/50" />
+                        <p className="text-sm italic leading-relaxed text-foreground/90 pl-2">"{aiReport.summary}"</p>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Dominant Force</p>
+                          <p className="text-base font-bold text-accent">{aiReport.topTeam}</p>
                         </div>
-                    )}
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Key Performer</p>
+                          <p className="text-base font-bold text-accent">{aiReport.topPlayer}</p>
+                        </div>
+                        <div className="sm:col-span-2 space-y-1 p-3 bg-red-500/10 rounded-xl border border-red-500/20">
+                          <p className="text-[10px] font-bold text-red-500/80 uppercase tracking-wider">Tactical Alert</p>
+                          <p className="text-xs font-semibold text-red-400">{aiReport.alert}</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mb-4 relative">
+                        <div className="absolute inset-0 rounded-full bg-accent/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <Sparkles className="h-5 w-5 text-accent/50 relative z-10" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">Click generate to let AI analyze the current tournament momentum.</p>
+                    </div>
+                  )}
                 </AnimatePresence>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <div className="space-y-8">
@@ -248,11 +256,11 @@ export default function AdminDashboardPage() {
             <CardContent className="pt-6 space-y-4">
               <p className="text-xs leading-relaxed opacity-80">
                 {teams.length === 0 ? (
-                    "Initialize the tournament by deploying teams and registering elite athletes via the registry."
+                  "Initialize the tournament by deploying teams and registering elite athletes via the registry."
                 ) : players.length < (teams.length * 4) ? (
-                    "Some clubs have insufficient athlete registration. Protocol requires 4+ per team for group mode stability."
+                  "Some clubs have insufficient athlete registration. Protocol requires 4+ per team for group mode stability."
                 ) : (
-                    "The DFPL network is fully operational. Public broadcasts will reflect live data changes in real-time."
+                  "The DFPL network is fully operational. Public broadcasts will reflect live data changes in real-time."
                 )}
               </p>
               <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">

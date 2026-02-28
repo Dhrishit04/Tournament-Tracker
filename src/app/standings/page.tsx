@@ -100,7 +100,7 @@ function StandingsEditForm({
                 )} />
                 <DialogFooter className="col-span-2">
                     <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-                    <Button type="submit">Save Changes</Button>
+                    <Button type="submit" className="hover-lift glow-purple bg-accent hover:bg-accent/90 text-accent-foreground">Save Changes</Button>
                 </DialogFooter>
             </form>
         </Form>
@@ -128,7 +128,7 @@ function StandingsTable({ standings, isAdmin, onEditClick }: { standings: Standi
                 </TableHeader>
                 <TableBody>
                     {standings.map((standing, idx) => (
-                        <TableRow key={standing.team.id} className="border-white/5 hover:bg-white/5 transition-colors">
+                        <TableRow key={standing.team.id} className="border-white/5 transition-all duration-300 hover:bg-accent/5 hover:shadow-[inset_2px_0_0_0_hsl(var(--accent))] relative group">
                             <TableCell className="font-black text-center text-sm opacity-40">{standing.rank}</TableCell>
                             <TableCell>
                                 <TeamCell team={standing.team} />
