@@ -49,10 +49,10 @@ export function AnnouncementBanner() {
   if (!globalAnnouncement?.isActive || !globalAnnouncement.message) return null;
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-[60] bg-primary border-t border-primary/20 shadow-xl overflow-hidden h-12 flex items-center">
+    <div className="fixed bottom-0 inset-x-0 z-[60] bg-background/60 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] overflow-hidden h-12 flex items-center">
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer pointer-events-none" />
 
-      <div className="relative z-20 flex items-center gap-3 px-6 h-full bg-accent border-r border-white/10 shadow-[5px_0_15px_rgba(0,0,0,0.3)]">
+      <div className="relative z-20 flex items-center gap-3 px-6 h-full bg-accent/90 backdrop-blur-md border-r border-white/10 shadow-[5px_0_20px_rgba(0,0,0,0.5)]">
         <div className="bg-white rounded-full p-1.5 shadow-sm">
           <Megaphone className="h-3 w-3 text-accent fill-accent" />
         </div>
@@ -63,7 +63,7 @@ export function AnnouncementBanner() {
         <div className="flex items-center gap-12 whitespace-nowrap animate-marquee py-1.5">
           {[...Array(10)].map((_, i) => (
             <div key={i} className="flex items-center gap-12">
-              <p className="font-bold tracking-wide text-sm uppercase text-white/90 shadow-black/20 drop-shadow-sm">
+              <p className="font-bold tracking-wide text-sm uppercase text-foreground drop-shadow-sm">
                 {globalAnnouncement.message}
               </p>
               <span className="text-accent text-xl font-black">•</span>
