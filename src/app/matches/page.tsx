@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getImageUrl, cn } from '@/lib/utils';
 import { MatchDetailsDialog } from '@/components/matches/match-details-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FadeUp } from '@/components/ui/animations';
 
 function LivePulse() {
     return (
@@ -142,7 +143,11 @@ export default function MatchesPage() {
     if (pageLoading) {
         return (
             <div className="container mx-auto px-4 py-24 max-w-6xl relative z-10">
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">Match <span className="text-gradient-purple">Center</span></h1>
+                <FadeUp delay={0.1}>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3 flex flex-wrap gap-[0.2em]">
+                        Match <span className="text-gradient-purple">Center</span>
+                    </h1>
+                </FadeUp>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-64 glass-card border-white/5" />)}
                 </div>
@@ -178,8 +183,12 @@ export default function MatchesPage() {
                 className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 border-b border-white/5 pb-8"
             >
                 <div>
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">Match <span className="text-gradient-purple">Center</span></h1>
-                    <p className="text-muted-foreground text-lg">Strategic fixtures and official protocol history.</p>
+                    <FadeUp delay={0.1}>
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3 flex flex-wrap gap-[0.2em]">
+                            Match <span className="text-gradient-purple">Center</span>
+                        </h1>
+                    </FadeUp>
+                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-muted-foreground text-lg">Strategic fixtures and official protocol history.</motion.p>
                 </div>
                 {isAdmin && (
                     <Button asChild variant="outline" className="rounded-full border-white/10 bg-white/5 hover:bg-accent hover:border-accent hover:text-white transition-all shadow-xl font-bold uppercase tracking-widest text-[10px]">
@@ -227,9 +236,9 @@ export default function MatchesPage() {
                                             </h3>
                                             {upcoming.length > 0 && (
                                                 <div className="mb-12">
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-6 flex items-center gap-2">
+                                                    <div className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-6 flex items-center gap-2">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" /> Fixtures
-                                                    </p>
+                                                    </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                                                         {upcoming.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={true} showVenue={showVenue} />)}
                                                     </div>
@@ -237,9 +246,9 @@ export default function MatchesPage() {
                                             )}
                                             {finished.length > 0 && (
                                                 <div>
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-6 flex items-center gap-2">
+                                                    <div className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 mb-6 flex items-center gap-2">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Results
-                                                    </p>
+                                                    </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                                                         {finished.map(match => <MatchCard key={match.id} match={match} teams={teams} onCardClick={(m) => setSelectedMatchId(m.id)} isGroupMode={true} showVenue={showVenue} />)}
                                                     </div>

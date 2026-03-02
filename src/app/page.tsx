@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 import { SpotlightCard } from '@/components/ui/spotlight-card';
 import { TeamMarquee } from '@/components/ui/team-marquee';
+import { FadeUp, CinematicFade, TiltCard } from '@/components/ui/animations';
 
 const featureCards = [
   {
@@ -215,9 +216,11 @@ export default function Home() {
             {seasonLoading || !currentSeason ? 'CONNECTING...' : `${currentSeason.name} • 2026`}
           </motion.div>
 
-          <h1 className="font-headline text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-foreground leading-none mb-6">
-            DFPL <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-purple-500">ULTIMATE</span>
-          </h1>
+          <FadeUp delay={0.3}>
+            <h1 className="font-headline text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-foreground leading-none mb-6 flex flex-wrap justify-center gap-[0.2em]">
+              DFPL <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-purple-500 pb-2">ULTIMATE</span>
+            </h1>
+          </FadeUp>
 
           <p className="mt-8 text-lg md:text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
             Experience the next generation of tournament management. Intelligent insights, pristine performance tracking, and absolute clarity for your league.
@@ -247,45 +250,45 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">
-              Everything you need — in one <span className="text-gradient-purple">intelligent dashboard.</span>
-            </h2>
+            <FadeUp delay={0.1}>
+              <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4 flex flex-wrap justify-center gap-2">
+                Everything you need — in one <span className="text-gradient-purple">intelligent dashboard.</span>
+              </h2>
+            </FadeUp>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Goodbye to chaos. Track every metric, evaluate player performance, and keep your teams organized with our pristine environment.
             </p>
           </motion.div>
 
-          {/* Bento Grid with Spotlight */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[250px]">
             {featureCards.map((card, index) => (
-              <motion.div
+              <CinematicFade
                 key={card.title}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.6, delay: index * 0.1, type: "spring", stiffness: 100 }}
+                delay={index * 0.15}
                 className={cn(
                   "block h-full",
                   index === 0 || index === 3 ? "md:col-span-2" : "md:col-span-1"
                 )}
               >
-                <Link href={card.href} className="block h-full">
-                  <SpotlightCard className="h-full p-8 flex flex-col justify-between overflow-hidden">
-                    <div className="absolute -right-8 -top-8 opacity-5 transition-opacity duration-500 group-hover:opacity-20 scale-150">
-                      {card.icon}
-                    </div>
+                <TiltCard className="h-full">
+                  <Link href={card.href} className="block h-full">
+                    <SpotlightCard className="h-full p-8 flex flex-col justify-between overflow-hidden">
+                      <div className="absolute -right-8 -top-8 opacity-5 transition-opacity duration-500 group-hover:opacity-20 scale-150">
+                        {card.icon}
+                      </div>
 
-                    <div className="bg-primary/10 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 border border-primary/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]">
-                      {card.icon}
-                    </div>
+                      <div className="bg-primary/10 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 border border-primary/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]">
+                        {card.icon}
+                      </div>
 
-                    <div className="relative z-20">
-                      <h3 className="text-2xl font-bold tracking-tight mb-2 group-hover:text-primary transition-colors">{card.title}</h3>
-                      <p className="text-muted-foreground text-sm md:text-base leading-relaxed">{card.description}</p>
-                    </div>
-                  </SpotlightCard>
-                </Link>
-              </motion.div>
+                      <div className="relative z-20">
+                        <h3 className="text-2xl font-bold tracking-tight mb-2 group-hover:text-primary transition-colors">{card.title}</h3>
+                        <p className="text-muted-foreground text-sm md:text-base leading-relaxed">{card.description}</p>
+                      </div>
+                    </SpotlightCard>
+                  </Link>
+                </TiltCard>
+              </CinematicFade>
             ))}
           </div>
         </div>
@@ -296,9 +299,13 @@ export default function Home() {
         <div className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[800px] h-[400px] bg-primary/20 blur-[150px] rounded-full pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
-          <h2 className="text-4xl md:text-6xl font-black text-foreground mb-6 leading-tight max-w-3xl">
-            Start your best season. <br /> <span className="text-gradient-purple">Effortlessly.</span>
-          </h2>
+          <FadeUp delay={0.1}>
+            <h2 className="text-4xl md:text-6xl font-black text-foreground mb-6 leading-tight max-w-3xl flex flex-wrap justify-center gap-x-[0.2em]">
+              Start your best season.
+              <br />
+              <span className="text-gradient-purple">Effortlessly.</span>
+            </h2>
+          </FadeUp>
           <p className="text-xl text-muted-foreground mb-10 max-w-xl">
             Join the Dongre Football Premier League experience. No chaos, just clean mechanics and pure football insights.
           </p>

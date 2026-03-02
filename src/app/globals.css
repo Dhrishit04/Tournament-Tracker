@@ -111,6 +111,7 @@
 
 .text-gradient-purple {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-[#9b8afb] to-[#7f61fc];
+  padding-bottom: 0.15em;
 }
 
 /* Enhanced Animations */
