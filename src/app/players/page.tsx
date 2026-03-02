@@ -16,6 +16,7 @@ import { getImageUrl, cn } from '@/lib/utils';
 import { AthleteCardDialog } from '@/components/players/athlete-card-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeason } from '@/contexts/season-context';
+import { FadeUp, CinematicFade } from '@/components/ui/animations';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -126,11 +127,17 @@ export default function PlayersPage() {
         className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
       >
         <div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">Athlete <span className="text-gradient-purple">Directory</span></h1>
-          <p className="text-muted-foreground text-lg">Official DFPL central registry and performance records.</p>
-          <div className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
+          <FadeUp delay={0.1}>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3 flex flex-wrap gap-[0.2em]">
+              Athlete <span className="text-gradient-purple">Directory</span>
+            </h1>
+          </FadeUp>
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-muted-foreground text-lg">
+            Official DFPL central registry and performance records.
+          </motion.p>
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
             {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
-          </div>
+          </motion.div>
         </div>
         {isAdmin && (
           <Button asChild className="bg-accent hover:bg-accent/90 shadow-lg px-8 h-12 rounded-full font-bold transition-all hover:scale-105">
@@ -141,11 +148,7 @@ export default function PlayersPage() {
         )}
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
-      >
+      <CinematicFade delay={0.2}>
         <Card className="glass-card border-white/5 overflow-hidden">
           <CardHeader className="bg-white/5 border-b border-white/5 px-8 py-6">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
@@ -211,7 +214,7 @@ export default function PlayersPage() {
             )}
           </CardContent>
         </Card>
-      </motion.div>
+      </CinematicFade>
 
       <AthleteCardDialog
         player={selectedPlayer}

@@ -19,6 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { FadeUp, CinematicFade } from '@/components/ui/animations';
 
 import type { Standing, Team, TeamStats } from '@/types';
 import { useData } from '@/hooks/use-data';
@@ -314,24 +315,24 @@ export default function StandingsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-12 text-center md:text-left"
             >
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">
-                    League <span className="text-gradient-purple">Standings</span>
-                </h1>
-                <p className="text-muted-foreground text-lg">Real-time tournament positioning and competitive analytics.</p>
-                <div className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
+                <FadeUp delay={0.1}>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3 flex flex-wrap gap-[0.2em] justify-center md:justify-start">
+                        League <span className="text-gradient-purple">Standings</span>
+                    </h1>
+                </FadeUp>
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-muted-foreground text-lg">Real-time tournament positioning and competitive analytics.</motion.p>
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
                     {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
-                </div>
+                </motion.div>
             </motion.div>
 
             <div className="space-y-12">
                 {pageLoading ? <Card className="glass-card border-white/5"><CardContent className="pt-6"><LoadingSkeleton /></CardContent></Card> : (
                     isGroupMode ? (
                         groupKeys.length > 0 ? groupKeys.map((key, idx) => (
-                            <motion.div
+                            <CinematicFade
                                 key={key}
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.1 }}
+                                delay={0.2 + (idx * 0.1)}
                             >
                                 <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
                                     <CardHeader className="bg-white/5 border-b border-white/5 py-4">
@@ -348,15 +349,12 @@ export default function StandingsPage() {
                                         />
                                     </CardContent>
                                 </Card>
-                            </motion.div>
+                            </CinematicFade>
                         )) : (
                             <Card className="glass-card border-white/5"><CardContent><p className="text-muted-foreground text-center py-20 font-bold uppercase tracking-widest text-xs opacity-30">No groups configured.</p></CardContent></Card>
                         )
                     ) : (
-                        <motion.div
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                        >
+                        <CinematicFade delay={0.2}>
                             <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
                                 <CardHeader className="bg-white/5 border-b border-white/5 py-4">
                                     <CardTitle className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
@@ -376,7 +374,7 @@ export default function StandingsPage() {
                                     )}
                                 </CardContent>
                             </Card>
-                        </motion.div>
+                        </CinematicFade>
                     )
                 )}
             </div>

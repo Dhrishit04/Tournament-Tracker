@@ -9,6 +9,7 @@ import { getImageUrl, cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSeason } from '@/contexts/season-context';
+import { FadeUp, CinematicFade } from '@/components/ui/animations';
 
 export default function StatisticsPage() {
   const { players, teams, loading } = useData();
@@ -85,7 +86,11 @@ export default function StatisticsPage() {
   return (
     <div className="container mx-auto px-4 py-24 max-w-6xl relative z-10 space-y-12">
       <div className="text-center md:text-left">
-        <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">Elite <span className="text-gradient-purple">Stats</span></h1>
+        <FadeUp delay={0.1}>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3 flex flex-wrap gap-[0.2em] justify-center md:justify-start">
+            Elite <span className="text-gradient-purple">Stats</span>
+          </h1>
+        </FadeUp>
         <p className="text-muted-foreground text-lg">Season Leaderboards and Individual Brilliance.</p>
         <div className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
           {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
@@ -93,31 +98,35 @@ export default function StatisticsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <Card className="glass-card border-white/5 overflow-hidden">
-          <CardHeader className="bg-white/5 border-b border-white/5 flex flex-row items-center gap-4">
-            <div className="p-3 bg-accent/10 rounded-2xl text-accent"><Goal className="h-6 w-6" /></div>
-            <div>
-              <CardTitle className="text-xl font-black italic uppercase tracking-tighter">Golden Boot</CardTitle>
-              <CardDescription className="text-[10px] uppercase font-bold tracking-widest">Top goal scoring athletes</CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Leaderboard data={topScorers} type="goals" />
-          </CardContent>
-        </Card>
+        <CinematicFade delay={0.2}>
+          <Card className="glass-card border-white/5 overflow-hidden h-full">
+            <CardHeader className="bg-white/5 border-b border-white/5 flex flex-row items-center gap-4">
+              <div className="p-3 bg-accent/10 rounded-2xl text-accent"><Goal className="h-6 w-6" /></div>
+              <div>
+                <CardTitle className="text-xl font-black italic uppercase tracking-tighter">Golden Boot</CardTitle>
+                <CardDescription className="text-[10px] uppercase font-bold tracking-widest">Top goal scoring athletes</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Leaderboard data={topScorers} type="goals" />
+            </CardContent>
+          </Card>
+        </CinematicFade>
 
-        <Card className="glass-card border-white/5 overflow-hidden">
-          <CardHeader className="bg-white/5 border-b border-white/5 flex flex-row items-center gap-4">
-            <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400"><Footprints className="h-6 w-6" /></div>
-            <div>
-              <CardTitle className="text-xl font-black italic uppercase tracking-tighter">Playmaker Hub</CardTitle>
-              <CardDescription className="text-[10px] uppercase font-bold tracking-widest">Top assist providers</CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Leaderboard data={topPlaymakers} type="assists" />
-          </CardContent>
-        </Card>
+        <CinematicFade delay={0.4}>
+          <Card className="glass-card border-white/5 overflow-hidden h-full">
+            <CardHeader className="bg-white/5 border-b border-white/5 flex flex-row items-center gap-4">
+              <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400"><Footprints className="h-6 w-6" /></div>
+              <div>
+                <CardTitle className="text-xl font-black italic uppercase tracking-tighter">Playmaker Hub</CardTitle>
+                <CardDescription className="text-[10px] uppercase font-bold tracking-widest">Top assist providers</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Leaderboard data={topPlaymakers} type="assists" />
+            </CardContent>
+          </Card>
+        </CinematicFade>
       </div>
     </div>
   );
