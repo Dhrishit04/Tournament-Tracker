@@ -21,7 +21,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
 
   const avatar = getImageUrl(player.avatarUrl);
   const totalInvolvement = (player.goals || 0) + (player.assists || 0);
-  
+
   const StatBar = ({ label, value, max, icon: Icon, colorClass }: { label: string, value: number, max: number, icon: any, colorClass: string }) => {
     const percentage = max > 0 ? Math.min((value / max) * 100, 100) : 0;
     return (
@@ -34,7 +34,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
           <span className="font-mono font-black text-sm">{value}</span>
         </div>
         <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
-          <motion.div 
+          <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${percentage}%` }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
@@ -51,18 +51,18 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
-        "w-[92vw] sm:max-w-md p-0 glass-card border-2 flex flex-col max-h-[92vh] gap-0 overflow-hidden",
-        isClassA ? "border-accent/40 shadow-[0_0_80px_rgba(255,87,34,0.2)]" : 
-        isClassB ? "border-blue-500/40 shadow-[0_0_80px_rgba(59,130,246,0.2)]" : "border-white/10"
+        "w-[92vw] sm:max-w-md p-0 glass-panel border-2 flex flex-col max-h-[92vh] gap-0 overflow-hidden",
+        isClassA ? "border-accent/40 shadow-[0_0_80px_rgba(255,87,34,0.2)]" :
+          isClassB ? "border-blue-500/40 shadow-[0_0_80px_rgba(59,130,246,0.2)]" : "border-white/10"
       )}>
         <DialogHeader className="sr-only">
           <DialogTitle>{player.name} Scout Card</DialogTitle>
           <DialogDescription>Detailed performance metrics and athlete profile for {player.name}.</DialogDescription>
         </DialogHeader>
-        
+
         <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
           <div className="min-h-full pb-10">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               className="relative"
@@ -71,26 +71,26 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
                 "absolute inset-0 h-64 opacity-20 pointer-events-none",
                 isClassA ? "bg-gradient-to-b from-accent to-transparent" : "bg-gradient-to-b from-blue-500 to-transparent"
               )} />
-              
+
               <div className="relative p-6 md:p-8 space-y-6 md:space-y-8">
                 <div className="flex flex-col items-center text-center space-y-4 pt-2">
-                  <motion.div 
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.1 }}
-                      className={cn(
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className={cn(
                       "relative w-28 h-28 md:w-32 md:h-32 rounded-3xl overflow-hidden border-4 shadow-2xl transition-all duration-700",
                       isClassA ? "border-accent shadow-accent/30" : "border-white/10"
-                      )}
+                    )}
                   >
                     <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" data-ai-hint={avatar.imageHint} />
                   </motion.div>
-                  
-                  <motion.div 
-                      initial={{ y: 10, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                      className="space-y-1"
+
+                  <motion.div
+                    initial={{ y: 10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-1"
                   >
                     <Badge variant="outline" className={cn(
                       "text-[9px] md:text-[10px] font-black tracking-[0.25em] uppercase px-4 py-1 rounded-full border-2",
@@ -107,7 +107,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
                   </motion.div>
                 </div>
 
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
@@ -128,33 +128,33 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
                     <TrendingUp className="h-4 w-4 text-accent" />
                     <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Performance Analytics</span>
                   </div>
-                  
+
                   <div className="space-y-4 md:space-y-5">
-                    <StatBar 
-                      label="Goals Scored" 
-                      value={player.goals || 0} 
-                      max={20} 
-                      icon={Goal} 
-                      colorClass="bg-accent shadow-[0_0_10px_rgba(255,87,34,0.5)]" 
+                    <StatBar
+                      label="Goals Scored"
+                      value={player.goals || 0}
+                      max={20}
+                      icon={Goal}
+                      colorClass="bg-accent shadow-[0_0_10px_rgba(255,87,34,0.5)]"
                     />
-                    <StatBar 
-                      label="Assists Logged" 
-                      value={player.assists || 0} 
-                      max={20} 
-                      icon={Footprints} 
-                      colorClass="bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
+                    <StatBar
+                      label="Assists Logged"
+                      value={player.assists || 0}
+                      max={20}
+                      icon={Footprints}
+                      colorClass="bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
                     />
-                    <StatBar 
-                      label="Matches Logged" 
-                      value={player.matchesPlayed || 0} 
-                      max={15} 
-                      icon={Shield} 
-                      colorClass="bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" 
+                    <StatBar
+                      label="Matches Logged"
+                      value={player.matchesPlayed || 0}
+                      max={15}
+                      icon={Shield}
+                      colorClass="bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"
                     />
                   </div>
                 </div>
 
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5 }}

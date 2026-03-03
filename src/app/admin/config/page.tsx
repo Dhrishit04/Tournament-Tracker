@@ -27,7 +27,7 @@ export default function AdminConfigPage() {
   const { logAction } = useData();
   const { data: adminRegistry, loading: registryLoading } = useCollection<AdminProfile>('admins');
   const { toast } = useToast();
-  
+
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminPassword, setNewAdminPassword] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -56,7 +56,7 @@ export default function AdminConfigPage() {
   const handleUpdateSelf = async () => {
     const auth = getAuth();
     if (!auth.currentUser) return;
-    
+
     setIsUpdatingSelf(true);
     try {
       if (selfEmail !== user?.email) {
@@ -136,16 +136,16 @@ export default function AdminConfigPage() {
     if (!firestore) return;
     const docRef = doc(firestore, 'admins', admin.id);
     const updateData = { canAccessSettings: checked };
-    
+
     updateDoc(docRef, updateData).then(() => {
-        logAction("PRIVILEGE_CHANGE", `${checked ? 'Elevated' : 'Demoted'} staff: ${admin.email} (Settings Access)`);
-        toast({ title: 'Elevation Updated', description: `Settings access ${checked ? 'granted to' : 'revoked from'} ${admin.email}.` });
+      logAction("PRIVILEGE_CHANGE", `${checked ? 'Elevated' : 'Demoted'} staff: ${admin.email} (Settings Access)`);
+      toast({ title: 'Elevation Updated', description: `Settings access ${checked ? 'granted to' : 'revoked from'} ${admin.email}.` });
     }).catch(async () => {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({
-            path: docRef.path,
-            operation: 'update',
-            requestResourceData: updateData
-        }));
+      errorEmitter.emit('permission-error', new FirestorePermissionError({
+        path: docRef.path,
+        operation: 'update',
+        requestResourceData: updateData
+      }));
     });
   };
 
@@ -168,7 +168,7 @@ export default function AdminConfigPage() {
     if (old.email !== normalizedEmail) logs.push(`email: ${old.email} -> ${normalizedEmail}`);
     if (old.password !== editingAdmin.password) logs.push(`password updated`);
 
-    const updateData = { 
+    const updateData = {
       email: normalizedEmail,
       password: editingAdmin.password
     };
@@ -217,12 +217,12 @@ export default function AdminConfigPage() {
               <Label className="text-xs font-bold uppercase opacity-70">Secure Password</Label>
               <div className="relative">
                 <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-40" />
-                <Input 
-                  type="password" 
-                  placeholder="New password (leave blank to keep current)" 
-                  value={selfPassword || ''} 
-                  onChange={(e) => setSelfPassword(e.target.value)} 
-                  className="glass-card pl-10" 
+                <Input
+                  type="password"
+                  placeholder="New password (leave blank to keep current)"
+                  value={selfPassword || ''}
+                  onChange={(e) => setSelfPassword(e.target.value)}
+                  className="glass-card pl-10"
                 />
               </div>
             </div>
@@ -245,20 +245,20 @@ export default function AdminConfigPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label className="text-xs font-bold uppercase opacity-70">Email Address</Label>
-              <Input 
-                placeholder="colleague@example.com" 
-                value={newAdminEmail || ''} 
-                onChange={(e) => setNewAdminEmail(e.target.value)} 
+              <Input
+                placeholder="colleague@example.com"
+                value={newAdminEmail || ''}
+                onChange={(e) => setNewAdminEmail(e.target.value)}
                 className="glass-card"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-bold uppercase opacity-70">Assigned Password</Label>
-              <Input 
+              <Input
                 type="text"
-                placeholder="Initial password" 
-                value={newAdminPassword || ''} 
-                onChange={(e) => setNewAdminPassword(e.target.value)} 
+                placeholder="Initial password"
+                value={newAdminPassword || ''}
+                onChange={(e) => setNewAdminPassword(e.target.value)}
                 className="glass-card"
               />
             </div>
@@ -299,30 +299,30 @@ export default function AdminConfigPage() {
                           <div>
                             <p className="font-bold text-sm">{admin.email}</p>
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">PW:</span>
-                                <span className="text-[10px] font-mono tracking-tighter opacity-60">
-                                    {showPasswords[admin.id] ? admin.password : '••••••••'}
-                                </span>
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="h-4 w-4 opacity-40 hover:opacity-100" 
-                                    onClick={() => togglePasswordVisibility(admin.id)}
-                                >
-                                    {showPasswords[admin.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                                </Button>
+                              <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">PW:</span>
+                              <span className="text-[10px] font-mono tracking-tighter opacity-60">
+                                {showPasswords[admin.id] ? admin.password : '••••••••'}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 opacity-40 hover:opacity-100"
+                                onClick={() => togglePasswordVisibility(admin.id)}
+                              >
+                                {showPasswords[admin.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                              </Button>
                             </div>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell className="px-4 py-4 text-center">
                         <div className="flex flex-col items-center gap-1">
-                            <Switch 
-                                checked={admin.canAccessSettings || false} 
-                                onCheckedChange={(checked) => handleToggleSettingsAccess(admin, checked)}
-                                className="scale-75 data-[state=checked]:bg-accent"
-                            />
-                            <span className="text-[8px] font-black uppercase tracking-tighter opacity-40">Settings Access</span>
+                          <Switch
+                            checked={admin.canAccessSettings || false}
+                            onCheckedChange={(checked) => handleToggleSettingsAccess(admin, checked)}
+                            className="scale-75 data-[state=checked]:bg-accent"
+                          />
+                          <span className="text-[8px] font-black uppercase tracking-tighter opacity-40">Settings Access</span>
                         </div>
                       </TableCell>
                       <TableCell className="px-8 py-4 text-right">
@@ -351,26 +351,26 @@ export default function AdminConfigPage() {
       </div>
 
       <Dialog open={!!editingAdmin} onOpenChange={(open) => !open && setEditingAdmin(null)}>
-        <DialogContent className="glass-card border-white/5">
+        <DialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Modify <span className="text-accent">Identity</span></DialogTitle>
-            <DialogDescription className="text-white/70">Update credentials for {editingAdmin?.email}.</DialogDescription>
+            <DialogDescription className="text-muted-foreground">Update credentials for {editingAdmin?.email}.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label className="text-xs font-bold uppercase opacity-70">Staff Email</Label>
-              <Input 
-                value={editingAdmin?.email || ''} 
-                onChange={(e) => setEditingAdmin(prev => prev ? {...prev, email: e.target.value} : null)} 
-                className="glass-card" 
+              <Input
+                value={editingAdmin?.email || ''}
+                onChange={(e) => setEditingAdmin(prev => prev ? { ...prev, email: e.target.value } : null)}
+                className="glass-card"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-bold uppercase opacity-70">Staff Password</Label>
-              <Input 
-                value={editingAdmin?.password || ''} 
-                onChange={(e) => setEditingAdmin(prev => prev ? {...prev, password: e.target.value} : null)} 
-                className="glass-card" 
+              <Input
+                value={editingAdmin?.password || ''}
+                onChange={(e) => setEditingAdmin(prev => prev ? { ...prev, password: e.target.value } : null)}
+                className="glass-card"
               />
             </div>
           </div>

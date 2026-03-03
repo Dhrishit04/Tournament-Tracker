@@ -89,20 +89,45 @@
 }
 
 .glass-card {
-  @apply bg-card/40 backdrop-blur-2xl border-white/5 shadow-2xl transition-all duration-500 hover:border-white/10;
+  @apply relative isolate border-white/5 shadow-2xl transition-all duration-500 hover:border-white/10;
+  background: transparent !important;
+}
+
+.glass-card::before {
+  content: "";
+  @apply absolute inset-0 -z-10 bg-card/40 backdrop-blur-2xl pointer-events-none;
+  border-radius: inherit;
 }
 
 .glass-card:hover {
   box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
 }
 
-.bento-card {
-  @apply bg-card/30 border border-white/5 backdrop-blur-md rounded-2xl overflow-hidden relative transition-all duration-500 hover:bg-card/50 hover:border-accent/40 hover:-translate-y-2;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+.glass-panel {
+  @apply relative isolate border-white/5 shadow-2xl;
+  background: transparent !important;
 }
 
-.bento-card:hover {
-  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+.glass-panel::before {
+  content: "";
+  @apply absolute inset-0 -z-10 bg-card/40 backdrop-blur-2xl pointer-events-none;
+  border-radius: inherit;
+}
+
+.bento-card {
+  @apply relative isolate border border-white/5 rounded-2xl transition-all duration-500 hover:border-accent/40 hover:-translate-y-2;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  background: transparent !important;
+}
+
+.bento-card::before {
+  content: "";
+  @apply absolute inset-0 -z-10 bg-card/30 backdrop-blur-md pointer-events-none transition-colors duration-500;
+  border-radius: inherit;
+}
+
+.bento-card:hover::before {
+  @apply bg-card/50;
 }
 
 .text-gradient {

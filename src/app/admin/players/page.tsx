@@ -396,10 +396,10 @@ export default function AdminPlayersPage() {
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent className="glass-card border-white/5">
+                          <AlertDialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
                             <AlertDialogHeader>
                               <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Decommission <span className="text-destructive">Athlete</span></AlertDialogTitle>
-                              <AlertDialogDescription className="text-white/70">
+                              <AlertDialogDescription className="text-muted-foreground">
                                 This will permanently remove the athlete from the DFPL central registry. This operation cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
@@ -426,12 +426,12 @@ export default function AdminPlayersPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="w-[95vw] sm:max-w-[500px] glass-card border-white/5 p-0 max-h-[92vh] flex flex-col overflow-hidden gap-0">
+        <DialogContent className="w-[95vw] sm:max-w-[500px] bg-card/40 backdrop-blur-2xl border border-white/5 p-0 max-h-[92vh] flex flex-col overflow-hidden gap-0 shadow-2xl">
           <DialogHeader className="p-8 pb-4 flex-shrink-0">
             <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
               {dialogMode === 'edit' ? 'Update' : 'Register'} <span className="text-accent">Athlete</span>
             </DialogTitle>
-            <DialogDescription className="text-xs opacity-50">Modify athlete profile and draft class assignment.</DialogDescription>
+            <DialogDescription className="text-xs text-muted-foreground">Modify athlete profile and draft class assignment.</DialogDescription>
           </DialogHeader>
           <div className="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
             <PlayerForm

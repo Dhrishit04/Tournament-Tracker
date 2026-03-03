@@ -7,6 +7,7 @@ import {
     useMotionValue,
     useSpring,
     useTransform,
+    useScroll,
     HTMLMotionProps,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -234,3 +235,64 @@ export const gridItemVariants = {
         },
     },
 };
+
+// ----------------------------------------------------------------------
+// 5. ScrollRevealText (Joby Aviation Style Scroll-linked Word Opacity)
+// ----------------------------------------------------------------------
+interface ScrollRevealTextProps {
+    text: string;
+    className?: string;
+}
+
+export function ScrollRevealText({ text, className }: ScrollRevealTextProps) {
+    const containerRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start 85%", "end 40%"],
+    });
+
+    const words = text.split(" ");
+
+    return (
+        <p ref={containerRef} className={cn("flex flex-wrap gap-x-[0.25em]", className)}>
+            {words.map((word, i) => {
+                const start = i / words.length;
+                const end = start + 1 / words.length;
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                const opacity = useTransform(scrollYProgress, [start, end], [0.15, 1]);
+                return (
+                    <motion.span key={i} style={{ opacity }} className="relative text-foreground">
+                        {word}
+                    </motion.span>
+                );
+            })}
+        </p>
+    );
+}
+
+// ----------------------------------------------------------------------
+// 6. ParallaxExpand (Joby full-screen expanding container on scroll)
+// ----------------------------------------------------------------------
+interface ParallaxExpandProps {
+    children: React.ReactNode;
+    className?: string;
+}
+
+export function ParallaxExpand({ children, className }: ParallaxExpandProps) {
+    const containerRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start end", "end start"],
+    });
+
+    const scale = useTransform(scrollYProgress, [0, 1], [1.05, 1.2]);
+    const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.7, 1, 0.5]);
+
+    return (
+        <div ref={containerRef} className={cn("w-full overflow-hidden relative", className)}>
+            <motion.div style={{ scale, opacity }} className="w-full h-full">
+                {children}
+            </motion.div>
+        </div>
+    );
+}

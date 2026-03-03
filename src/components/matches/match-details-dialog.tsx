@@ -26,21 +26,21 @@ import { Switch } from '@/components/ui/switch';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const eventSchema = z.object({
-  type: z.enum(['Goal', 'Yellow Card', 'Red Card', 'Own Goal']),
-  playerId: z.string().min(1, 'Player is required'),
-  minute: z.coerce.number().min(1, 'Minute must be at least 1'),
-  assisterId: z.string().optional(),
+    type: z.enum(['Goal', 'Yellow Card', 'Red Card', 'Own Goal']),
+    playerId: z.string().min(1, 'Player is required'),
+    minute: z.coerce.number().min(1, 'Minute must be at least 1'),
+    assisterId: z.string().optional(),
 });
 
 const matchSettingsSchema = z.object({
-  status: z.enum(['UPCOMING', 'LIVE', 'FINISHED', 'POSTPONED']),
-  stage: z.enum(['GROUP_STAGE', 'QUARTER_FINALS', 'SEMI_FINALS', 'FINALS', 'OTHERS']),
-  date: z.string().min(1, 'Date is required'),
-  time: z.string().min(1, 'Time is required'),
-  venue: z.string().optional(),
-  description: z.string().optional(),
-  isExtraTime: z.boolean().optional(),
-  isThirdPlacePlayoff: z.boolean().optional(),
+    status: z.enum(['UPCOMING', 'LIVE', 'FINISHED', 'POSTPONED']),
+    stage: z.enum(['GROUP_STAGE', 'QUARTER_FINALS', 'SEMI_FINALS', 'FINALS', 'OTHERS']),
+    date: z.string().min(1, 'Date is required'),
+    time: z.string().min(1, 'Time is required'),
+    venue: z.string().optional(),
+    description: z.string().optional(),
+    isExtraTime: z.boolean().optional(),
+    isThirdPlacePlayoff: z.boolean().optional(),
 });
 
 export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: string; isOpen: boolean; onClose: () => void; }) {
@@ -48,7 +48,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     const { matches, players, teams, addMatchEvent, updateMatchEvent, deleteMatchEvent, updateMatchStatus, updateMatch, deleteMatch, logAction } = useData();
     const { currentSeason } = useSeason();
     const { toast } = useToast();
-    
+
     const match = matches.find(m => m.id === matchId);
 
     const [showEventForm, setShowEventForm] = useState(false);
@@ -85,13 +85,13 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
     const h2hStats = useMemo(() => {
         if (!match || !teams.length) return null;
-        const past = matches.filter(m => 
-            m.status === 'FINISHED' && 
+        const past = matches.filter(m =>
+            m.status === 'FINISHED' &&
             m.id !== match.id &&
             ((m.homeTeamId === match.homeTeamId && m.awayTeamId === match.awayTeamId) ||
-             (m.homeTeamId === match.awayTeamId && m.awayTeamId === match.homeTeamId))
+                (m.homeTeamId === match.awayTeamId && m.awayTeamId === match.homeTeamId))
         );
-        
+
         let homeWins = 0, awayWins = 0, draws = 0;
         past.forEach(m => {
             const hWin = (m.homeScore ?? 0) > (m.awayScore ?? 0);
@@ -131,7 +131,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
     }, [currentSeason, teams.length]);
 
     if (!match) return null;
-    
+
     const homeTeam = teams.find(t => t.id === match.homeTeamId);
     const awayTeam = teams.find(t => t.id === match.awayTeamId);
 
@@ -163,7 +163,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             toast({
                 variant: 'destructive',
                 title: 'Timing Violation',
-                description: match.isExtraTime 
+                description: match.isExtraTime
                     ? `Extra Time protocol is configured for ${extraDuration}m. Minute must be between 1-${extraDuration}.`
                     : `Regular match duration is capped at ${baseDuration}m.`
             });
@@ -177,10 +177,10 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         if (!player) return;
 
         if (editingEvent) {
-            await updateMatchEvent(match.id, editingEvent.id, { 
-                ...baseValues, 
+            await updateMatchEvent(match.id, editingEvent.id, {
+                ...baseValues,
                 minute: actualMinute,
-                teamId: player.teamId, 
+                teamId: player.teamId,
                 playerName: player.name,
                 assisterId: (assisterId && assisterId !== 'none') ? assisterId : undefined
             } as any);
@@ -190,13 +190,13 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                 if (!assister) return;
                 const goalEventId = `evt-${Date.now()}`;
                 await addMatchEvent(match.id, { ...baseValues, minute: actualMinute, id: goalEventId, teamId: player.teamId, playerName: player.name });
-                await addMatchEvent(match.id, { 
-                    type: 'Assist', 
-                    minute: actualMinute, 
-                    playerId: assister.id, 
-                    teamId: assister.teamId, 
-                    playerName: assister.name, 
-                    linkedGoalId: goalEventId 
+                await addMatchEvent(match.id, {
+                    type: 'Assist',
+                    minute: actualMinute,
+                    playerId: assister.id,
+                    teamId: assister.teamId,
+                    playerName: assister.name,
+                    linkedGoalId: goalEventId
                 });
             } else {
                 await addMatchEvent(match.id, { ...baseValues, minute: actualMinute, id: `evt-${Date.now()}`, teamId: player.teamId, playerName: player.name });
@@ -235,7 +235,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             ...match,
             status: values.status,
             stage: values.stage,
-            date: values.date instanceof Date ? values.date : parseISO(values.date),
+            date: parseISO(values.date),
             time: values.time,
             venue: values.venue,
             description: values.description,
@@ -253,393 +253,393 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         setEditingEvent(null);
     };
 
-    const EventIcon = ({type}: {type: MatchEvent['type']}) => {
-        switch(type) {
-            case 'Goal': return <Goal className="w-4 h-4 text-green-500"/>
+    const EventIcon = ({ type }: { type: MatchEvent['type'] }) => {
+        switch (type) {
+            case 'Goal': return <Goal className="w-4 h-4 text-green-500" />
             case 'Assist': return <Footprints className="w-4 h-4 text-blue-500" />
             case 'Own Goal': return <Goal className="w-4 h-4 text-red-500" />
-            case 'Yellow Card': return <div className="w-3 h-4 bg-yellow-400 border border-black/20 rounded-sm"/>
-            case 'Red Card': return <div className="w-3 h-4 bg-red-600 border border-black/20 rounded-sm"/>
+            case 'Yellow Card': return <div className="w-3 h-4 bg-yellow-400 border border-black/20 rounded-sm" />
+            case 'Red Card': return <div className="w-3 h-4 bg-red-600 border border-black/20 rounded-sm" />
             default: return null
         }
     };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[92vh] flex flex-col p-0 glass-card border-white/5 overflow-hidden gap-0">
-        {protocolPhase === 'EXTRA_TIME_CONFIRM' ? (
-            <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center h-full animate-in fade-in zoom-in-95 duration-300">
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4 md:mb-6 shadow-[0_0_30px_rgba(255,87,34,0.2)]">
-                    <Timer className="h-8 w-8 md:h-10 md:w-10 text-accent" />
-                </div>
-                <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-2 md:mb-4">Match <span className="text-accent">Locked</span></h2>
-                <p className="text-xs md:text-sm text-white/70 max-w-md mb-6 md:mb-8 leading-relaxed">
-                    The fixture has ended in a draw ({match.homeScore}-{match.awayScore}). Since this is a knockout stage, do you want to initiate **Extra Time Protocol** or conclude as a draw?
-                </p>
-                <div className="flex gap-3 md:gap-4 w-full max-w-sm">
-                    <Button onClick={handleConfirmFinishAsDraw} variant="ghost" className="flex-1 h-12 md:h-14 border border-white/10 hover:bg-white/5 uppercase font-black text-[9px] md:text-[10px] tracking-widest">Conclude Draw</Button>
-                    <Button onClick={handleConfirmExtraTime} className="flex-1 h-12 md:h-14 bg-accent hover:bg-accent/90 uppercase font-black text-[9px] md:text-[10px] tracking-widest shadow-lg shadow-accent/20 text-accent-foreground">Initiate ET</Button>
-                </div>
-            </div>
-        ) : (
-            <>
-                <DialogHeader className="p-4 md:p-6 pb-2 border-b border-white/5 flex-shrink-0">
-                    <div className="flex flex-col md:flex-row justify-between items-start gap-3 md:gap-4">
-                        <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-2 mb-1">
-                                <DialogTitle className="text-lg md:text-2xl font-black italic tracking-tighter uppercase whitespace-nowrap">Match <span className="text-accent">Protocol</span></DialogTitle>
-                                <Badge variant="outline" className="text-[8px] md:text-[10px] font-black tracking-widest border-white/10 uppercase bg-white/5">{match.stage?.replace('_', ' ')}</Badge>
-                                {match.isExtraTime && (
-                                    <Badge className="bg-accent text-white border-none text-[8px] md:text-[10px] font-black animate-pulse shadow-[0_0_10px_rgba(255,87,34,0.5)]">EXTRA TIME</Badge>
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[92vh] flex flex-col p-0 glass-panel border-white/5 overflow-hidden gap-0">
+                {protocolPhase === 'EXTRA_TIME_CONFIRM' ? (
+                    <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center h-full animate-in fade-in zoom-in-95 duration-300">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4 md:mb-6 shadow-[0_0_30px_rgba(255,87,34,0.2)]">
+                            <Timer className="h-8 w-8 md:h-10 md:w-10 text-accent" />
+                        </div>
+                        <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-2 md:mb-4">Match <span className="text-accent">Locked</span></h2>
+                        <p className="text-xs md:text-sm text-white/70 max-w-md mb-6 md:mb-8 leading-relaxed">
+                            The fixture has ended in a draw ({match.homeScore}-{match.awayScore}). Since this is a knockout stage, do you want to initiate **Extra Time Protocol** or conclude as a draw?
+                        </p>
+                        <div className="flex gap-3 md:gap-4 w-full max-w-sm">
+                            <Button onClick={handleConfirmFinishAsDraw} variant="ghost" className="flex-1 h-12 md:h-14 border border-white/10 hover:bg-white/5 uppercase font-black text-[9px] md:text-[10px] tracking-widest">Conclude Draw</Button>
+                            <Button onClick={handleConfirmExtraTime} className="flex-1 h-12 md:h-14 bg-accent hover:bg-accent/90 uppercase font-black text-[9px] md:text-[10px] tracking-widest shadow-lg shadow-accent/20 text-accent-foreground">Initiate ET</Button>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <DialogHeader className="p-4 md:p-6 pb-2 border-b border-white/5 flex-shrink-0">
+                            <div className="flex flex-col md:flex-row justify-between items-start gap-3 md:gap-4">
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                                        <DialogTitle className="text-lg md:text-2xl font-black italic tracking-tighter uppercase whitespace-nowrap">Match <span className="text-accent">Protocol</span></DialogTitle>
+                                        <Badge variant="outline" className="text-[8px] md:text-[10px] font-black tracking-widest border-white/10 uppercase bg-white/5">{match.stage?.replace('_', ' ')}</Badge>
+                                        {match.isExtraTime && (
+                                            <Badge className="bg-accent text-white border-none text-[8px] md:text-[10px] font-black animate-pulse shadow-[0_0_10px_rgba(255,87,34,0.5)]">EXTRA TIME</Badge>
+                                        )}
+                                    </div>
+                                    <DialogDescription className="font-bold text-[9px] md:text-xs uppercase tracking-widest opacity-50 truncate">{format(new Date(match.date), 'EEEE, MMMM d, yyyy')}</DialogDescription>
+                                </div>
+                                {isAdmin && (
+                                    <div className="flex gap-2 self-start md:self-auto">
+                                        <Button variant="ghost" size="sm" onClick={() => setShowSettingsForm(!showSettingsForm)} className="h-7 md:h-8 rounded-full hover:bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-bold uppercase tracking-widest px-3">
+                                            <Settings2 className="w-3 h-3 mr-1.5" /> {showSettingsForm ? 'Close' : 'Config'}
+                                        </Button>
+                                        <Button variant="destructive" size="sm" className="h-7 md:h-8 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-widest px-3" onClick={async () => { if (confirm('Delete fixture and revert stats?')) { await deleteMatch(match.id); onClose(); } }}>
+                                            <Trash2 className="w-3 h-3 mr-1" /> Decommission
+                                        </Button>
+                                    </div>
                                 )}
                             </div>
-                            <DialogDescription className="font-bold text-[9px] md:text-xs uppercase tracking-widest opacity-50 truncate">{format(new Date(match.date), 'EEEE, MMMM d, yyyy')}</DialogDescription>
-                        </div>
-                        {isAdmin && (
-                            <div className="flex gap-2 self-start md:self-auto">
-                                <Button variant="ghost" size="sm" onClick={() => setShowSettingsForm(!showSettingsForm)} className="h-7 md:h-8 rounded-full hover:bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-bold uppercase tracking-widest px-3">
-                                    <Settings2 className="w-3 h-3 mr-1.5" /> {showSettingsForm ? 'Close' : 'Config'}
-                                </Button>
-                                <Button variant="destructive" size="sm" className="h-7 md:h-8 rounded-full text-[8px] md:text-[10px] font-bold uppercase tracking-widest px-3" onClick={async () => { if(confirm('Delete fixture and revert stats?')) { await deleteMatch(match.id); onClose(); } }}>
-                                    <Trash2 className="w-3 h-3 mr-1" /> Decommission
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </DialogHeader>
+                        </DialogHeader>
 
-                <div className="flex-1 w-full overflow-y-auto custom-scrollbar">
-                    <div className="p-4 md:p-6 space-y-6">
-                        {isAdmin && showSettingsForm && (
-                            <motion.div 
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                className="overflow-hidden"
-                            >
-                                <Card className="bg-white/5 border-white/5 animate-in slide-in-from-top-4 duration-300">
-                                    <CardHeader className="py-2 md:py-3 px-4"><CardTitle className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Administrative Configuration</CardTitle></CardHeader>
-                                    <CardContent className="px-4 pb-4">
-                                        <Form {...settingsForm}>
-                                            <form onSubmit={settingsForm.handleSubmit(handleSettingsSubmit)} className="space-y-4">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                                                    <FormField control={settingsForm.control} name="status" render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Status</FormLabel>
-                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                <FormControl>
-                                                                    <SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger>
-                                                                </FormControl>
-                                                                <SelectContent>
-                                                                    <SelectItem value="UPCOMING">Upcoming</SelectItem>
-                                                                    <SelectItem value="LIVE">Live</SelectItem>
-                                                                    <SelectItem value="FINISHED">Finished</SelectItem>
-                                                                    <SelectItem value="POSTPONED">Postponed</SelectItem>
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </FormItem>
-                                                    )}/>
-                                                    <FormField control={settingsForm.control} name="stage" render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Stage</FormLabel>
-                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                <FormControl>
-                                                                    <SelectTrigger className="h-9 text-xs glass-card"><SelectValue/></SelectTrigger>
-                                                                </FormControl>
-                                                                <SelectContent>
-                                                                    {availableStages.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </FormItem>
-                                                    )}/>
-                                                    {showVenue && (
-                                                        <FormField control={settingsForm.control} name="venue" render={({ field }) => (
-                                                            <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Venue</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
-                                                        )}/>
-                                                    )}
-                                                    <FormField control={settingsForm.control} name="date" render={({ field }) => (
-                                                        <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Date</FormLabel><FormControl><Input type="date" className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
-                                                    )}/>
-                                                    <FormField control={settingsForm.control} name="time" render={({ field }) => (
-                                                        <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Kickoff</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field}/></FormControl></FormItem>
-                                                    )}/>
-                                                    {currentSettingsStage !== 'GROUP_STAGE' && (
-                                                        <FormField control={settingsForm.control} name="isExtraTime" render={({ field }) => (
-                                                            <FormItem className="flex flex-col justify-end space-y-1">
-                                                                <FormLabel className="text-[9px] md:text-[10px] font-black uppercase opacity-50">Extra Time Protocol</FormLabel>
-                                                                <div className="flex items-center space-x-2 bg-white/5 h-9 rounded-md px-3 border border-white/5">
-                                                                    <FormControl>
-                                                                        <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-accent scale-75" />
-                                                                    </FormControl>
-                                                                    <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-white/70">
-                                                                        {field.value ? 'Active' : 'Inactive'}
-                                                                    </span>
-                                                                </div>
-                                                            </FormItem>
-                                                        )}/>
-                                                    )}
-                                                </div>
-                                                <div className="flex justify-end pt-2">
-                                                    <Button type="submit" size="sm" className="h-9 text-[9px] md:text-[10px] font-black uppercase tracking-widest px-6 bg-accent hover:bg-accent/90 transition-all hover:scale-105 text-accent-foreground">Update Registry</Button>
-                                                </div>
-                                            </form>
-                                        </Form>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        )}
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 pb-10">
-                            <div className="space-y-6 md:space-y-8">
-                                <motion.div 
-                                    initial={{ opacity: 0, scale: 0.98 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="flex flex-col items-center justify-center bg-white/5 p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden h-fit group"
-                                >
-                                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
-                                        <Sword className="h-24 md:h-32 w-24 md:w-32 rotate-12" />
-                                    </div>
-                                    
-                                    <div className="flex items-center justify-around w-full mb-6 md:mb-8 gap-4 relative z-10">
-                                        <div className="flex flex-col items-center w-[40%] text-center min-w-0">
-                                            <div className="relative w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden mb-3 md:mb-4 border-2 border-accent/20 shadow-xl shrink-0 group-hover:scale-110 transition-transform duration-700">
-                                                <Image src={homeLogo.imageUrl} alt={homeTeam.name} fill className="object-cover" />
-                                            </div>
-                                            <span className="font-black text-[9px] md:text-sm leading-tight truncate w-full uppercase tracking-tighter">{homeTeam.name}</span>
-                                        </div>
-                                        <div className="flex flex-col items-center gap-1 md:gap-2">
-                                            <div className="text-2xl md:text-5xl font-black font-mono tracking-tighter flex items-center gap-2 md:gap-3">
-                                                {match.status === 'FINISHED' || match.status === 'LIVE' ? (
-                                                <>
-                                                    <span className={cn(match.homeScore! > match.awayScore! ? "text-accent" : "")}>{match.homeScore ?? 0}</span>
-                                                    <span className="text-white/10 font-sans font-normal">-</span>
-                                                    <span className={cn(match.awayScore! > match.homeScore! ? "text-accent" : "")}>{match.awayScore ?? 0}</span>
-                                                </>
-                                                ) : (
-                                                <span className="text-xs md:text-xl text-white/40 font-sans font-black uppercase tracking-[0.2em]">{match.time}</span>
-                                                )}
-                                            </div>
-                                            {stageTiming?.duration && (
-                                                <div className="flex items-center gap-1 text-[7px] md:text-[9px] font-black uppercase tracking-widest text-white/30 bg-white/5 px-2 py-0.5 md:py-1 rounded-full border border-white/5 shadow-inner">
-                                                    <Timer className="h-2.5 md:h-3 w-2.5 md:w-3" /> {baseDuration}m Base
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="flex flex-col items-center w-[40%] text-center min-w-0">
-                                            <div className="relative w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden mb-3 md:mb-4 border-2 border-accent/20 shadow-xl shrink-0 group-hover:scale-110 transition-transform duration-700">
-                                                <Image src={awayLogo.imageUrl} alt={awayTeam.name} fill className="object-cover" />
-                                            </div>
-                                            <span className="font-black text-[9px] md:text-sm leading-tight truncate w-full uppercase tracking-tighter">{awayTeam.name}</span>
-                                        </div>
-                                    </div>
-
-                                    {isAdmin && match.status === 'LIVE' && (
-                                        <Button onClick={handleDeclareMatch} className="bg-green-600 hover:bg-green-700 w-full font-black italic uppercase tracking-widest h-10 md:h-12 shadow-lg shadow-green-900/20 text-[10px] md:text-xs transition-all hover:scale-105">
-                                            <CheckCircle2 className="mr-2 h-4 md:h-5 w-4 md:w-5" /> Declare Finished
-                                        </Button>
-                                    )}
-                                    {match.status === 'FINISHED' && (
-                                        <div className="flex items-center gap-2 md:gap-3 text-accent font-black uppercase text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.3em] bg-accent/10 px-4 md:px-8 py-1.5 md:py-2 rounded-full border border-accent/20 mt-2 md:mt-4 animate-in fade-in zoom-in duration-700 shadow-[0_0_20px_rgba(255,87,34,0.1)]">
-                                            <CheckCircle2 className="h-3 md:h-4 w-3 md:w-4" /> Official Protocol Complete
-                                        </div>
-                                    )}
-                                </motion.div>
-
-                                {h2hStats && h2hStats.total > 0 && (
-                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-                                        <Card className="glass-card border-white/5">
-                                            <CardHeader className="py-2 md:py-3 px-4 flex flex-row items-center justify-between border-b border-white/5 bg-white/5">
-                                                <CardTitle className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-40">H2H History</CardTitle>
-                                                <span className="text-[8px] md:text-[10px] font-bold opacity-30 tracking-widest">{h2hStats.total} Encounters</span>
-                                            </CardHeader>
-                                            <CardContent className="p-3 md:p-4 flex justify-between items-center gap-2 md:gap-4">
-                                                <div className="flex-1 text-center min-w-0">
-                                                    <p className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase mb-1 truncate">{homeTeam.name}</p>
-                                                    <p className="text-base md:text-xl font-mono font-black text-accent">{h2hStats.homeWins}</p>
-                                                </div>
-                                                <div className="flex-1 text-center border-x border-white/5 px-1">
-                                                    <p className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase mb-1">Draws</p>
-                                                    <p className="text-base md:text-xl font-mono font-black opacity-40">{h2hStats.draws}</p>
-                                                </div>
-                                                <div className="flex-1 text-center min-w-0">
-                                                    <p className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase mb-1 truncate">{awayTeam.name}</p>
-                                                    <p className="text-base md:text-xl font-mono font-black text-accent">{h2hStats.awayWins}</p>
-                                                </div>
+                        <div className="flex-1 w-full overflow-y-auto custom-scrollbar">
+                            <div className="p-4 md:p-6 space-y-6">
+                                {isAdmin && showSettingsForm && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        className="overflow-hidden"
+                                    >
+                                        <Card className="bg-white/5 border-white/5 animate-in slide-in-from-top-4 duration-300">
+                                            <CardHeader className="py-2 md:py-3 px-4"><CardTitle className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-40">Administrative Configuration</CardTitle></CardHeader>
+                                            <CardContent className="px-4 pb-4">
+                                                <Form {...settingsForm}>
+                                                    <form onSubmit={settingsForm.handleSubmit(handleSettingsSubmit)} className="space-y-4">
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                                                            <FormField control={settingsForm.control} name="status" render={({ field }) => (
+                                                                <FormItem>
+                                                                    <FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Status</FormLabel>
+                                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                        <FormControl>
+                                                                            <SelectTrigger className="h-9 text-xs glass-card"><SelectValue /></SelectTrigger>
+                                                                        </FormControl>
+                                                                        <SelectContent>
+                                                                            <SelectItem value="UPCOMING">Upcoming</SelectItem>
+                                                                            <SelectItem value="LIVE">Live</SelectItem>
+                                                                            <SelectItem value="FINISHED">Finished</SelectItem>
+                                                                            <SelectItem value="POSTPONED">Postponed</SelectItem>
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </FormItem>
+                                                            )} />
+                                                            <FormField control={settingsForm.control} name="stage" render={({ field }) => (
+                                                                <FormItem>
+                                                                    <FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Stage</FormLabel>
+                                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                        <FormControl>
+                                                                            <SelectTrigger className="h-9 text-xs glass-card"><SelectValue /></SelectTrigger>
+                                                                        </FormControl>
+                                                                        <SelectContent>
+                                                                            {availableStages.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </FormItem>
+                                                            )} />
+                                                            {showVenue && (
+                                                                <FormField control={settingsForm.control} name="venue" render={({ field }) => (
+                                                                    <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Venue</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field} /></FormControl></FormItem>
+                                                                )} />
+                                                            )}
+                                                            <FormField control={settingsForm.control} name="date" render={({ field }) => (
+                                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Date</FormLabel><FormControl><Input type="date" className="h-9 text-xs glass-card" {...field} /></FormControl></FormItem>
+                                                            )} />
+                                                            <FormField control={settingsForm.control} name="time" render={({ field }) => (
+                                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Kickoff</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field} /></FormControl></FormItem>
+                                                            )} />
+                                                            {currentSettingsStage !== 'GROUP_STAGE' && (
+                                                                <FormField control={settingsForm.control} name="isExtraTime" render={({ field }) => (
+                                                                    <FormItem className="flex flex-col justify-end space-y-1">
+                                                                        <FormLabel className="text-[9px] md:text-[10px] font-black uppercase opacity-50">Extra Time Protocol</FormLabel>
+                                                                        <div className="flex items-center space-x-2 bg-white/5 h-9 rounded-md px-3 border border-white/5">
+                                                                            <FormControl>
+                                                                                <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-accent scale-75" />
+                                                                            </FormControl>
+                                                                            <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-white/70">
+                                                                                {field.value ? 'Active' : 'Inactive'}
+                                                                            </span>
+                                                                        </div>
+                                                                    </FormItem>
+                                                                )} />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex justify-end pt-2">
+                                                            <Button type="submit" size="sm" className="h-9 text-[9px] md:text-[10px] font-black uppercase tracking-widest px-6 bg-accent hover:bg-accent/90 transition-all hover:scale-105 text-accent-foreground">Update Registry</Button>
+                                                        </div>
+                                                    </form>
+                                                </Form>
                                             </CardContent>
                                         </Card>
                                     </motion.div>
                                 )}
-                            </div>
 
-                            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="flex flex-col min-h-0">
-                                <Card className="shadow-none border border-white/5 bg-black/20 rounded-3xl overflow-hidden flex flex-col min-h-0">
-                                    <CardHeader className="py-3 md:py-4 px-4 md:px-6 bg-white/5 flex-row items-center justify-between space-y-0 border-b border-white/5 flex-shrink-0">
-                                        <CardTitle className="text-[10px] md:text-xs font-black uppercase tracking-widest opacity-60 flex items-center gap-2">
-                                            <Timer className="h-3 md:h-4 w-3 md:w-4" /> Timeline Data
-                                        </CardTitle>
-                                        {isAdmin && ['FINISHED', 'LIVE'].includes(match.status) && (
-                                            <Button size="sm" variant="ghost" className="h-7 md:h-8 rounded-full bg-white/5 hover:bg-accent/10 hover:text-accent text-[8px] md:text-[9px] font-black uppercase tracking-widest px-3 md:px-4 transition-all" onClick={() => {setShowEventForm(!showEventForm); setEditingEvent(null); eventForm.reset({type: 'Goal', minute: 1, playerId: '', assisterId: 'none'})}}>
-                                                {showEventForm ? 'Cancel' : (
-                                                    <><PlusCircle className="mr-1.5 h-3 w-3 md:h-3.5 md:w-3.5"/> Add Entry</>
-                                                )}
-                                            </Button>
-                                        )}
-                                    </CardHeader>
-                                    <CardContent className="p-4 md:p-6 flex-1 min-h-0 overflow-hidden flex flex-col">
-                                        <AnimatePresence mode="wait">
-                                            {isAdmin && showEventForm && (
-                                                <motion.div 
-                                                    initial={{ opacity: 0, scale: 0.95 }}
-                                                    animate={{ opacity: 1, scale: 1 }}
-                                                    exit={{ opacity: 0, scale: 0.95 }}
-                                                    className="flex-shrink-0"
-                                                >
-                                                    <Form {...eventForm}>
-                                                        <form onSubmit={eventForm.handleSubmit(handleEventSubmit)} className="space-y-3 p-3 md:p-4 mb-6 border border-accent/20 rounded-2xl bg-accent/5 shadow-inner">
-                                                            <div className="grid grid-cols-2 gap-3">
-                                                                <FormField control={eventForm.control} name="type" render={({ field }) => (
-                                                                    <FormItem className="space-y-1">
-                                                                        <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">Event Identity</FormLabel>
-                                                                        <Select onValueChange={(val) => { field.onChange(val); if(val !== 'Goal') eventForm.setValue('assisterId', 'none'); }} defaultValue={field.value}>
-                                                                            <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue/></SelectTrigger></FormControl>
-                                                                            <SelectContent>
-                                                                                <SelectItem value="Goal">Goal</SelectItem>
-                                                                                <SelectItem value="Yellow Card">Yellow Card</SelectItem>
-                                                                                <SelectItem value="Red Card">Red Card</SelectItem>
-                                                                                <SelectItem value="Own Goal">Own Goal</SelectItem>
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                        <FormMessage className="text-[9px] md:text-[10px]"/>
-                                                                    </FormItem>
-                                                                )}/>
-                                                                <FormField control={eventForm.control} name="minute" render={({ field }) => (
-                                                                    <FormItem className="space-y-1">
-                                                                        <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">
-                                                                            {match.isExtraTime ? `ET Min (1-${extraDuration})` : `Minute (Max ${baseDuration})`}
-                                                                        </FormLabel>
-                                                                        <FormControl>
-                                                                            <Input 
-                                                                                type="number" 
-                                                                                className="h-8 md:h-9 text-[10px] md:text-xs glass-card" 
-                                                                                placeholder="e.g. 5"
-                                                                                {...field}
-                                                                            />
-                                                                        </FormControl>
-                                                                        <FormMessage className="text-[9px] md:text-[10px]"/>
-                                                                    </FormItem>
-                                                                )}/>
-                                                            </div>
-                                                            <FormField control={eventForm.control} name="playerId" render={({ field }) => (
-                                                                <FormItem className="space-y-1">
-                                                                    <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">Subject Athlete</FormLabel>
-                                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                        <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue placeholder="Select athlete..."/></SelectTrigger></FormControl>
-                                                                        <SelectContent>
-                                                                            <SelectGroup>
-                                                                                <SelectLabel className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-accent mb-1">{homeTeam.name}</SelectLabel>
-                                                                                {homePlayers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                                                            </SelectGroup>
-                                                                            <Separator className="my-2 bg-white/5" />
-                                                                            <SelectGroup>
-                                                                                <SelectLabel className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-accent mb-1">{awayTeam.name}</SelectLabel>
-                                                                                {awayPlayers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                                                            </SelectGroup>
-                                                                        </SelectContent>
-                                                                    </Select>
-                                                                    <FormMessage className="text-[9px] md:text-[10px]"/>
-                                                                </FormItem>
-                                                            )}/>
-
-                                                            {eventForm.watch('type') === 'Goal' && (
-                                                                <FormField control={eventForm.control} name="assisterId" render={({ field }) => (
-                                                                    <FormItem className="space-y-1">
-                                                                        <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">Assister (Optional)</FormLabel>
-                                                                        <Select onValueChange={field.onChange} value={field.value}>
-                                                                            <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue placeholder="None"/></SelectTrigger></FormControl>
-                                                                            <SelectContent>
-                                                                                <SelectItem value="none">None</SelectItem>
-                                                                                {eligibleAssisters.map(p => (
-                                                                                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                                                                                ))}
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    </FormItem>
-                                                                )}/>
-                                                            )}
-
-                                                            <Button type="submit" className="w-full h-10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-accent hover:text-white border border-white/10 shadow-lg transition-all text-accent-foreground">Record Event</Button>
-                                                        </form>
-                                                    </Form>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
-                                        
-                                        <div className="flex-1 pr-2 overflow-y-auto custom-scrollbar">
-                                            <div className="space-y-4">
-                                                {match.events && match.events.length > 0 ? (
-                                                    [...match.events].sort((a,b) => a.minute - b.minute).map((event, idx) => {
-                                                        const isLinkedAssist = !!event.linkedGoalId;
-                                                        const linkedGoal = event.linkedGoalId ? match.events?.find(e => e.id === event.linkedGoalId) : null;
-                                                        
-                                                        return (
-                                                            <motion.div 
-                                                                key={event.id} 
-                                                                initial={{ opacity: 0, x: -10 }}
-                                                                animate={{ opacity: 1, x: 0 }}
-                                                                transition={{ delay: idx * 0.05 }}
-                                                                className="flex items-center gap-3 md:gap-4 text-xs group transition-colors"
-                                                            >
-                                                                <span className="font-mono w-6 md:w-8 text-[9px] md:text-[10px] font-black text-accent">{event.minute}'</span>
-                                                                <div className="bg-white/5 p-1.5 md:p-2 rounded-xl border border-white/5 shrink-0 group-hover:border-accent/30 transition-colors shadow-sm"><EventIcon type={event.type} /></div>
-                                                                <div className="flex flex-col min-w-0 flex-1">
-                                                                    <div className="flex flex-wrap items-baseline gap-x-2">
-                                                                        <span className="font-bold text-[11px] md:text-sm tracking-tight truncate uppercase group-hover:text-accent transition-colors">{event.playerName}</span>
-                                                                        <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-white/20">
-                                                                            {event.type} {isLinkedAssist && linkedGoal ? `(Goal: ${linkedGoal.playerName} - ${linkedGoal.minute}')` : ''}
-                                                                        </span>
-                                                                    </div>
-                                                                    <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.15em] text-white/30 truncate">{event.teamId === homeTeam.id ? homeTeam.name : awayTeam.name}</span>
-                                                                </div>
-                                                                {isAdmin && !isLinkedAssist && (
-                                                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0 translate-x-2 group-hover:translate-x-0">
-                                                                        <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 hover:bg-white/5 hover:text-accent" onClick={() => { 
-                                                                            const linkedAssist = match.events?.find(e => e.linkedGoalId === event.id);
-                                                                            setEditingEvent(event); 
-                                                                            setShowEventForm(true); 
-                                                                            
-                                                                            const displayMin = match.isExtraTime && event.minute > baseDuration 
-                                                                                ? event.minute - baseDuration 
-                                                                                : event.minute;
-
-                                                                            eventForm.reset({
-                                                                                type: event.type as any, 
-                                                                                minute: displayMin, 
-                                                                                playerId: event.playerId,
-                                                                                assisterId: linkedAssist ? linkedAssist.playerId : 'none'
-                                                                            }); 
-                                                                        }}><Pencil className="h-3 md:h-3.5 w-3 md:w-3.5"/></Button>
-                                                                        <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 text-destructive hover:bg-destructive/10" onClick={() => deleteMatchEvent(match.id, event.id)}><Trash2 className="h-3 md:h-3.5 w-3 md:w-3.5"/></Button>
-                                                                    </div>
-                                                                )}
-                                                            </motion.div>
-                                                        )
-                                                    })
-                                                ) : (
-                                                    <div className="flex flex-col items-center justify-center py-10 text-white/10">
-                                                        <Sword className="h-10 md:h-12 w-10 md:w-12 mb-4 opacity-5 animate-pulse" />
-                                                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Protocol Recorded</p>
-                                                    </div>
-                                                )}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 pb-10">
+                                    <div className="space-y-6 md:space-y-8">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.98 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="flex flex-col items-center justify-center bg-white/5 p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl relative overflow-hidden h-fit group"
+                                        >
+                                            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
+                                                <Sword className="h-24 md:h-32 w-24 md:w-32 rotate-12" />
                                             </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
+
+                                            <div className="flex items-center justify-around w-full mb-6 md:mb-8 gap-4 relative z-10">
+                                                <div className="flex flex-col items-center w-[40%] text-center min-w-0">
+                                                    <div className="relative w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden mb-3 md:mb-4 border-2 border-accent/20 shadow-xl shrink-0 group-hover:scale-110 transition-transform duration-700">
+                                                        <Image src={homeLogo.imageUrl} alt={homeTeam.name} fill className="object-cover" />
+                                                    </div>
+                                                    <span className="font-black text-[9px] md:text-sm leading-tight truncate w-full uppercase tracking-tighter">{homeTeam.name}</span>
+                                                </div>
+                                                <div className="flex flex-col items-center gap-1 md:gap-2">
+                                                    <div className="text-2xl md:text-5xl font-black font-mono tracking-tighter flex items-center gap-2 md:gap-3">
+                                                        {match.status === 'FINISHED' || match.status === 'LIVE' ? (
+                                                            <>
+                                                                <span className={cn(match.homeScore! > match.awayScore! ? "text-accent" : "")}>{match.homeScore ?? 0}</span>
+                                                                <span className="text-white/10 font-sans font-normal">-</span>
+                                                                <span className={cn(match.awayScore! > match.homeScore! ? "text-accent" : "")}>{match.awayScore ?? 0}</span>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-xs md:text-xl text-white/40 font-sans font-black uppercase tracking-[0.2em]">{match.time}</span>
+                                                        )}
+                                                    </div>
+                                                    {stageTiming?.duration && (
+                                                        <div className="flex items-center gap-1 text-[7px] md:text-[9px] font-black uppercase tracking-widest text-white/30 bg-white/5 px-2 py-0.5 md:py-1 rounded-full border border-white/5 shadow-inner">
+                                                            <Timer className="h-2.5 md:h-3 w-2.5 md:w-3" /> {baseDuration}m Base
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-col items-center w-[40%] text-center min-w-0">
+                                                    <div className="relative w-14 h-14 md:w-20 md:h-20 rounded-full overflow-hidden mb-3 md:mb-4 border-2 border-accent/20 shadow-xl shrink-0 group-hover:scale-110 transition-transform duration-700">
+                                                        <Image src={awayLogo.imageUrl} alt={awayTeam.name} fill className="object-cover" />
+                                                    </div>
+                                                    <span className="font-black text-[9px] md:text-sm leading-tight truncate w-full uppercase tracking-tighter">{awayTeam.name}</span>
+                                                </div>
+                                            </div>
+
+                                            {isAdmin && match.status === 'LIVE' && (
+                                                <Button onClick={handleDeclareMatch} className="bg-green-600 hover:bg-green-700 w-full font-black italic uppercase tracking-widest h-10 md:h-12 shadow-lg shadow-green-900/20 text-[10px] md:text-xs transition-all hover:scale-105">
+                                                    <CheckCircle2 className="mr-2 h-4 md:h-5 w-4 md:w-5" /> Declare Finished
+                                                </Button>
+                                            )}
+                                            {match.status === 'FINISHED' && (
+                                                <div className="flex items-center gap-2 md:gap-3 text-accent font-black uppercase text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.3em] bg-accent/10 px-4 md:px-8 py-1.5 md:py-2 rounded-full border border-accent/20 mt-2 md:mt-4 animate-in fade-in zoom-in duration-700 shadow-[0_0_20px_rgba(255,87,34,0.1)]">
+                                                    <CheckCircle2 className="h-3 md:h-4 w-3 md:w-4" /> Official Protocol Complete
+                                                </div>
+                                            )}
+                                        </motion.div>
+
+                                        {h2hStats && h2hStats.total > 0 && (
+                                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                                                <Card className="glass-card border-white/5">
+                                                    <CardHeader className="py-2 md:py-3 px-4 flex flex-row items-center justify-between border-b border-white/5 bg-white/5">
+                                                        <CardTitle className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] opacity-40">H2H History</CardTitle>
+                                                        <span className="text-[8px] md:text-[10px] font-bold opacity-30 tracking-widest">{h2hStats.total} Encounters</span>
+                                                    </CardHeader>
+                                                    <CardContent className="p-3 md:p-4 flex justify-between items-center gap-2 md:gap-4">
+                                                        <div className="flex-1 text-center min-w-0">
+                                                            <p className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase mb-1 truncate">{homeTeam.name}</p>
+                                                            <p className="text-base md:text-xl font-mono font-black text-accent">{h2hStats.homeWins}</p>
+                                                        </div>
+                                                        <div className="flex-1 text-center border-x border-white/5 px-1">
+                                                            <p className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase mb-1">Draws</p>
+                                                            <p className="text-base md:text-xl font-mono font-black opacity-40">{h2hStats.draws}</p>
+                                                        </div>
+                                                        <div className="flex-1 text-center min-w-0">
+                                                            <p className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase mb-1 truncate">{awayTeam.name}</p>
+                                                            <p className="text-base md:text-xl font-mono font-black text-accent">{h2hStats.awayWins}</p>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </motion.div>
+                                        )}
+                                    </div>
+
+                                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="flex flex-col min-h-0">
+                                        <Card className="shadow-none border border-white/5 bg-black/20 rounded-3xl overflow-hidden flex flex-col min-h-0">
+                                            <CardHeader className="py-3 md:py-4 px-4 md:px-6 bg-white/5 flex-row items-center justify-between space-y-0 border-b border-white/5 flex-shrink-0">
+                                                <CardTitle className="text-[10px] md:text-xs font-black uppercase tracking-widest opacity-60 flex items-center gap-2">
+                                                    <Timer className="h-3 md:h-4 w-3 md:w-4" /> Timeline Data
+                                                </CardTitle>
+                                                {isAdmin && ['FINISHED', 'LIVE'].includes(match.status) && (
+                                                    <Button size="sm" variant="ghost" className="h-7 md:h-8 rounded-full bg-white/5 hover:bg-accent/10 hover:text-accent text-[8px] md:text-[9px] font-black uppercase tracking-widest px-3 md:px-4 transition-all" onClick={() => { setShowEventForm(!showEventForm); setEditingEvent(null); eventForm.reset({ type: 'Goal', minute: 1, playerId: '', assisterId: 'none' }) }}>
+                                                        {showEventForm ? 'Cancel' : (
+                                                            <><PlusCircle className="mr-1.5 h-3 w-3 md:h-3.5 md:w-3.5" /> Add Entry</>
+                                                        )}
+                                                    </Button>
+                                                )}
+                                            </CardHeader>
+                                            <CardContent className="p-4 md:p-6 flex-1 min-h-0 overflow-hidden flex flex-col">
+                                                <AnimatePresence mode="wait">
+                                                    {isAdmin && showEventForm && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, scale: 0.95 }}
+                                                            animate={{ opacity: 1, scale: 1 }}
+                                                            exit={{ opacity: 0, scale: 0.95 }}
+                                                            className="flex-shrink-0"
+                                                        >
+                                                            <Form {...eventForm}>
+                                                                <form onSubmit={eventForm.handleSubmit(handleEventSubmit)} className="space-y-3 p-3 md:p-4 mb-6 border border-accent/20 rounded-2xl bg-accent/5 shadow-inner">
+                                                                    <div className="grid grid-cols-2 gap-3">
+                                                                        <FormField control={eventForm.control} name="type" render={({ field }) => (
+                                                                            <FormItem className="space-y-1">
+                                                                                <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">Event Identity</FormLabel>
+                                                                                <Select onValueChange={(val) => { field.onChange(val); if (val !== 'Goal') eventForm.setValue('assisterId', 'none'); }} defaultValue={field.value}>
+                                                                                    <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue /></SelectTrigger></FormControl>
+                                                                                    <SelectContent>
+                                                                                        <SelectItem value="Goal">Goal</SelectItem>
+                                                                                        <SelectItem value="Yellow Card">Yellow Card</SelectItem>
+                                                                                        <SelectItem value="Red Card">Red Card</SelectItem>
+                                                                                        <SelectItem value="Own Goal">Own Goal</SelectItem>
+                                                                                    </SelectContent>
+                                                                                </Select>
+                                                                                <FormMessage className="text-[9px] md:text-[10px]" />
+                                                                            </FormItem>
+                                                                        )} />
+                                                                        <FormField control={eventForm.control} name="minute" render={({ field }) => (
+                                                                            <FormItem className="space-y-1">
+                                                                                <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">
+                                                                                    {match.isExtraTime ? `ET Min (1-${extraDuration})` : `Minute (Max ${baseDuration})`}
+                                                                                </FormLabel>
+                                                                                <FormControl>
+                                                                                    <Input
+                                                                                        type="number"
+                                                                                        className="h-8 md:h-9 text-[10px] md:text-xs glass-card"
+                                                                                        placeholder="e.g. 5"
+                                                                                        {...field}
+                                                                                    />
+                                                                                </FormControl>
+                                                                                <FormMessage className="text-[9px] md:text-[10px]" />
+                                                                            </FormItem>
+                                                                        )} />
+                                                                    </div>
+                                                                    <FormField control={eventForm.control} name="playerId" render={({ field }) => (
+                                                                        <FormItem className="space-y-1">
+                                                                            <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">Subject Athlete</FormLabel>
+                                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                                <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue placeholder="Select athlete..." /></SelectTrigger></FormControl>
+                                                                                <SelectContent>
+                                                                                    <SelectGroup>
+                                                                                        <SelectLabel className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-accent mb-1">{homeTeam.name}</SelectLabel>
+                                                                                        {homePlayers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                                                                    </SelectGroup>
+                                                                                    <Separator className="my-2 bg-white/5" />
+                                                                                    <SelectGroup>
+                                                                                        <SelectLabel className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-accent mb-1">{awayTeam.name}</SelectLabel>
+                                                                                        {awayPlayers.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                                                                                    </SelectGroup>
+                                                                                </SelectContent>
+                                                                            </Select>
+                                                                            <FormMessage className="text-[9px] md:text-[10px]" />
+                                                                        </FormItem>
+                                                                    )} />
+
+                                                                    {eventForm.watch('type') === 'Goal' && (
+                                                                        <FormField control={eventForm.control} name="assisterId" render={({ field }) => (
+                                                                            <FormItem className="space-y-1">
+                                                                                <FormLabel className="text-[8px] md:text-[9px] font-black uppercase opacity-50">Assister (Optional)</FormLabel>
+                                                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                                                    <FormControl><SelectTrigger className="h-8 md:h-9 text-[10px] md:text-xs glass-card"><SelectValue placeholder="None" /></SelectTrigger></FormControl>
+                                                                                    <SelectContent>
+                                                                                        <SelectItem value="none">None</SelectItem>
+                                                                                        {eligibleAssisters.map(p => (
+                                                                                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                                                                        ))}
+                                                                                    </SelectContent>
+                                                                                </Select>
+                                                                            </FormItem>
+                                                                        )} />
+                                                                    )}
+
+                                                                    <Button type="submit" className="w-full h-10 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] bg-white/10 hover:bg-accent hover:text-white border border-white/10 shadow-lg transition-all text-accent-foreground">Record Event</Button>
+                                                                </form>
+                                                            </Form>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+
+                                                <div className="flex-1 pr-2 overflow-y-auto custom-scrollbar">
+                                                    <div className="space-y-4">
+                                                        {match.events && match.events.length > 0 ? (
+                                                            [...match.events].sort((a, b) => a.minute - b.minute).map((event, idx) => {
+                                                                const isLinkedAssist = !!event.linkedGoalId;
+                                                                const linkedGoal = event.linkedGoalId ? match.events?.find(e => e.id === event.linkedGoalId) : null;
+
+                                                                return (
+                                                                    <motion.div
+                                                                        key={event.id}
+                                                                        initial={{ opacity: 0, x: -10 }}
+                                                                        animate={{ opacity: 1, x: 0 }}
+                                                                        transition={{ delay: idx * 0.05 }}
+                                                                        className="flex items-center gap-3 md:gap-4 text-xs group transition-colors"
+                                                                    >
+                                                                        <span className="font-mono w-6 md:w-8 text-[9px] md:text-[10px] font-black text-accent">{event.minute}'</span>
+                                                                        <div className="bg-white/5 p-1.5 md:p-2 rounded-xl border border-white/5 shrink-0 group-hover:border-accent/30 transition-colors shadow-sm"><EventIcon type={event.type} /></div>
+                                                                        <div className="flex flex-col min-w-0 flex-1">
+                                                                            <div className="flex flex-wrap items-baseline gap-x-2">
+                                                                                <span className="font-bold text-[11px] md:text-sm tracking-tight truncate uppercase group-hover:text-accent transition-colors">{event.playerName}</span>
+                                                                                <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-white/20">
+                                                                                    {event.type} {isLinkedAssist && linkedGoal ? `(Goal: ${linkedGoal.playerName} - ${linkedGoal.minute}')` : ''}
+                                                                                </span>
+                                                                            </div>
+                                                                            <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.15em] text-white/30 truncate">{event.teamId === homeTeam.id ? homeTeam.name : awayTeam.name}</span>
+                                                                        </div>
+                                                                        {isAdmin && !isLinkedAssist && (
+                                                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0 translate-x-2 group-hover:translate-x-0">
+                                                                                <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 hover:bg-white/5 hover:text-accent" onClick={() => {
+                                                                                    const linkedAssist = match.events?.find(e => e.linkedGoalId === event.id);
+                                                                                    setEditingEvent(event);
+                                                                                    setShowEventForm(true);
+
+                                                                                    const displayMin = match.isExtraTime && event.minute > baseDuration
+                                                                                        ? event.minute - baseDuration
+                                                                                        : event.minute;
+
+                                                                                    eventForm.reset({
+                                                                                        type: event.type as any,
+                                                                                        minute: displayMin,
+                                                                                        playerId: event.playerId,
+                                                                                        assisterId: linkedAssist ? linkedAssist.playerId : 'none'
+                                                                                    });
+                                                                                }}><Pencil className="h-3 md:h-3.5 w-3 md:w-3.5" /></Button>
+                                                                                <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 text-destructive hover:bg-destructive/10" onClick={() => deleteMatchEvent(match.id, event.id)}><Trash2 className="h-3 md:h-3.5 w-3 md:w-3.5" /></Button>
+                                                                            </div>
+                                                                        )}
+                                                                    </motion.div>
+                                                                )
+                                                            })
+                                                        ) : (
+                                                            <div className="flex flex-col items-center justify-center py-10 text-white/10">
+                                                                <Sword className="h-10 md:h-12 w-10 md:w-12 mb-4 opacity-5 animate-pulse" />
+                                                                <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Protocol Recorded</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
+                    </>
+                )}
+            </DialogContent>
+        </Dialog>
+    );
 }

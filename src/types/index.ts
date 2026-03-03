@@ -55,7 +55,7 @@ export interface Team {
 }
 
 export interface Match {
-  id:string;
+  id: string;
   date: string | Date;
   time: string;
   homeTeamId: string;
@@ -117,6 +117,7 @@ export interface SeasonConfig {
   isSessionActive?: boolean;
   seasons: Season[];
   globalAnnouncement?: GlobalAnnouncement;
+  managementImages?: string[];
 }
 
 export interface AdminProfile {

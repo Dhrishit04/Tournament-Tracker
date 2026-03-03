@@ -381,7 +381,7 @@ export default function StandingsPage() {
 
             {selectedTeam && (
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogContent className="glass-card border-white/5 sm:max-w-md">
+                    <DialogContent className="glass-panel border-white/5 sm:max-w-md">
                         <DialogHeader>
                             <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Override <span className="text-accent">Stats</span></DialogTitle>
                             <DialogDescription className="text-white/60">Manually adjust performance metrics for {selectedTeam.name}.</DialogDescription>

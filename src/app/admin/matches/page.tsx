@@ -540,10 +540,10 @@ export default function AdminMatchesPage() {
                                                                     <AlertDialogTrigger asChild>
                                                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button>
                                                                     </AlertDialogTrigger>
-                                                                    <AlertDialogContent className="glass-card border-white/5">
+                                                                    <AlertDialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
                                                                         <AlertDialogHeader>
                                                                             <AlertDialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Erase <span className="text-destructive">Fixture</span></AlertDialogTitle>
-                                                                            <AlertDialogDescription className="text-white/70">Permanently delete match records and revert associated performance statistics.</AlertDialogDescription>
+                                                                            <AlertDialogDescription className="text-muted-foreground">Permanently delete match records and revert associated performance statistics.</AlertDialogDescription>
                                                                         </AlertDialogHeader>
                                                                         <AlertDialogFooter>
                                                                             <AlertDialogCancel>Abort</AlertDialogCancel>
@@ -599,12 +599,12 @@ export default function AdminMatchesPage() {
             </Card>
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent className="w-[95vw] sm:max-w-lg glass-card border-white/5 p-8 max-h-[92vh] flex flex-col">
+                <DialogContent className="w-[95vw] sm:max-w-lg bg-card/40 backdrop-blur-2xl border border-white/5 p-8 max-h-[92vh] flex flex-col shadow-2xl">
                     <DialogHeader className="flex-shrink-0">
                         <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
                             {dialogMode === 'edit' ? 'Modify' : 'Schedule'} <span className="text-accent">Fixture</span>
                         </DialogTitle>
-                        <DialogDescription className="text-xs opacity-50">Set match details, kickoff timing, and tournament stage.</DialogDescription>
+                        <DialogDescription className="text-xs text-muted-foreground">Set match details, kickoff timing, and tournament stage.</DialogDescription>
                     </DialogHeader>
                     <ScrollArea className="flex-1 w-full mt-4 custom-scrollbar">
                         <div className="pr-2">

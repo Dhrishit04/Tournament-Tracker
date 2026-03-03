@@ -46,10 +46,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex min-h-screen pt-24 bg-background relative overflow-hidden">
       {/* Decorative background element */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full -mr-64 -mt-64 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full -mr-64 -mt-64 pointer-events-none hidden dark:block" />
 
       <AdminSidebar />
-      <main className="flex-1 p-6 md:p-10 relative z-10 max-w-7xl mx-auto w-full">
+      <main className="flex-1 p-6 md:p-10 relative z-10 max-w-7xl mx-auto min-w-0">
         {children}
       </main>
     </div>

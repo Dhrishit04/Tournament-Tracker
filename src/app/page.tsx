@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, BarChart, Calendar, Shield, Users, Download, Megaphone } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useSeason } from '@/contexts/season-context';
 import { useData } from '@/hooks/use-data';
@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import * as XLSX from 'xlsx';
 import { SpotlightCard } from '@/components/ui/spotlight-card';
 import { TeamMarquee } from '@/components/ui/team-marquee';
-import { FadeUp, CinematicFade, TiltCard } from '@/components/ui/animations';
+import { FadeUp, CinematicFade, TiltCard, ScrollRevealText, ParallaxExpand } from '@/components/ui/animations';
 
 const featureCards = [
   {
@@ -77,17 +77,35 @@ export function AnnouncementBanner() {
 }
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'hero-background');
-  const { currentSeason, loading: seasonLoading } = useSeason();
+  const { currentSeason, loading: seasonLoading, globalAnnouncement, managementImages } = useSeason();
   const { teams, players, matches, loading: dataLoading } = useData();
+  const sortedTeams = [...teams].sort((a, b) => {
+    const pointsA = (a.stats.matchesWon || 0) * 3 + (a.stats.matchesDrawn || 0);
+    const pointsB = (b.stats.matchesWon || 0) * 3 + (b.stats.matchesDrawn || 0);
+    return pointsB - pointsA;
+  });
 
-  const heroRef = useRef(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
-    offset: ["start start", "end start"]
+    offset: ["start start", "end end"]
   });
+
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+  useEffect(() => {
+    if (!managementImages || managementImages.length <= 1) return;
+
+    const intervalId = setInterval(() => {
+      setCurrentSlideIndex((prevIndex) => (prevIndex + 1) % managementImages.length);
+    }, 5000); // 5 second per slide
+
+    return () => clearInterval(intervalId);
+  }, [managementImages]);
   const yHeroText = useTransform(scrollYProgress, [0, 1], [0, 150]);
   const yHeroGlow = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const opacityHeroVideo = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const scaleHeroVideo = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
 
   const handleDownloadExcel = () => {
     if (!currentSeason || !teams) return;
@@ -182,8 +200,8 @@ export default function Home() {
       <AnnouncementBanner />
 
       <section ref={heroRef} className="relative min-h-[90vh] w-full flex flex-col items-center justify-center text-center px-4 overflow-hidden pt-20">
-        {/* Video Background */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-background">
+        {/* Video Background with Parallax Scale & Fade */}
+        <motion.div style={{ opacity: opacityHeroVideo, scale: scaleHeroVideo }} className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-background origin-center">
           <iframe
             src="https://www.youtube.com/embed/7D1BO0a9vTo?autoplay=1&mute=1&controls=0&loop=1&playlist=7D1BO0a9vTo&playsinline=1&rel=0&modestbranding=1"
             className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2 opacity-60 pointer-events-none"
@@ -191,7 +209,7 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-background/40 backdrop-blur-[1px]" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-        </div>
+        </motion.div>
 
         {/* Glow Effects (Parallaxed) */}
         <motion.div style={{ y: yHeroGlow }} className="absolute inset-0 z-[1] pointer-events-none">
@@ -240,6 +258,68 @@ export default function Home() {
       </section>
 
       <TeamMarquee />
+
+      {/* JOBY STYLE: Scroll Reveal Narrative Section */}
+      <section className="py-32 md:py-48 bg-background relative z-10 px-4 md:px-8">
+        <div className="max-w-5xl mx-auto flex flex-col justify-center">
+          <ScrollRevealText
+            text="We are pushing the boundaries of what a football league can be. Real-time metrics, dynamic team management, and an unparalleled aesthetic experience designed for the elite."
+            className="text-4xl sm:text-5xl lg:text-7xl font-black leading-[1.1] tracking-tighter text-white/20"
+          />
+        </div>
+      </section>
+
+      {/* JOBY STYLE: Parallax Expand Section with Slideshow */}
+      <section className="py-24 bg-background relative z-10 px-4">
+        <ParallaxExpand className="h-[50vh] md:h-[70vh] w-full rounded-3xl md:rounded-[3rem] max-w-7xl mx-auto shadow-2xl overflow-hidden glass-card border border-white/10 group">
+          <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-purple-600/20 z-10 mix-blend-overlay" />
+
+          <div className="absolute inset-0 z-0">
+            <AnimatePresence mode="popLayout" initial={false}>
+              {managementImages && managementImages.length > 0 ? (
+                <motion.div
+                  key={currentSlideIndex}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 0.6, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={managementImages[currentSlideIndex]}
+                    alt={`DFPL Management Slide ${currentSlideIndex + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="default-bg"
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 0.6, scale: 1 }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src="https://images.unsplash.com/photo-1518605368461-1ee7e543666b?q=80&w=2940&auto=format&fit=crop"
+                    alt="Stadium lighting"
+                    fill
+                    className="object-cover"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-8 text-center">
+            <h3 className="text-4xl md:text-6xl font-black mb-6 drop-shadow-2xl">DFPL Management</h3>
+            <p className="text-xl md:text-2xl text-white/80 max-w-2xl font-medium mb-8">Meet our management committee.</p>
+            <Button className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 h-12 rounded-full uppercase tracking-widest backdrop-blur-md transition-all group-hover:bg-accent group-hover:border-transparent group-hover:scale-105 shadow-xl glass-panel text-[11px]">
+              About Us
+            </Button>
+          </div>
+        </ParallaxExpand>
+      </section>
 
       <section className="py-24 bg-background relative z-10">
         <div className="container mx-auto px-4 max-w-6xl">

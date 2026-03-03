@@ -293,7 +293,7 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                                     <AlertDialogTrigger asChild>
                                         <Button size="sm" variant="outline" className="h-8 text-[10px] font-black uppercase tracking-widest text-destructive hover:bg-destructive hover:text-destructive-foreground"><RotateCcw className="h-3 w-3 mr-2" /> Reset Groups</Button>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent className="glass-card">
+                                    <AlertDialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Reset all groups?</AlertDialogTitle>
                                             <AlertDialogDescription>
@@ -312,7 +312,7 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                 )}
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[92vh] flex flex-col p-0 overflow-hidden glass-card border-white/5">
+                    <DialogContent className="w-[95vw] sm:max-w-2xl max-h-[92vh] flex flex-col p-0 overflow-hidden bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
                         <DialogHeader className="p-6 pb-2">
                             <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Assign <span className="text-accent">Groups</span></DialogTitle>
                             <DialogDescription className="text-xs">
@@ -333,7 +333,7 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                                             value={pendingGroups[team.id] || 'None'}
                                             onValueChange={(val) => setPendingGroups(prev => ({ ...prev, [team.id]: val }))}
                                         >
-                                            <SelectTrigger className="w-28 sm:w-32 h-9 text-xs glass-card">
+                                            <SelectTrigger className="w-28 sm:w-32 h-9 text-xs glass-panel">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -460,7 +460,7 @@ export default function AdminTeamsPage() {
 
             <GroupManager teams={teams} updateTeam={updateTeam} />
 
-            <Card className="glass-card border-white/5 overflow-hidden">
+            <Card className="glass-panel border-white/5 overflow-hidden">
                 <CardHeader className="bg-white/5 border-b border-white/5">
                     <CardTitle className="text-xl font-bold">Club Registry</CardTitle>
                 </CardHeader>
@@ -501,10 +501,10 @@ export default function AdminTeamsPage() {
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
                                                     </AlertDialogTrigger>
-                                                    <AlertDialogContent className="glass-card border-white/5">
+                                                    <AlertDialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
                                                         <AlertDialogHeader>
                                                             <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Decommission <span className="text-destructive">Club</span></AlertDialogTitle>
-                                                            <AlertDialogDescription className="text-white/70">This will permanently remove the club from the DFPL infrastructure. This operation is irreversible.</AlertDialogDescription>
+                                                            <AlertDialogDescription className="text-muted-foreground">This will permanently remove the club from the DFPL infrastructure. This operation is irreversible.</AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
                                                             <AlertDialogCancel onClick={() => setTeamToDelete(null)}>Abort</AlertDialogCancel>
@@ -523,10 +523,10 @@ export default function AdminTeamsPage() {
             </Card>
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent className="w-[95vw] sm:max-w-[450px] max-h-[92vh] flex flex-col p-0 overflow-hidden glass-card border-white/5">
+                <DialogContent className="w-[95vw] sm:max-w-[450px] max-h-[92vh] flex flex-col p-0 overflow-hidden bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
                     <DialogHeader className="p-8 pb-2 flex-shrink-0">
                         <DialogTitle className="text-3xl font-black italic uppercase tracking-tighter">{dialogMode === 'edit' ? 'Modify' : 'Deploy'} <span className="text-accent">Club</span></DialogTitle>
-                        <DialogDescription className="text-xs opacity-50">Enter the club details and upload a primary identity logo.</DialogDescription>
+                        <DialogDescription className="text-xs text-muted-foreground">Enter the club details and upload a primary identity logo.</DialogDescription>
                     </DialogHeader>
                     <div className="flex-1 px-8 pb-8 custom-scrollbar overflow-y-auto">
                         <TeamForm
@@ -539,10 +539,10 @@ export default function AdminTeamsPage() {
             </Dialog>
 
             <AlertDialog open={showViolationDialog} onOpenChange={setShowViolationDialog}>
-                <AlertDialogContent className="glass-card border-white/5">
+                <AlertDialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
                     <AlertDialogHeader>
                         <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tighter text-destructive">Protocol <span className="text-white">Violation</span></AlertDialogTitle>
-                        <AlertDialogDescription className="text-white/70">
+                        <AlertDialogDescription className="text-muted-foreground">
                             The group mode requirement (exactly 4 teams per group) is no longer satisfied due to recent changes in the team list. The tournament has defaulted to Standalone Standings.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

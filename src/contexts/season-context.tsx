@@ -19,8 +19,10 @@ interface SeasonContextState {
     deleteCurrentSeason: () => Promise<void>;
     updateMatchConfig: (newConfig: MatchConfig) => Promise<void>;
     updateGlobalAnnouncement: (announcement: GlobalAnnouncement) => Promise<void>;
+    updateManagementImages: (images: string[]) => Promise<void>;
     setLoggingEnabled: (enabled: boolean) => Promise<void>;
     setSessionActive: (enabled: boolean) => Promise<void>;
+    managementImages: string[];
     loading: boolean;
 }
 
@@ -34,6 +36,7 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
     const [globalAnnouncement, setGlobalAnnouncement] = useState<GlobalAnnouncement | null>(null);
     const [isLoggingEnabled, setInternalLoggingEnabled] = useState(true);
     const [isSessionActive, setInternalSessionActive] = useState(true);
+    const [managementImages, setManagementImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -43,9 +46,9 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
         const unsubscribe = onSnapshot(configRef, (snapshot) => {
             if (snapshot.exists()) {
                 const configData = snapshot.data();
-                const defaultMatchConfig: MatchConfig = { 
-                    showGroupStage: true, 
-                    showQuarterFinals: true, 
+                const defaultMatchConfig: MatchConfig = {
+                    showGroupStage: true,
+                    showQuarterFinals: true,
                     showOthers: false,
                     isGroupModeActive: false,
                     showVenue: true,
@@ -64,6 +67,7 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
                 setGlobalAnnouncement(configData.globalAnnouncement || { message: '', isActive: false });
                 setInternalLoggingEnabled(configData.isLoggingEnabled ?? true);
                 setInternalSessionActive(configData.isSessionActive ?? true);
+                setManagementImages(configData.managementImages || []);
             }
             setLoading(false);
         }, (error) => {
@@ -80,14 +84,14 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
             const savedUser = localStorage.getItem('dfpl_admin_session');
             const userObj = savedUser ? JSON.parse(savedUser) : null;
             const adminIdentity = userObj?.role === 'SYSTEM_ADMIN' ? 'SYS_ADMIN' : (userObj?.email?.split('@')[0] || 'Unknown');
-            
+
             await addDoc(collection(firestore, 'logs'), {
                 timestamp: Date.now(),
                 adminEmail: adminIdentity,
                 action,
                 details
             });
-        } catch (e) {}
+        } catch (e) { }
     }, [firestore, isLoggingEnabled]);
 
     const setLoggingEnabled = useCallback(async (enabled: boolean) => {
@@ -148,9 +152,24 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
         });
     }, [firestore, toast, logAction]);
 
+    const updateManagementImages = useCallback(async (images: string[]) => {
+        if (!firestore) return;
+        const configRef = doc(firestore, 'config', 'app');
+        updateDoc(configRef, { managementImages: images }).then(() => {
+            logAction("UPDATE_MANAGEMENT_IMAGES", `Updated DFPL Management Slideshow (${images.length} images)`);
+            toast({ title: 'Slideshow Updated', description: 'Management slideshow images have been saved.' });
+        }).catch(async (error) => {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({
+                path: configRef.path,
+                operation: 'update',
+                requestResourceData: { managementImages: images }
+            }));
+        });
+    }, [firestore, toast, logAction]);
+
     const createNextSeason = useCallback(async () => {
         if (!firestore || seasons.length === 0) return;
-        const lastSeason = [...seasons].sort((a,b) => a.year - b.year)[seasons.length - 1];
+        const lastSeason = [...seasons].sort((a, b) => a.year - b.year)[seasons.length - 1];
         const lastSeasonNum = parseInt(lastSeason.name.split(' ')[1]);
         const newSeasonNum = lastSeasonNum + 1;
         const newSeason: Season = {
@@ -184,7 +203,7 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
     const deleteCurrentSeason = useCallback(async () => {
         if (!firestore || !currentSeason || seasons.length <= 1) return;
         const remainingSeasons = seasons.filter(s => s.id !== currentSeason.id);
-        const newCurrentSeason = [...remainingSeasons].sort((a,b) => b.year - a.year)[0];
+        const newCurrentSeason = [...remainingSeasons].sort((a, b) => b.year - a.year)[0];
         const configRef = doc(firestore, 'config', 'app');
         updateDoc(configRef, { seasons: remainingSeasons, currentSeasonId: newCurrentSeason.id }).then(() => {
             logAction("DELETE_SEASON", `Permanently decommissioned ${currentSeason.name}`);
@@ -202,7 +221,7 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
         const configRef = doc(firestore, 'config', 'app');
         const old = currentSeason.matchConfig;
         const logs: string[] = [];
-        
+
         if (old.isGroupModeActive !== newConfig.isGroupModeActive) logs.push(newConfig.isGroupModeActive ? "ENABLED Group Mode" : "DISABLED Group Mode");
         if (JSON.stringify(old.stageTimings) !== JSON.stringify(newConfig.stageTimings)) {
             logs.push("Modified Match Timings");
@@ -221,7 +240,7 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
         });
     }, [firestore, seasons, currentSeason, logAction]);
 
-    const value = { seasons, currentSeason, globalAnnouncement, isLoggingEnabled, isSessionActive, setCurrentSeason, createNextSeason, deleteCurrentSeason, updateMatchConfig, updateGlobalAnnouncement, setLoggingEnabled, setSessionActive, loading };
+    const value = { seasons, currentSeason, globalAnnouncement, isLoggingEnabled, isSessionActive, managementImages, setCurrentSeason, createNextSeason, deleteCurrentSeason, updateMatchConfig, updateGlobalAnnouncement, updateManagementImages, setLoggingEnabled, setSessionActive, loading };
     return <SeasonContext.Provider value={value}>{children}</SeasonContext.Provider>;
 };
 
