@@ -456,7 +456,7 @@ export default function TeamDetailPage() {
 
       {selectedPlayer && (
         <Dialog open={isPlayerDialogOpen} onOpenChange={setIsPlayerDialogOpen}>
-          <DialogContent className="glass-panel border-white/5">
+          <DialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
             <DialogHeader>
               <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Modify <span className="text-accent">Athlete</span></DialogTitle>
             </DialogHeader>
@@ -471,7 +471,7 @@ export default function TeamDetailPage() {
 
       {team && (
         <Dialog open={isStatsDialogOpen} onOpenChange={setIsStatsDialogOpen}>
-          <DialogContent className="glass-panel border-white/5 sm:max-w-lg">
+          <DialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl sm:max-w-lg">
             <DialogHeader>
               <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase">Override <span className="text-accent">Team Stats</span></DialogTitle>
             </DialogHeader>

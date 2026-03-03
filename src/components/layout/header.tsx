@@ -159,7 +159,7 @@ export function Header() {
       </div>
 
       <AlertDialog open={isLogoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
-        <AlertDialogContent className="glass-card border-white/10">
+        <AlertDialogContent className="bg-card/40 backdrop-blur-2xl border border-white/10 shadow-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-black italic uppercase tracking-tight">Terminate <span className="text-accent">Session?</span></AlertDialogTitle>
             <AlertDialogDescription className="text-white/70">
@@ -167,7 +167,7 @@ export function Header() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="glass-card border-white/5">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="border border-white/5">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleLogoutConfirm} className="bg-destructive hover:bg-destructive/90">Confirm Logout</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -266,7 +266,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[92vh] flex flex-col p-0 glass-panel border-white/5 overflow-hidden gap-0">
+            <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[92vh] flex flex-col p-0 bg-card/40 backdrop-blur-2xl border border-white/5 overflow-hidden gap-0 shadow-2xl">
                 {protocolPhase === 'EXTRA_TIME_CONFIRM' ? (
                     <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center h-full animate-in fade-in zoom-in-95 duration-300">
                         <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4 md:mb-6 shadow-[0_0_30px_rgba(255,87,34,0.2)]">

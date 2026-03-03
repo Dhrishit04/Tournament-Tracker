@@ -51,7 +51,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCard
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
-        "w-[92vw] sm:max-w-md p-0 glass-panel border-2 flex flex-col max-h-[92vh] gap-0 overflow-hidden",
+        "w-[92vw] sm:max-w-md p-0 bg-card/40 backdrop-blur-2xl border-2 flex flex-col max-h-[92vh] gap-0 overflow-hidden shadow-2xl",
         isClassA ? "border-accent/40 shadow-[0_0_80px_rgba(255,87,34,0.2)]" :
           isClassB ? "border-blue-500/40 shadow-[0_0_80px_rgba(59,130,246,0.2)]" : "border-white/10"
       )}>
