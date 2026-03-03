@@ -82,29 +82,16 @@ export function AdminSignInForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm relative border-accent/20 bg-card overflow-hidden shadow-2xl">
-      {/* Animated glow border effect */}
-      <div className="absolute inset-0 rounded-[inherit] pointer-events-none overflow-hidden">
-        <motion.div
-          className="absolute -inset-[1px] rounded-[inherit] opacity-30"
-          style={{
-            background: 'conic-gradient(from 0deg, transparent, hsl(var(--accent)), transparent, transparent)',
-          }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-        />
-      </div>
+    <Card className="w-full max-w-sm relative border-accent/20 bg-card overflow-hidden shadow-[0_0_40px_rgba(139,92,246,0.15)] transition-shadow duration-700 hover:shadow-[0_0_80px_rgba(139,92,246,0.3)]">
+      {/* Animated glow border effect - optimized for mobile with pure CSS simple pulse */}
+      <div className="absolute inset-0 bg-accent/5 animate-pulse pointer-events-none" />
 
       <motion.div variants={stagger} initial="hidden" animate="show">
         <CardHeader className="bg-accent/10 border-b border-accent/10 pb-8 relative">
           <motion.div variants={fadeUp} className="flex items-center gap-3 mb-2">
-            <motion.div
-              className="p-2 bg-accent/20 rounded-lg"
-              animate={{ boxShadow: ['0 0 0px hsl(var(--accent))', '0 0 20px hsl(var(--accent))', '0 0 0px hsl(var(--accent))'] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            >
+            <div className="p-2 bg-accent/20 rounded-lg shadow-[0_0_15px_hsl(var(--accent))] animate-pulse">
               <ShieldCheck className="h-6 w-6 text-accent" />
-            </motion.div>
+            </div>
             <CardTitle className="text-2xl font-black italic tracking-tighter uppercase">Admin <span className="text-accent">Portal</span></CardTitle>
           </motion.div>
           <motion.div variants={fadeUp}>
@@ -185,8 +172,8 @@ export function AdminSignInForm() {
             </form>
           </Form>
         </CardContent>
-      </motion.div>
-    </Card>
+      </motion.div >
+    </Card >
   );
 }
 

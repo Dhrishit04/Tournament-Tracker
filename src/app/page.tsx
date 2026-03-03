@@ -88,7 +88,7 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
-    offset: ["start start", "end end"]
+    offset: ["start start", "end start"]
   });
 
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -102,10 +102,9 @@ export default function Home() {
 
     return () => clearInterval(intervalId);
   }, [managementImages]);
-  const yHeroText = useTransform(scrollYProgress, [0, 1], [0, 150]);
-  const yHeroGlow = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  const opacityHeroVideo = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const scaleHeroVideo = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const yHeroText = useTransform(scrollYProgress, [0, 0.6], [0, 100]);
+  const yHeroGlow = useTransform(scrollYProgress, [0, 0.8], [0, 200]);
+  const yMarquee = useTransform(scrollYProgress, [0, 0.5], [0, -60]);
 
   const handleDownloadExcel = () => {
     if (!currentSeason || !teams) return;
@@ -199,17 +198,20 @@ export default function Home() {
     <div className="flex flex-col overflow-x-hidden">
       <AnnouncementBanner />
 
-      <section ref={heroRef} className="relative min-h-[90vh] w-full flex flex-col items-center justify-center text-center px-4 overflow-hidden pt-20">
-        {/* Video Background with Parallax Scale & Fade */}
-        <motion.div style={{ opacity: opacityHeroVideo, scale: scaleHeroVideo }} className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-background origin-center">
+      <section ref={heroRef} className="relative min-h-[90vh] w-full flex flex-col items-center justify-center text-center px-4 overflow-hidden pt-20 pb-28">
+        {/* Video Background (Static transform to prevent iOS pause on scroll) */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-background">
           <iframe
             src="https://www.youtube.com/embed/7D1BO0a9vTo?autoplay=1&mute=1&controls=0&loop=1&playlist=7D1BO0a9vTo&playsinline=1&rel=0&modestbranding=1"
             className="absolute top-1/2 left-1/2 w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] -translate-x-1/2 -translate-y-1/2 opacity-60 pointer-events-none"
             allow="autoplay; encrypted-media"
+            style={{ pointerEvents: 'none' }}
           />
-          <div className="absolute inset-0 bg-background/40 backdrop-blur-[1px]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-        </motion.div>
+          {/* Invisible overlay to prevent iOS from intercepting touches on the iframe */}
+          <div className="absolute inset-0 z-[1]" />
+          <div className="absolute inset-0 bg-background/40 backdrop-blur-[1px] z-[2]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-[3]" />
+        </div>
 
         {/* Glow Effects (Parallaxed) */}
         <motion.div style={{ y: yHeroGlow }} className="absolute inset-0 z-[1] pointer-events-none">
@@ -255,12 +257,15 @@ export default function Home() {
             </Button>
           </div>
         </motion.div>
+
+        {/* Team Marquee - Positioned at bottom of hero, scrolls up with parallax */}
+        <motion.div style={{ y: yMarquee }} className="absolute bottom-0 left-0 right-0 z-20">
+          <TeamMarquee />
+        </motion.div>
       </section>
 
-      <TeamMarquee />
-
       {/* JOBY STYLE: Scroll Reveal Narrative Section */}
-      <section className="py-32 md:py-48 bg-background relative z-10 px-4 md:px-8">
+      <section className="py-24 md:py-32 bg-background relative z-10 px-4 md:px-8">
         <div className="max-w-5xl mx-auto flex flex-col justify-center">
           <ScrollRevealText
             text="We are pushing the boundaries of what a football league can be. Real-time metrics, dynamic team management, and an unparalleled aesthetic experience designed for the elite."
