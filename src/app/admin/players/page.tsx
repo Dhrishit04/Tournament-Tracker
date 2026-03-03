@@ -44,6 +44,7 @@ import { useData } from '@/hooks/use-data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn, getImageUrl } from '@/lib/utils';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useToast } from '@/hooks/use-toast';
 
 const playerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -243,6 +244,7 @@ export default function AdminPlayersPage() {
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
   const [search, setSearch] = useState('');
+  const { toast } = useToast();
 
   const filteredPlayers = players.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
   const getTeamName = (teamId: string) => teams.find((t) => t.id === teamId)?.name || 'Unassigned';
@@ -261,6 +263,7 @@ export default function AdminPlayersPage() {
   const handleFormSubmit = (data: z.infer<typeof playerSchema>) => {
     if (dialogMode === 'edit' && selectedPlayer) {
       updatePlayer({ ...selectedPlayer, ...data });
+      toast({ title: 'Athlete Updated', description: `${data.name}'s profile has been modified.` });
     } else {
       const newPlayer: Player = {
         id: `p${Date.now()}`,
@@ -276,6 +279,7 @@ export default function AdminPlayersPage() {
         redCards: 0,
       }
       addPlayer(newPlayer);
+      toast({ title: 'Athlete Registered', description: `${data.name} has been added to the roster.` });
     }
     handleCloseDialog();
   };
@@ -286,8 +290,10 @@ export default function AdminPlayersPage() {
 
   const confirmDelete = () => {
     if (playerToDelete) {
+      const name = playerToDelete.name;
       deletePlayer(playerToDelete.id);
       setPlayerToDelete(null);
+      toast({ variant: 'destructive', title: 'Athlete Removed', description: `${name} has been decommissioned.` });
     }
   }
 

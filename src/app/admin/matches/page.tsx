@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Edit, Trash2, Clock, Timer, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 import {
     Table,
     TableBody,
@@ -354,6 +355,7 @@ export default function AdminMatchesPage() {
     const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
     const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
     const [matchToDelete, setMatchToDelete] = useState<Match | null>(null);
+    const { toast } = useToast();
 
     const getTeamName = (teamId: string) => teams.find(t => t.id === teamId)?.name || '...';
     const getTeamGroup = (teamId: string) => teams.find(t => t.id === teamId)?.group;
@@ -382,6 +384,7 @@ export default function AdminMatchesPage() {
                 isThirdPlacePlayoff: data.isThirdPlacePlayoff,
             };
             updateMatch(updatedMatchData);
+            toast({ title: 'Fixture Updated', description: `${getTeamName(data.homeTeamId)} vs ${getTeamName(data.awayTeamId)} has been modified.` });
         } else {
             const newMatch: Match = {
                 id: `m${Date.now()}`,
@@ -399,14 +402,18 @@ export default function AdminMatchesPage() {
                 isThirdPlacePlayoff: data.isThirdPlacePlayoff,
             };
             addMatch(newMatch);
+            toast({ title: 'Fixture Scheduled', description: `${getTeamName(data.homeTeamId)} vs ${getTeamName(data.awayTeamId)} has been added.` });
         }
         handleCloseDialog();
     };
 
     const confirmDelete = () => {
         if (matchToDelete) {
+            const homeName = getTeamName(matchToDelete.homeTeamId);
+            const awayName = getTeamName(matchToDelete.awayTeamId);
             deleteMatch(matchToDelete.id);
             setMatchToDelete(null);
+            toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${homeName} vs ${awayName} has been removed.` });
         }
     }
 

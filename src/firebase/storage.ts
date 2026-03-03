@@ -25,7 +25,6 @@ export const deleteManagementImage = async (url: string): Promise<void> => {
     if (!storage || !url) return;
     try {
         // Extract path from the firebase storage URL
-        // https://firebasestorage.googleapis.com/v0/b/YOUR_PROJECT/o/management-slider%2Ffilename?alt=media
         const baseUrl = 'https://firebasestorage.googleapis.com/v0/b/';
         if (url.startsWith(baseUrl)) {
             let pathInfo = url.split('/o/')[1];

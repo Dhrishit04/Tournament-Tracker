@@ -366,6 +366,7 @@ export default function AdminTeamsPage() {
     const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
     const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
     const [showViolationDialog, setShowViolationDialog] = useState(false);
+    const { toast } = useToast();
 
     useEffect(() => {
         if (!loading && currentSeason?.matchConfig.isGroupModeActive) {
@@ -405,6 +406,7 @@ export default function AdminTeamsPage() {
     const handleFormSubmit = (data: z.infer<typeof teamSchema>) => {
         if (dialogMode === 'edit' && selectedTeam) {
             updateTeam({ ...selectedTeam, ...data });
+            toast({ title: 'Club Updated', description: `${data.name} has been modified.` });
         } else {
             const newTeam: Team = {
                 id: `t${Date.now()}`,
@@ -415,14 +417,17 @@ export default function AdminTeamsPage() {
                 stats: { totalGoals: 0, totalAssists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, matchesDrawn: 0, totalYellowCards: 0, totalRedCards: 0, goalsAgainst: 0 },
             }
             addTeam(newTeam);
+            toast({ title: 'Club Deployed', description: `${data.name} has been added to the league.` });
         }
         handleCloseDialog();
     };
 
     const confirmDelete = () => {
         if (teamToDelete) {
+            const name = teamToDelete.name;
             deleteTeam(teamToDelete.id);
             setTeamToDelete(null);
+            toast({ variant: 'destructive', title: 'Club Removed', description: `${name} has been decommissioned.` });
         }
     }
 
