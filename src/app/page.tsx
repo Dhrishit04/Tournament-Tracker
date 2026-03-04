@@ -198,7 +198,7 @@ export default function Home() {
     <div className="flex flex-col overflow-x-hidden">
       <AnnouncementBanner />
 
-      <section ref={heroRef} className="relative min-h-[90vh] w-full flex flex-col items-center justify-center text-center px-4 overflow-hidden pt-20 pb-28">
+      <section ref={heroRef} className="relative min-h-[90vh] w-full flex flex-col items-center justify-center text-center px-4 overflow-hidden pt-28 pb-36">
         {/* Video Background (Static transform to prevent iOS pause on scroll) */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-background">
           <iframe
