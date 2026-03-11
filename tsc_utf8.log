@@ -1,0 +1,8 @@
+﻿src/admin/settings/page.tsx(25,13): error TS2339: Property 'resetSeason' does not exist on type 'DataContextState'.
+src/app/admin/logs/page.tsx(145,71): error TS2322: Type '{ children: Element[]; className: string; orientation: string; }' is not assignable to type 'IntrinsicAttributes & Omit<ScrollAreaProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<...>'.
+  Property 'orientation' does not exist on type 'IntrinsicAttributes & Omit<ScrollAreaProps & RefAttributes<HTMLDivElement>, "ref"> & RefAttributes<...>'.
+src/components/ui/calendar.tsx(57,9): error TS2353: Object literal may only specify known properties, and 'IconLeft' does not exist in type 'Partial<CustomComponents>'.
+src/components/ui/calendar.tsx(57,22): error TS7031: Binding element 'className' implicitly has an 'any' type.
+src/components/ui/calendar.tsx(60,23): error TS7031: Binding element 'className' implicitly has an 'any' type.
+src/contexts/data-context.tsx(639,21): error TS2322: Type 'Timestamp' is not assignable to type 'string | Date | undefined'.
+  Type 'Timestamp' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 36 more.

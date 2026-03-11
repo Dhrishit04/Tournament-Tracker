@@ -12,6 +12,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { SeasonProvider } from '@/contexts/season-context';
 import { SessionGuard } from '@/components/layout/session-guard';
 import { SmoothScrolling } from '@/components/providers/smooth-scrolling';
+import { AboutProvider } from '@/contexts/about-context';
 
 export const metadata: Metadata = {
   title: 'Dongre Football Premier League',
@@ -55,6 +56,7 @@ export default function RootLayout({
                 <AuthProvider>
                   <SeasonProvider>
                     <DataProvider>
+                      <AboutProvider>
                       <SessionGuard>
                         <div className="flex min-h-screen flex-col">
                           <Header />
@@ -64,6 +66,7 @@ export default function RootLayout({
                         <div className="noise-overlay" />
                       </SessionGuard>
                       <Toaster />
+                      </AboutProvider>
                     </DataProvider>
                   </SeasonProvider>
                 </AuthProvider>

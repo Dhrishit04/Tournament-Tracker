@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Shield, Users, Calendar, Settings, LayoutDashboard, UserCog, History } from 'lucide-react';
+import { Shield, Users, Calendar, Settings, LayoutDashboard, UserCog, History, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -27,6 +27,7 @@ export function AdminSidebar() {
     restrictedItems.push({ href: '/admin/settings', label: 'Settings', icon: Settings });
   }
   if (isSystemAdmin) {
+    restrictedItems.push({ href: '/admin/about', label: 'About Us', icon: Info });
     restrictedItems.push({ href: '/admin/config', label: 'Admin Config', icon: UserCog });
     restrictedItems.push({ href: '/admin/logs', label: 'System Logs', icon: History });
   }

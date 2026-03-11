@@ -42,3 +42,39 @@ export const deleteManagementImage = async (url: string): Promise<void> => {
         console.error("Failed to delete image from storage:", error);
     }
 };
+
+/**
+ * Uploads an About Us member photo to Firebase Storage and returns the download URL
+ */
+export const uploadAboutPhoto = async (file: File): Promise<string> => {
+    if (!storage) throw new Error("Firebase storage is not initialized.");
+    const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+    const storageRef = ref(storage, `about-photos/${filename}`);
+    const uploadResult = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(uploadResult.ref);
+    return downloadURL;
+};
+
+/**
+ * Deletes an About Us member photo from Firebase Storage
+ */
+export const deleteAboutPhoto = async (url: string): Promise<void> => {
+    if (!storage || !url) return;
+    try {
+        const baseUrl = 'https://firebasestorage.googleapis.com/v0/b/';
+        if (url.startsWith(baseUrl)) {
+            let pathInfo = url.split('/o/')[1];
+            if (pathInfo) {
+                const pathEnd = pathInfo.indexOf('?');
+                if (pathEnd !== -1) {
+                    pathInfo = pathInfo.substring(0, pathEnd);
+                }
+                const actualPath = decodeURIComponent(pathInfo);
+                const fileRef = ref(storage, actualPath);
+                await deleteObject(fileRef);
+            }
+        }
+    } catch (error) {
+        console.error("Failed to delete about photo from storage:", error);
+    }
+};

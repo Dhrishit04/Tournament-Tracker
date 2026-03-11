@@ -318,9 +318,9 @@ export default function Home() {
 
           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-8 text-center">
             <h3 className="text-4xl md:text-6xl font-black mb-6 drop-shadow-2xl">DFPL Management</h3>
-            <p className="text-xl md:text-2xl text-white/80 max-w-2xl font-medium mb-8">Meet our management committee.</p>
-            <Button className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 h-12 rounded-full uppercase tracking-widest backdrop-blur-md transition-all group-hover:bg-accent group-hover:border-transparent group-hover:scale-105 shadow-xl glass-panel text-[11px]">
-              About Us
+            <p className="text-xl md:text-2xl text-white/80 max-w-2xl font-medium mb-8">Meet our management committee</p>
+            <Button asChild className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 h-12 rounded-full uppercase tracking-widest backdrop-blur-md transition-all group-hover:bg-accent group-hover:border-transparent group-hover:scale-105 shadow-xl glass-panel text-[11px]">
+              <Link href="/about">About Us</Link>
             </Button>
           </div>
         </ParallaxExpand>

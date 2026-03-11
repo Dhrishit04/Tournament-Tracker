@@ -136,3 +136,24 @@ export interface LogEntry {
   action: string;
   details: string;
 }
+
+export interface SocialLink {
+  url: string;
+  platform: string; // auto-detected: 'instagram' | 'github' | 'x' | 'threads' | 'email' | 'linkedin' | 'youtube' | 'facebook' | 'website'
+}
+
+export interface AboutPosition {
+  id: string;
+  title: string;
+  order: number;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  positionId: string;
+  photoUrl: string;
+  description: string;
+  socialLinks: SocialLink[];
+  order: number;
+}
