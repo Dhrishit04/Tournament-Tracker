@@ -21,7 +21,7 @@ export default function TeamsPage() {
         <div className="mb-12 text-center md:text-left">
           <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">Club <span className="text-gradient-purple">Directory</span></h1>
           <div className="mt-4 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
-            {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
+            {currentSeason ? `${currentSeason.name} • ${currentSeason.year}` : 'CONNECTING...'}
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -60,7 +60,7 @@ export default function TeamsPage() {
           initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }}
           className="inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20"
         >
-          {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
+          {currentSeason ? `${currentSeason.name} • ${currentSeason.year}` : 'CONNECTING...'}
         </motion.div>
       </div>
       {teams.length > 0 ? (

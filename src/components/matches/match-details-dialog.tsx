@@ -296,7 +296,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                     <DialogDescription className="font-bold text-[9px] md:text-xs uppercase tracking-widest opacity-50 truncate">{format(new Date(match.date), 'EEEE, MMMM d, yyyy')}</DialogDescription>
                                 </div>
                                 {isAdmin && (
-                                    <div className="flex gap-2 self-start md:self-auto">
+                                    <div className="flex gap-2 self-start md:self-auto mr-6">
                                         <Button variant="ghost" size="sm" onClick={() => setShowSettingsForm(!showSettingsForm)} className="h-7 md:h-8 rounded-full hover:bg-white/5 border border-white/10 text-[8px] md:text-[10px] font-bold uppercase tracking-widest px-3">
                                             <Settings2 className="w-3 h-3 mr-1.5" /> {showSettingsForm ? 'Close' : 'Config'}
                                         </Button>

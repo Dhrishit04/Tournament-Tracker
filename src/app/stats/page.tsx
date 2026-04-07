@@ -93,7 +93,7 @@ export default function StatisticsPage() {
         </FadeUp>
         <p className="text-muted-foreground text-lg">Season Leaderboards and Individual Brilliance.</p>
         <div className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
-          {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
+          {currentSeason ? `${currentSeason.name} • ${currentSeason.year}` : 'CONNECTING...'}
         </div>
       </div>
 

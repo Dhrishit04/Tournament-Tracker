@@ -233,7 +233,7 @@ export default function Home() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="mb-8 inline-flex items-center rounded-full bg-white/5 px-6 py-2.5 text-base font-bold tracking-widest uppercase text-primary border border-white/10 backdrop-blur-md glow-purple"
           >
-            {seasonLoading || !currentSeason ? 'CONNECTING...' : `${currentSeason.name} • 2026`}
+            {seasonLoading || !currentSeason ? 'CONNECTING...' : `${currentSeason.name} • ${currentSeason.year}`}
           </motion.div>
 
           <FadeUp delay={0.3}>

@@ -19,9 +19,7 @@ const PLATFORM_MATCHERS: { test: (url: string) => boolean; platform: string; ico
   { test: (url) => url.startsWith('mailto:') || (url.includes('@') && !url.includes('/')), platform: 'email', icon: Mail, label: 'Email' },
 ];
 
-/**
- * Auto-detect platform from a URL string and return icon + metadata
- */
+// Auto-detect platform from a URL string and return icon + metadata
 export function detectPlatform(url: string): PlatformInfo {
   const lower = url.toLowerCase().trim();
   for (const matcher of PLATFORM_MATCHERS) {
@@ -32,16 +30,12 @@ export function detectPlatform(url: string): PlatformInfo {
   return { platform: 'website', icon: Globe, label: 'Website' };
 }
 
-/**
- * Auto-detect platform name from a URL (returns the platform string only)
- */
+// Auto-detect platform name from a URL (returns the platform string only)
 export function detectPlatformName(url: string): string {
   return detectPlatform(url).platform;
 }
 
-/**
- * Get the appropriate href for a social link (add mailto: for email if needed)
- */
+// Get the appropriate href for a social link (add mailto: for email if needed)
 export function getSocialHref(url: string): string {
   const info = detectPlatform(url);
   if (info.platform === 'email' && !url.startsWith('mailto:')) {

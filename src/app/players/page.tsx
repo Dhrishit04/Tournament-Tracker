@@ -136,7 +136,7 @@ export default function PlayersPage() {
             Official DFPL central registry and performance records.
           </motion.p>
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
-            {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
+            {currentSeason ? `${currentSeason.name} • ${currentSeason.year}` : 'CONNECTING...'}
           </motion.div>
         </div>
         {isAdmin && (

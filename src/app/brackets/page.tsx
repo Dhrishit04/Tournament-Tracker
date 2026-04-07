@@ -78,7 +78,7 @@ export default function BracketPage() {
         <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">The Championship <span className="text-gradient-purple">Road</span></h1>
         <p className="text-muted-foreground text-lg">Elimination Protocol Active</p>
         <div className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
-          {currentSeason ? `${currentSeason.name} • 2026` : 'CONNECTING...'}
+          {currentSeason ? `${currentSeason.name} • ${currentSeason.year}` : 'CONNECTING...'}
         </div>
       </div>
 

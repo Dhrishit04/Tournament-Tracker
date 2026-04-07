@@ -3,9 +3,7 @@ import { initializeFirebase } from '@/firebase';
 
 const { storage } = initializeFirebase();
 
-/**
- * Uploads an image to Firebase Storage and returns the download URL
- */
+// Uploads an image to Firebase Storage and returns the download URL
 export const uploadManagementImage = async (file: File): Promise<string> => {
     if (!storage) throw new Error("Firebase storage is not initialized.");
 
@@ -18,9 +16,7 @@ export const uploadManagementImage = async (file: File): Promise<string> => {
     return downloadURL;
 };
 
-/**
- * Deletes an image from Firebase Storage using its full URL
- */
+// Deletes an image from Firebase Storage using its full URL
 export const deleteManagementImage = async (url: string): Promise<void> => {
     if (!storage || !url) return;
     try {
@@ -43,9 +39,7 @@ export const deleteManagementImage = async (url: string): Promise<void> => {
     }
 };
 
-/**
- * Uploads an About Us member photo to Firebase Storage and returns the download URL
- */
+// Uploads an About Us member photo to Firebase Storage and returns the download URL
 export const uploadAboutPhoto = async (file: File): Promise<string> => {
     if (!storage) throw new Error("Firebase storage is not initialized.");
     const filename = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
@@ -55,9 +49,7 @@ export const uploadAboutPhoto = async (file: File): Promise<string> => {
     return downloadURL;
 };
 
-/**
- * Deletes an About Us member photo from Firebase Storage
- */
+// Deletes an About Us member photo from Firebase Storage
 export const deleteAboutPhoto = async (url: string): Promise<void> => {
     if (!storage || !url) return;
     try {
