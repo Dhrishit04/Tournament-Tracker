@@ -18,7 +18,9 @@ export function useCollection<T>(collectionName: string, options: UseCollectionO
   useEffect(() => {
     if (!firestore || !collectionName) {
         setData([]);
-        setLoading(false);
+        // Keep loading=true when collectionName is empty (e.g., waiting for seasonId).
+        // Only set loading=false when firestore itself is unavailable.
+        setLoading(!firestore ? false : true);
         return;
     }
 
