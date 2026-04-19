@@ -25,7 +25,7 @@ export interface DataContextState {
   addMatch: (match: Match) => void;
   updateMatch: (match: Match) => Promise<void>;
   deleteMatch: (matchId: string) => Promise<void>;
-  addMatchEvent: (matchId: string, event: Omit<MatchEvent, 'id'> & { id?: string }) => Promise<void>;
+  addMatchEvent: (matchId: string, event: Omit<MatchEvent, 'id'> & { id?: string }, assisterId?: string) => Promise<void>;
   updateMatchEvent: (matchId: string, eventId: string, newEventData: Omit<MatchEvent, 'id'> & { assisterId?: string }) => Promise<void>;
   deleteMatchEvent: (matchId: string, eventId: string) => Promise<void>;
   updateMatchStatus: (matchId: string, newStatus: Match['status']) => Promise<void>;
@@ -86,8 +86,8 @@ const applyStatChange = (batch: any, firestore: any, seasonId: string, match: Ma
 const updateTeamStatsForOutcome = (batch: any, firestore: any, seasonId: string, match: Match, factor: 1 | -1) => {
     const homeTeamRef = doc(firestore, 'seasons', seasonId, 'teams', match.homeTeamId);
     const awayTeamRef = doc(firestore, 'seasons', seasonId, 'teams', match.awayTeamId);
-    const hScore = match.homeScore || 0;
-    const aScore = match.awayScore || 0;
+    const hScore = match.homeScore ?? 0;
+    const aScore = match.awayScore ?? 0;
 
     batch.update(homeTeamRef, { 'stats.matchesPlayed': increment(factor) });
     batch.update(awayTeamRef, { 'stats.matchesPlayed': increment(factor) });
@@ -331,11 +331,16 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         batch.delete(matchRef);
         batch.commit().then(() => {
             logAction("DELETE_MATCH", `Erased match: ${getTeamName(matchData.homeTeamId)} vs ${getTeamName(matchData.awayTeamId)}`);
+        }).catch(async () => {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({
+                path: matchRef.path,
+                operation: 'delete'
+            }));
         });
     }
   }, [firestore, seasonId, logAction, getTeamName]);
 
-  const addMatchEvent = useCallback(async (matchId: string, event: Omit<MatchEvent, 'id'> & { id?: string }) => {
+  const addMatchEvent = useCallback(async (matchId: string, event: Omit<MatchEvent, 'id'> & { id?: string }, assisterId?: string) => {
     if (!firestore || !seasonId) return;
     const matchRef = doc(firestore, 'seasons', seasonId, 'matches', matchId);
     const matchSnap = await getDoc(matchRef);
@@ -358,11 +363,29 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     applyStatChange(batch, firestore, seasonId, match, fullEvent, 1);
 
+    // Handle assist in the same atomic batch to prevent race conditions
+    if (event.type === 'Goal' && assisterId && assisterId !== 'none') {
+        const assister = playersData.find(p => p.id === assisterId);
+        if (assister) {
+            const assistEvent: MatchEvent = {
+                id: `${eventId}-ast`,
+                type: 'Assist',
+                minute: fullEvent.minute,
+                playerId: assister.id,
+                teamId: assister.teamId,
+                playerName: assister.name,
+                linkedGoalId: eventId
+            };
+            batch.update(matchRef, { events: arrayUnion(assistEvent) });
+            applyStatChange(batch, firestore, seasonId, match, assistEvent, 1);
+        }
+    }
+
     await batch.commit().then(() => {
         logAction("ADD_MATCH_EVENT", `Recorded ${event.type} for ${event.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
         toast({ title: 'Event Added', description: `${event.type} recorded successfully.` });
     });
-  }, [firestore, seasonId, logAction, getTeamName, toast]);
+  }, [firestore, seasonId, logAction, getTeamName, toast, playersData]);
 
   const updateMatchEvent = useCallback(async (matchId: string, eventId: string, newEventData: Omit<MatchEvent, 'id'> & { assisterId?: string }) => {
     if (!firestore || !seasonId) return;
@@ -587,8 +610,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             const batch = writeBatch(firestore);
             const teamMap: Record<string, string> = {}; // Name -> ID
 
-            teamStatsSheet.forEach((row: any) => {
-                const teamId = `t${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            teamStatsSheet.forEach((row: any, index: number) => {
+                const teamId = `t${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`;
                 teamMap[row['Team Name']] = teamId;
                 const teamData: Partial<Team> = {
                     name: row['Team Name'],
@@ -610,8 +633,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                 batch.set(doc(firestore, 'seasons', seasonId, 'teams', teamId), teamData);
             });
 
-            playersSheet.forEach((row: any) => {
-                const playerId = `p${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            playersSheet.forEach((row: any, index: number) => {
+                const playerId = `p${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`;
                 const teamId = teamMap[row['Team']] || 'unassigned';
                 const playerData: Partial<Player> = {
                     name: row['Name'],
@@ -629,13 +652,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                 batch.set(doc(firestore, 'seasons', seasonId, 'players', playerId), playerData);
             });
 
-            matchesSheet.forEach((row: any) => {
-                const matchId = `m${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            matchesSheet.forEach((row: any, index: number) => {
+                const matchId = `m${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`;
                 const homeTeamId = teamMap[row['Home Team']];
                 const awayTeamId = teamMap[row['Away Team']];
                 if (!homeTeamId || !awayTeamId) return;
 
-                const matchData: Partial<Match> = {
+                const matchData = {
                     date: Timestamp.fromDate(new Date(row['Date'])),
                     time: row['Time'],
                     stage: row['Stage'] as MatchStage,
