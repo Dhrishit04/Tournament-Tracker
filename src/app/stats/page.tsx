@@ -27,7 +27,7 @@ export default function StatisticsPage() {
           <TableHead className="w-16 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Rank</TableHead>
           <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete</TableHead>
           <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Club</TableHead>
-          <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">{type === 'goals' ? 'Goals' : 'Assists'}</TableHead>
+          <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{type === 'goals' ? 'Goals' : 'Assists'}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -56,7 +56,7 @@ export default function StatisticsPage() {
               <TableCell>
                 <span className="text-xs font-bold opacity-60">{getTeamName(player.teamId)}</span>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-center">
                 <span className={cn(
                   "font-mono font-black text-lg",
                   isTop3 ? "text-accent" : "text-white/80"
