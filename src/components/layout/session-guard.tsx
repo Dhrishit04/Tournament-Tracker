@@ -52,7 +52,7 @@ export function SessionGuard({ children }: { children: React.ReactNode }) {
             </h1>
             <div className="h-1 w-12 bg-accent mx-auto rounded-full" />
             <p className="text-muted-foreground font-medium text-sm leading-relaxed">
-              The DFPL Ultimate platform is currently unavailable. Service restoration is pending completion of contractual obligations by DFPL Management.
+              The DFPL Ultimate platform is currently down for scheduled maintenance or tactical reconfiguration
             </p>
           </div>
 
