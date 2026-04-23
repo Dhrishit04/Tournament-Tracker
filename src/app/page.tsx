@@ -78,7 +78,7 @@ export function AnnouncementBanner() {
 
 export default function Home() {
   const { currentSeason, loading: seasonLoading, globalAnnouncement, managementImages } = useSeason();
-  const { teams, players, matches, loading: dataLoading } = useData();
+  const { teams, players, matches, loading: dataLoading, logAction } = useData();
   const sortedTeams = [...teams].sort((a, b) => {
     const pointsA = (a.stats.matchesWon || 0) * 3 + (a.stats.matchesDrawn || 0);
     const pointsB = (b.stats.matchesWon || 0) * 3 + (b.stats.matchesDrawn || 0);
@@ -192,6 +192,7 @@ export default function Home() {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(playersData), "Players");
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(matchesData), "Matches");
     XLSX.writeFile(wb, filename);
+    logAction("DOWNLOAD_DATA", "Downloaded complete season registry to Excel.");
   };
 
   return (

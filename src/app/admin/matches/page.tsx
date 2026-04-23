@@ -55,6 +55,7 @@ const matchSchema = z.object({
     homeTeamId: z.string().min(1, 'Home team is required'),
     awayTeamId: z.string().min(1, 'Away team is required'),
     date: z.string().min(1, 'Date is required'),
+    time: z.string().optional(),
     status: z.enum(['UPCOMING', 'LIVE', 'FINISHED', 'POSTPONED']),
     stage: z.enum(['GROUP_STAGE', 'QUARTER_FINALS', 'SEMI_FINALS', 'FINALS', 'OTHERS']),
     description: z.string().max(150, "Description must be 150 characters or less.").optional(),
@@ -224,12 +225,26 @@ function MatchForm({
 }) {
     const { currentSeason } = useSeason();
 
+    // Convert stored 12h time string (e.g. "12:30 PM") to 24h HTML input value (e.g. "12:30")
+    const parseTimeFor24hInput = (timeStr?: string): string => {
+        if (!timeStr) return '';
+        try {
+            const [timePart, meridiem] = timeStr.split(' ');
+            if (!meridiem) return timeStr; // already 24h
+            let [h, m] = timePart.split(':').map(Number);
+            if (meridiem.toUpperCase() === 'PM' && h !== 12) h += 12;
+            if (meridiem.toUpperCase() === 'AM' && h === 12) h = 0;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        } catch { return ''; }
+    };
+
     const form = useForm<z.infer<typeof matchSchema>>({
         resolver: zodResolver(matchSchema),
         defaultValues: {
             homeTeamId: match?.homeTeamId || '',
             awayTeamId: match?.awayTeamId || '',
             date: match ? (match.date instanceof Date ? format(match.date, 'yyyy-MM-dd') : format(new Date(match.date), 'yyyy-MM-dd')) : '',
+            time: parseTimeFor24hInput(match?.time),
             status: match?.status || 'UPCOMING',
             stage: match?.stage || 'GROUP_STAGE',
             description: match?.description || '',
@@ -301,9 +316,14 @@ function MatchForm({
                         <FormItem><FormLabel>Away Team</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select away team" /></SelectTrigger></FormControl><SelectContent>{teams.map((team) => (<SelectItem key={team.id} value={team.id}>{team.name} {team.group && team.group !== 'None' ? `(Group ${team.group})` : ''}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>
                     )} />
                 </div>
-                <FormField control={form.control} name="date" render={({ field }) => (
-                    <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="date" render={({ field }) => (
+                        <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    <FormField control={form.control} name="time" render={({ field }) => (
+                        <FormItem><FormLabel>Kickoff Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>
+                    )} />
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                     <FormField control={form.control} name="status" render={({ field }) => (
                         <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></Select></FormItem>
@@ -371,13 +391,25 @@ export default function AdminMatchesPage() {
         setSelectedMatch(null);
     }
 
+    // Convert 24h HTML input value (e.g. "14:30") to 12h display string (e.g. "2:30 PM")
+    const formatTimeTo12h = (time24?: string): string => {
+        if (!time24) return '12:00 AM';
+        const [h, m] = time24.split(':').map(Number);
+        const meridiem = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return `${h12}:${String(m).padStart(2, '0')} ${meridiem}`;
+    };
+
     const handleFormSubmit = async (data: z.infer<typeof matchSchema>) => {
+        const kickoffTime = formatTimeTo12h(data.time);
+
         if (dialogMode === 'edit' && selectedMatch) {
             const updatedMatchData: Match = {
                 ...selectedMatch,
                 homeTeamId: data.homeTeamId,
                 awayTeamId: data.awayTeamId,
                 date: parseISO(data.date),
+                time: kickoffTime,
                 status: data.status,
                 stage: data.stage,
                 description: data.description,
@@ -392,7 +424,7 @@ export default function AdminMatchesPage() {
                 awayTeamId: data.awayTeamId,
                 date: parseISO(data.date),
                 status: data.status,
-                time: new Date(parseISO(data.date)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                time: kickoffTime,
                 venue: 'TBD',
                 events: [],
                 homeScore: 0,

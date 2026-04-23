@@ -7,7 +7,7 @@ import {
   onAuthStateChanged,
   type User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, getDoc, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, onSnapshot, addDoc } from 'firebase/firestore';
 import { AuthContext, type AuthState, type User } from '@/contexts/auth-context';
 import { useAuth as useFirebaseAuth, useFirestore } from '@/firebase';
 
@@ -107,8 +107,23 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     async (email: string, password: string): Promise<void> => {
       if (!fbAuth || !firestore) throw new Error('Services not initialized');
       
+      const logAuth = async (emailStr: string, action: string) => {
+        const adminIdentity = emailStr === SYSTEM_ADMIN_EMAIL ? 'SYS_ADMIN' : emailStr.split('@')[0];
+        try {
+          await addDoc(collection(firestore, 'logs'), {
+            timestamp: Date.now(),
+            adminEmail: adminIdentity,
+            action,
+            details: action === 'AUTH_LOGIN' ? `Admin authenticated.` : `Admin session terminated.`
+          });
+        } catch (e) {
+          console.error('Failed to log auth event:', e);
+        }
+      };
+
       try {
         await signInWithEmailAndPassword(fbAuth, email, password);
+        await logAuth(email, 'AUTH_LOGIN');
       } catch (e) {
         // Fallback: Registry-based login (Regular Admin path)
         const q = query(
@@ -129,6 +144,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
           };
           setUser(virtualUser);
           localStorage.setItem('dfpl_admin_session', JSON.stringify(virtualUser));
+          await logAuth(email, 'AUTH_LOGIN');
           return;
         }
         throw e;
@@ -137,10 +153,23 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const logout = useCallback(async () => {
+    if (user && firestore) {
+      const adminIdentity = user.email === SYSTEM_ADMIN_EMAIL ? 'SYS_ADMIN' : user.email.split('@')[0];
+      try {
+        await addDoc(collection(firestore, 'logs'), {
+          timestamp: Date.now(),
+          adminEmail: adminIdentity,
+          action: 'AUTH_LOGOUT',
+          details: 'Admin session terminated.'
+        });
+      } catch (e) {
+        console.error('Failed to log logout:', e);
+      }
+    }
     if (fbAuth) await signOut(fbAuth);
     setUser(null);
     localStorage.removeItem('dfpl_admin_session');
-  }, [fbAuth]);
+  }, [fbAuth, user, firestore]);
 
   const authState: AuthState = {
     user,
