@@ -586,7 +586,7 @@ export default function AdminMatchesPage() {
                                                                         </AlertDialogHeader>
                                                                         <AlertDialogFooter>
                                                                             <AlertDialogCancel>Abort</AlertDialogCancel>
-                                                                            <AlertDialogAction onClick={() => { setMatchToDelete(match); confirmDelete(); }} className="hover-lift bg-destructive hover:bg-destructive/90 text-shadow-sm">Erase Match</AlertDialogAction>
+                                                                            <AlertDialogAction onClick={() => { deleteMatch(match.id); toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)} has been removed.` }); }} className="hover-lift bg-destructive hover:bg-destructive/90 text-shadow-sm">Erase Match</AlertDialogAction>
                                                                         </AlertDialogFooter>
                                                                     </AlertDialogContent>
                                                                 </AlertDialog>
@@ -623,7 +623,7 @@ export default function AdminMatchesPage() {
                                                 <TableCell className="px-8"><Badge variant="outline" className="text-[9px] font-black tracking-tighter border-white/10">{match.stage}</Badge></TableCell>
                                                 <TableCell className="font-bold text-sm">{getTeamName(match.homeTeamId)} vs {getTeamName(match.awayTeamId)}</TableCell>
                                                 <TableCell className="px-8 text-right">
-                                                    <Button variant="ghost" size="icon" className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => { setMatchToDelete(match); confirmDelete(); }}>
+                                                    <Button variant="ghost" size="icon" className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => { deleteMatch(match.id); toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)} has been removed.` }); }}>
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </TableCell>

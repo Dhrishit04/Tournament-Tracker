@@ -381,6 +381,25 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    // Auto-issue Red Card on second Yellow Card for the same player in this match
+    if (event.type === 'Yellow Card') {
+        const existingYellows = (match.events || []).filter(
+            e => e.type === 'Yellow Card' && e.playerId === event.playerId
+        );
+        if (existingYellows.length >= 1) {
+            const redCardEvent: MatchEvent = {
+                id: `${eventId}-2yc-red`,
+                type: 'Red Card',
+                minute: fullEvent.minute,
+                playerId: event.playerId,
+                teamId: event.teamId,
+                playerName: event.playerName,
+            };
+            batch.update(matchRef, { events: arrayUnion(redCardEvent) });
+            applyStatChange(batch, firestore, seasonId, match, redCardEvent, 1);
+        }
+    }
+
     await batch.commit().then(() => {
         logAction("ADD_MATCH_EVENT", `Recorded ${event.type} for ${event.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
         toast({ title: 'Event Added', description: `${event.type} recorded successfully.` });
@@ -483,6 +502,22 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     applyStatChange(batch, firestore, seasonId, match, event, -1);
 
+    // If a Yellow Card is removed, check if the auto-issued Red Card should also be removed
+    if (event.type === 'Yellow Card') {
+        const remainingYellows = (match.events || []).filter(
+            e => e.type === 'Yellow Card' && e.playerId === event.playerId && e.id !== eventId
+        );
+        if (remainingYellows.length < 2) {
+            const autoRedCard = (match.events || []).find(
+                e => e.type === 'Red Card' && e.playerId === event.playerId && e.id.endsWith('-2yc-red')
+            );
+            if (autoRedCard) {
+                batch.update(matchRef, { events: arrayRemove(autoRedCard) });
+                applyStatChange(batch, firestore, seasonId, match, autoRedCard, -1);
+            }
+        }
+    }
+
     await batch.commit().then(() => {
         logAction("DELETE_MATCH_EVENT", `Removed ${event.type} for ${event.playerName} in Match: ${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)}`);
         toast({ title: 'Event Removed', description: 'Action reverted from match history.' });
@@ -512,44 +547,86 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   const resetSeasonStats = useCallback(async () => {
     if (!firestore || !seasonId) return;
-    const batch = writeBatch(firestore);
-    
-    teams.forEach(t => {
+    const MAX_BATCH_OPS = 200;
+    let batch = writeBatch(firestore);
+    let opCount = 0;
+
+    const commitIfNeeded = async () => {
+        if (opCount >= MAX_BATCH_OPS) {
+            await batch.commit();
+            batch = writeBatch(firestore);
+            opCount = 0;
+        }
+    };
+
+    for (const t of teams) {
         batch.update(doc(firestore, 'seasons', seasonId, 'teams', t.id), {
             stats: { totalGoals: 0, totalAssists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, matchesDrawn: 0, goalsAgainst: 0, totalYellowCards: 0, totalRedCards: 0 }
         });
-    });
+        opCount++;
+        await commitIfNeeded();
+    }
 
-    players.forEach(p => {
+    for (const p of players) {
         batch.update(doc(firestore, 'seasons', seasonId, 'players', p.id), {
             goals: 0, assists: 0, matchesPlayed: 0, yellowCards: 0, redCards: 0
         });
-    });
+        opCount++;
+        await commitIfNeeded();
+    }
 
-    matches.forEach(m => {
+    for (const m of matches) {
         batch.update(doc(firestore, 'seasons', seasonId, 'matches', m.id), {
             status: 'UPCOMING', homeScore: 0, awayScore: 0, events: [], isExtraTime: false
         });
-    });
+        opCount++;
+        await commitIfNeeded();
+    }
 
-    await batch.commit().then(() => {
-        logAction("RESET_SEASON", `Purged all performance metrics for ${currentSeason?.name}`);
-        toast({ title: 'Stats Reset', description: 'Season performance logs have been zeroed.' });
-    });
+    if (opCount > 0) {
+        await batch.commit();
+    }
+
+    logAction("RESET_SEASON", `Purged all performance metrics for ${currentSeason?.name}`);
+    toast({ title: 'Stats Reset', description: 'Season performance logs have been zeroed.' });
   }, [firestore, seasonId, teams, players, matches, logAction, currentSeason, toast]);
 
   const wipeSeasonData = useCallback(async () => {
     if (!firestore || !seasonId) return;
-    const batch = writeBatch(firestore);
-    
-    players.forEach(p => batch.delete(doc(firestore, 'seasons', seasonId, 'players', p.id)));
-    teams.forEach(t => batch.delete(doc(firestore, 'seasons', seasonId, 'teams', t.id)));
-    matches.forEach(m => batch.delete(doc(firestore, 'seasons', seasonId, 'matches', m.id)));
+    const MAX_BATCH_OPS = 200;
+    let batch = writeBatch(firestore);
+    let opCount = 0;
 
-    await batch.commit().then(() => {
-        logAction("WIPE_SEASON", `Permanently erased all registries and fixtures for ${currentSeason?.name}`);
-        toast({ title: 'Data Wiped', description: 'All season records have been deleted.' });
-    });
+    const commitIfNeeded = async () => {
+        if (opCount >= MAX_BATCH_OPS) {
+            await batch.commit();
+            batch = writeBatch(firestore);
+            opCount = 0;
+        }
+    };
+
+    for (const p of players) {
+        batch.delete(doc(firestore, 'seasons', seasonId, 'players', p.id));
+        opCount++;
+        await commitIfNeeded();
+    }
+    for (const t of teams) {
+        batch.delete(doc(firestore, 'seasons', seasonId, 'teams', t.id));
+        opCount++;
+        await commitIfNeeded();
+    }
+    for (const m of matches) {
+        batch.delete(doc(firestore, 'seasons', seasonId, 'matches', m.id));
+        opCount++;
+        await commitIfNeeded();
+    }
+
+    if (opCount > 0) {
+        await batch.commit();
+    }
+
+    logAction("WIPE_SEASON", `Permanently erased all registries and fixtures for ${currentSeason?.name}`);
+    toast({ title: 'Data Wiped', description: 'All season records have been deleted.' });
   }, [firestore, seasonId, players, teams, matches, logAction, currentSeason, toast]);
 
   const importSeasonPreset = useCallback(async (sourceSeasonId: string) => {
@@ -558,29 +635,50 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         const sourceTeams = await getDocs(collection(firestore, 'seasons', sourceSeasonId, 'teams'));
         const sourcePlayers = await getDocs(collection(firestore, 'seasons', sourceSeasonId, 'players'));
 
-        const batch = writeBatch(firestore);
         const sourceName = (await getDoc(doc(firestore, 'config', 'app'))).data()?.seasons?.find((s: any) => s.id === sourceSeasonId)?.name || sourceSeasonId;
 
-        sourceTeams.forEach(tDoc => {
+        // Firestore batches have a 500 operation limit — chunk to stay safe
+        const MAX_BATCH_OPS = 200;
+        let batch = writeBatch(firestore);
+        let opCount = 0;
+
+        const commitIfNeeded = async () => {
+            if (opCount >= MAX_BATCH_OPS) {
+                await batch.commit();
+                batch = writeBatch(firestore);
+                opCount = 0;
+            }
+        };
+
+        for (const tDoc of sourceTeams.docs) {
             const { id, ...data } = tDoc.data() as Team;
             batch.set(doc(firestore, 'seasons', seasonId, 'teams', tDoc.id), {
                 ...data,
                 stats: { totalGoals: 0, totalAssists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, matchesDrawn: 0, goalsAgainst: 0, totalYellowCards: 0, totalRedCards: 0 }
             });
-        });
+            opCount++;
+            await commitIfNeeded();
+        }
 
-        sourcePlayers.forEach(pDoc => {
+        for (const pDoc of sourcePlayers.docs) {
             const { id, ...data } = pDoc.data() as Player;
             batch.set(doc(firestore, 'seasons', seasonId, 'players', pDoc.id), {
                 ...data,
                 goals: 0, assists: 0, matchesPlayed: 0, yellowCards: 0, redCards: 0
             });
-        });
+            opCount++;
+            await commitIfNeeded();
+        }
 
-        await batch.commit();
-        logAction("IMPORT_DATA", `Migrated rosters from ${sourceName} into ${currentSeason?.name}`);
+        // Commit remaining operations
+        if (opCount > 0) {
+            await batch.commit();
+        }
+
+        logAction("IMPORT_DATA", `Migrated rosters from ${sourceName} into ${currentSeason?.name} (${sourceTeams.size} teams, ${sourcePlayers.size} players)`);
         toast({ title: 'Import Complete', description: `Rosters migrated from ${sourceName} successfully.` });
     } catch (error: any) {
+        console.error('Import failed:', error);
         toast({ variant: 'destructive', title: 'Import Failed', description: error.message });
     }
   }, [firestore, seasonId, logAction, currentSeason, toast]);
@@ -607,10 +705,21 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             const playersSheet = XLSX.utils.sheet_to_json(workbook.Sheets["Players"]);
             const matchesSheet = XLSX.utils.sheet_to_json(workbook.Sheets["Matches"]);
 
-            const batch = writeBatch(firestore);
+            const MAX_BATCH_OPS = 200;
+            let batch = writeBatch(firestore);
+            let opCount = 0;
             const teamMap: Record<string, string> = {}; // Name -> ID
 
-            teamStatsSheet.forEach((row: any, index: number) => {
+            const commitIfNeeded = async () => {
+                if (opCount >= MAX_BATCH_OPS) {
+                    await batch.commit();
+                    batch = writeBatch(firestore);
+                    opCount = 0;
+                }
+            };
+
+            for (let index = 0; index < teamStatsSheet.length; index++) {
+                const row = teamStatsSheet[index] as any;
                 const teamId = `t${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`;
                 teamMap[row['Team Name']] = teamId;
                 const teamData: Partial<Team> = {
@@ -631,9 +740,12 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                     }
                 };
                 batch.set(doc(firestore, 'seasons', seasonId, 'teams', teamId), teamData);
-            });
+                opCount++;
+                await commitIfNeeded();
+            }
 
-            playersSheet.forEach((row: any, index: number) => {
+            for (let index = 0; index < playersSheet.length; index++) {
+                const row = playersSheet[index] as any;
                 const playerId = `p${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`;
                 const teamId = teamMap[row['Team']] || 'unassigned';
                 const playerData: Partial<Player> = {
@@ -650,16 +762,34 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                     avatarUrl: `player-avatar-${Math.floor(Math.random()*4)+1}`
                 };
                 batch.set(doc(firestore, 'seasons', seasonId, 'players', playerId), playerData);
-            });
+                opCount++;
+                await commitIfNeeded();
+            }
 
-            matchesSheet.forEach((row: any, index: number) => {
+            for (let index = 0; index < matchesSheet.length; index++) {
+                const row = matchesSheet[index] as any;
                 const matchId = `m${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`;
                 const homeTeamId = teamMap[row['Home Team']];
                 const awayTeamId = teamMap[row['Away Team']];
-                if (!homeTeamId || !awayTeamId) return;
+                if (!homeTeamId || !awayTeamId) continue;
+
+                // Excel stores dates as serial numbers — convert properly
+                let parsedDate: Date;
+                const rawDate = row['Date'];
+                if (typeof rawDate === 'number') {
+                    // Excel serial date: days since 1899-12-30
+                    const excelEpoch = new Date(1899, 11, 30);
+                    parsedDate = new Date(excelEpoch.getTime() + rawDate * 86400000);
+                } else {
+                    parsedDate = new Date(rawDate);
+                }
+                if (isNaN(parsedDate.getTime())) {
+                    console.warn(`Skipping match at row ${index}: invalid date "${rawDate}"`);
+                    continue;
+                }
 
                 const matchData = {
-                    date: Timestamp.fromDate(new Date(row['Date'])),
+                    date: Timestamp.fromDate(parsedDate),
                     time: row['Time'],
                     stage: row['Stage'] as MatchStage,
                     homeTeamId,
@@ -671,9 +801,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
                     events: []
                 };
                 batch.set(doc(firestore, 'seasons', seasonId, 'matches', matchId), matchData);
-            });
+                opCount++;
+                await commitIfNeeded();
+            }
 
-            await batch.commit();
+            if (opCount > 0) {
+                await batch.commit();
+            }
+
             logAction("BULK_IMPORT", `Overwrote season registry via Excel ingestion.`);
             toast({ title: 'Success', description: 'Tournament data imported successfully.' });
         } catch (error: any) {
