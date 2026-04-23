@@ -33,8 +33,8 @@ export function SessionGuard({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-6 bg-background relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,87,34,0.05)_0%,transparent_70%)] pointer-events-none" />
-        
-        <motion.div 
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-md w-full text-center space-y-8 relative z-10"
@@ -52,25 +52,25 @@ export function SessionGuard({ children }: { children: React.ReactNode }) {
             </h1>
             <div className="h-1 w-12 bg-accent mx-auto rounded-full" />
             <p className="text-muted-foreground font-medium text-sm leading-relaxed">
-              The DFPL Ultimate platform is currently down for scheduled maintenance or tactical reconfiguration. 
+              The DFPL Ultimate platform is currently down for scheduled maintenance or tactical reconfiguration
             </p>
           </div>
 
           <div className="flex flex-col items-center gap-6">
             <div className="px-8 py-4 bg-white/5 rounded-2xl border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] text-accent shadow-xl backdrop-blur-sm inline-block">
-                Please contact Admins for protocol information
+              Please contact Admins for protocol information
             </div>
-            
+
             <div className="flex flex-col gap-3">
-                <Button asChild variant="ghost" className="text-muted-foreground hover:text-white hover:bg-white/5 text-xs font-bold uppercase tracking-widest gap-2">
-                    <Link href="/admin-auth">
-                        <LogIn className="h-4 w-4" /> Admin Login Portal
-                    </Link>
-                </Button>
-                <div className="flex gap-4 justify-center">
-                    <Link href="/privacy" className="text-[10px] uppercase font-bold text-muted-foreground hover:text-accent transition-colors">Privacy</Link>
-                    <Link href="/terms" className="text-[10px] uppercase font-bold text-muted-foreground hover:text-accent transition-colors">Terms</Link>
-                </div>
+              <Button asChild variant="ghost" className="text-muted-foreground hover:text-white hover:bg-white/5 text-xs font-bold uppercase tracking-widest gap-2">
+                <Link href="/admin-auth">
+                  <LogIn className="h-4 w-4" /> Admin Login Portal
+                </Link>
+              </Button>
+              <div className="flex gap-4 justify-center">
+                <Link href="/privacy" className="text-[10px] uppercase font-bold text-muted-foreground hover:text-accent transition-colors">Privacy</Link>
+                <Link href="/terms" className="text-[10px] uppercase font-bold text-muted-foreground hover:text-accent transition-colors">Terms</Link>
+              </div>
             </div>
           </div>
         </motion.div>

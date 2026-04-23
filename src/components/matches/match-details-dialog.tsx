@@ -185,22 +185,11 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                 assisterId: (assisterId && assisterId !== 'none') ? assisterId : undefined
             } as any);
         } else {
-            if (values.type === 'Goal' && assisterId && assisterId !== 'none') {
-                const assister = players.find(p => p.id === assisterId);
-                if (!assister) return;
-                const goalEventId = `evt-${Date.now()}`;
-                await addMatchEvent(match.id, { ...baseValues, minute: actualMinute, id: goalEventId, teamId: player.teamId, playerName: player.name });
-                await addMatchEvent(match.id, {
-                    type: 'Assist',
-                    minute: actualMinute,
-                    playerId: assister.id,
-                    teamId: assister.teamId,
-                    playerName: assister.name,
-                    linkedGoalId: goalEventId
-                });
-            } else {
-                await addMatchEvent(match.id, { ...baseValues, minute: actualMinute, id: `evt-${Date.now()}`, teamId: player.teamId, playerName: player.name });
-            }
+            await addMatchEvent(
+                match.id,
+                { ...baseValues, minute: actualMinute, id: `evt-${Date.now()}`, teamId: player.teamId, playerName: player.name },
+                (values.type === 'Goal' && assisterId && assisterId !== 'none') ? assisterId : undefined
+            );
         }
         resetEventForm();
     };
@@ -288,7 +277,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                 <div className="flex-1 min-w-0">
                                     <div className="flex flex-wrap items-center gap-2 mb-1">
                                         <DialogTitle className="text-lg md:text-2xl font-black italic tracking-tighter uppercase whitespace-nowrap">Match <span className="text-accent">Protocol</span></DialogTitle>
-                                        <Badge variant="outline" className="text-[8px] md:text-[10px] font-black tracking-widest border-white/10 uppercase bg-white/5">{match.stage?.replace('_', ' ')}</Badge>
+                                        <Badge variant="outline" className="text-[8px] md:text-[10px] font-black tracking-widest border-white/10 uppercase bg-white/5">{match.stage?.replaceAll('_', ' ')}</Badge>
                                         {match.isExtraTime && (
                                             <Badge className="bg-accent text-white border-none text-[8px] md:text-[10px] font-black animate-pulse shadow-[0_0_10px_rgba(255,87,34,0.5)]">EXTRA TIME</Badge>
                                         )}

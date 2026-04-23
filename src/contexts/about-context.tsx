@@ -65,8 +65,9 @@ export const AboutProvider = ({ children }: { children: ReactNode }) => {
   // ---- Position CRUD ----
   const seedDefaultPositions = useCallback(async () => {
     if (!firestore) return;
-    for (const pos of DEFAULT_POSITIONS) {
-      const id = `pos-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+    for (let i = 0; i < DEFAULT_POSITIONS.length; i++) {
+      const pos = DEFAULT_POSITIONS[i];
+      const id = `pos-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 9)}`;
       await setDoc(doc(firestore, 'about-positions', id), pos);
     }
     logAction('ABOUT_SEED', 'Seeded default About Us positions');

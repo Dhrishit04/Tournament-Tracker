@@ -9,7 +9,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, collection, query, where, getDocs, onSnapshot, addDoc } from 'firebase/firestore';
 import { AuthContext, type AuthState, type User } from '@/contexts/auth-context';
-import { useAuth as useFirebaseAuth, useFirestore } from '@/firebase';
+import { useFirebaseAuth, useFirestore } from '@/firebase';
 
 const SYSTEM_ADMIN_EMAIL = 'dfplowners@gmail.com';
 

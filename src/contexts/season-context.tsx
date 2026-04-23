@@ -170,7 +170,7 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
     const createNextSeason = useCallback(async () => {
         if (!firestore || seasons.length === 0) return;
         const lastSeason = [...seasons].sort((a, b) => a.year - b.year)[seasons.length - 1];
-        const lastSeasonNum = parseInt(lastSeason.name.split(' ')[1]);
+        const lastSeasonNum = parseInt(lastSeason.name.split(' ')[1]) || seasons.length;
         const newSeasonNum = lastSeasonNum + 1;
         const newSeason: Season = {
             id: `season-${newSeasonNum}`,

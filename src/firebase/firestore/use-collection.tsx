@@ -39,6 +39,16 @@ export function useCollection<T>(collectionName: string, options: UseCollectionO
         snapshot.forEach((doc) => {
           result.push({ id: doc.id, ...doc.data() } as T);
         });
+        if (options.sort) {
+          const { field, order } = options.sort;
+          result.sort((a, b) => {
+            const aVal = a[field] as any;
+            const bVal = b[field] as any;
+            if (aVal < bVal) return order === 'asc' ? -1 : 1;
+            if (aVal > bVal) return order === 'asc' ? 1 : -1;
+            return 0;
+          });
+        }
         setData(result);
         setLoading(false);
       },

@@ -65,8 +65,8 @@ export default function RootLayout({
                         </div>
                         <div className="noise-overlay" />
                       </SessionGuard>
-                      <Toaster />
                       </AboutProvider>
+                      <Toaster />
                     </DataProvider>
                   </SeasonProvider>
                 </AuthProvider>
