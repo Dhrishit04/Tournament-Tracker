@@ -107,7 +107,7 @@ export default function BracketPage() {
 
         {/* OTHERS / BRONZE */}
         <div className="flex flex-col items-center">
-          <div className="text-center mb-8"><span className="text-[10px] font-black uppercase tracking-[0.3em] bg-secondary/50 px-4 py-1 rounded-full border border-border/50">Third Place Playoff</span></div>
+          <div className="text-center mb-8"><span className="text-[10px] font-black uppercase tracking-[0.3em] bg-secondary/50 px-4 py-1 rounded-full border border-border/50">Eliminator Playoff</span></div>
           <MatchNode match={getThirdPlaceMatch()} />
         </div>
       </div>
