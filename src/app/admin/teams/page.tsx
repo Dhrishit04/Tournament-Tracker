@@ -106,15 +106,15 @@ function TeamForm({
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Team Name</FormLabel>
+                        <FormItem className="w-full">
+                            <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Team Name</FormLabel>
                             <FormControl>
-                                <Input placeholder="Warriors FC" {...field} />
+                                <Input placeholder="Warriors FC" className="glass-card h-10 w-full" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -124,10 +124,10 @@ function TeamForm({
                     control={form.control}
                     name="owner"
                     render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Owner</FormLabel>
+                        <FormItem className="w-full">
+                            <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Owner</FormLabel>
                             <FormControl>
-                                <Input placeholder="John Doe" {...field} />
+                                <Input placeholder="John Doe" className="glass-card h-10 w-full" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -137,10 +137,10 @@ function TeamForm({
                     control={form.control}
                     name="logoUrl"
                     render={() => (
-                        <FormItem>
-                            <FormLabel>Team Logo</FormLabel>
+                        <FormItem className="w-full">
+                            <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Team Logo</FormLabel>
                             <FormControl>
-                                <Input type="file" accept="image/png, image/jpeg, image/jpg" onChange={handleFileChange} />
+                                <Input type="file" accept="image/png, image/jpeg, image/jpg" className="glass-card h-10 w-full file:text-white" onChange={handleFileChange} />
                             </FormControl>
                             {preview && (
                                 <div className="relative w-20 h-20 rounded-full mt-2 overflow-hidden border border-accent/20">
@@ -528,17 +528,19 @@ export default function AdminTeamsPage() {
             </Card>
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent className="w-[95vw] sm:max-w-[450px] max-h-[92vh] flex flex-col p-0 overflow-hidden bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
-                    <DialogHeader className="p-8 pb-2 flex-shrink-0">
-                        <DialogTitle className="text-3xl font-black italic uppercase tracking-tighter">{dialogMode === 'edit' ? 'Modify' : 'Deploy'} <span className="text-accent">Club</span></DialogTitle>
-                        <DialogDescription className="text-xs text-muted-foreground">Enter the club details and upload a primary identity logo.</DialogDescription>
+                <DialogContent className="w-[85vw] sm:max-w-md bg-card/40 backdrop-blur-2xl border border-white/5 p-4 sm:p-6 max-h-[85vh] flex flex-col shadow-2xl">
+                    <DialogHeader className="flex-shrink-0">
+                        <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">{dialogMode === 'edit' ? 'Modify' : 'Deploy'} <span className="text-accent">Club</span></DialogTitle>
+                        <DialogDescription className="text-[10px] text-muted-foreground">Enter the club details and upload a primary identity logo.</DialogDescription>
                     </DialogHeader>
-                    <div className="flex-1 px-8 pb-8 custom-scrollbar overflow-y-auto">
-                        <TeamForm
-                            onSubmit={handleFormSubmit}
-                            team={selectedTeam}
-                            onClose={handleCloseDialog}
-                        />
+                    <div className="flex-1 w-full mt-2 overflow-y-auto custom-scrollbar">
+                        <div className="w-[90%] mx-auto pb-6">
+                            <TeamForm
+                                onSubmit={handleFormSubmit}
+                                team={selectedTeam}
+                                onClose={handleCloseDialog}
+                            />
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

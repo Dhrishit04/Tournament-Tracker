@@ -307,46 +307,87 @@ function MatchForm({
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleValidationAndSubmit)} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <FormField control={form.control} name="homeTeamId" render={({ field }) => (
-                        <FormItem><FormLabel>Home Team</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select home team" /></SelectTrigger></FormControl><SelectContent>{teams.map((team) => (<SelectItem key={team.id} value={team.id}>{team.name} {team.group && team.group !== 'None' ? `(Group ${team.group})` : ''}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="awayTeamId" render={({ field }) => (
-                        <FormItem><FormLabel>Away Team</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select away team" /></SelectTrigger></FormControl><SelectContent>{teams.map((team) => (<SelectItem key={team.id} value={team.id}>{team.name} {team.group && team.group !== 'None' ? `(Group ${team.group})` : ''}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>
-                    )} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <FormField control={form.control} name="date" render={({ field }) => (
-                        <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                    <FormField control={form.control} name="time" render={({ field }) => (
-                        <FormItem><FormLabel>Kickoff Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>
-                    )} />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <FormField control={form.control} name="status" render={({ field }) => (
-                        <FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger></FormControl><SelectContent><SelectItem value="UPCOMING">Upcoming</SelectItem><SelectItem value="FINISHED">Finished</SelectItem><SelectItem value="LIVE">Live</SelectItem><SelectItem value="POSTPONED">Postponed</SelectItem></SelectContent></Select></FormItem>
-                    )} />
-                    <FormField control={form.control} name="stage" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Stage</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select stage" /></SelectTrigger></FormControl>
-                                <SelectContent>{availableStages.map(stage => <SelectItem key={stage.value} value={stage.value}>{stage.label}</SelectItem>)}</SelectContent>
-                            </Select>
-                            <TimingIndicator stage={selectedStage as MatchStage} />
-                            <FormMessage />
-                        </FormItem>
-                    )} />
-                </div>
+            <form onSubmit={form.handleSubmit(handleValidationAndSubmit)} className="space-y-6">
+                <FormField control={form.control} name="homeTeamId" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Home Team</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger className="glass-card h-10"><SelectValue placeholder="Select home team" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>{teams.map((team) => (<SelectItem key={team.id} value={team.id}>{team.name} {team.group && team.group !== 'None' ? `(Group ${team.group})` : ''}</SelectItem>))}</SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+
+                <FormField control={form.control} name="awayTeamId" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Away Team</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger className="glass-card h-10"><SelectValue placeholder="Select away team" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>{teams.map((team) => (<SelectItem key={team.id} value={team.id}>{team.name} {team.group && team.group !== 'None' ? `(Group ${team.group})` : ''}</SelectItem>))}</SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+
+                <FormField control={form.control} name="date" render={({ field }) => (
+                    <FormItem className="w-full">
+                        <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Date</FormLabel>
+                        <FormControl><Input type="date" className="glass-card h-10 w-full block box-border m-0 appearance-none" {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+
+                <FormField control={form.control} name="time" render={({ field }) => (
+                    <FormItem className="w-full">
+                        <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Kickoff Time</FormLabel>
+                        <FormControl><Input type="time" className="glass-card h-10 w-full block box-border m-0 appearance-none" {...field} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+
+                <FormField control={form.control} name="status" render={({ field }) => (
+                    <FormItem className="w-full">
+                        <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Status</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger className="glass-card h-10 w-full"><SelectValue placeholder="Select status" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="UPCOMING">Upcoming</SelectItem>
+                                <SelectItem value="FINISHED">Finished</SelectItem>
+                                <SelectItem value="LIVE">Live</SelectItem>
+                                <SelectItem value="POSTPONED">Postponed</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </FormItem>
+                )} />
+
+                <FormField control={form.control} name="stage" render={({ field }) => (
+                    <FormItem className="w-full">
+                        <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Stage</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger className="glass-card h-10 w-full"><SelectValue placeholder="Select stage" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>{availableStages.map(stage => <SelectItem key={stage.value} value={stage.value}>{stage.label}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <TimingIndicator stage={selectedStage as MatchStage} />
+                        <FormMessage />
+                    </FormItem>
+                )} />
+
                 {selectedStage === 'OTHERS' && (
-                    <div className="space-y-4 pt-2">
+                    <div className="space-y-6 pt-2">
                         <FormField control={form.control} name="isThirdPlacePlayoff" render={({ field }) => (
-                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 bg-white/5">
-                                <div className="space-y-0.5">
-                                    <FormLabel>Third Place Playoff</FormLabel>
-                                    <p className="text-[10px] text-muted-foreground">Enable to show on tournament brackets.</p>
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-white/5 glass-card">
+                                <div className="space-y-1">
+                                    <FormLabel className="text-xs font-bold uppercase tracking-widest">Third Place Playoff</FormLabel>
+                                    <p className="text-[10px] text-muted-foreground opacity-70">Enable to show on tournament brackets.</p>
                                 </div>
                                 <FormControl>
                                     <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -354,11 +395,16 @@ function MatchForm({
                             </FormItem>
                         )} />
                         <FormField control={form.control} name="description" render={({ field }) => (
-                            <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Add a short description for this match..." {...field} /></FormControl><FormMessage /></FormItem>
+                            <FormItem>
+                                <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Description</FormLabel>
+                                <FormControl><Textarea placeholder="Add a short description for this match..." className="glass-card min-h-[80px]" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
                         )} />
                     </div>
                 )}
-                <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-6 sm:pt-4">
+                
+                <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-4">
                     <Button type="button" variant="ghost" onClick={onClose} className="w-full sm:w-auto order-2 sm:order-1">Cancel</Button>
                     <Button type="submit" className="hover-lift glow-purple bg-accent hover:bg-accent/90 text-accent-foreground w-full sm:w-auto order-1 sm:order-2">Save Fixture</Button>
                 </DialogFooter>
@@ -638,15 +684,15 @@ export default function AdminMatchesPage() {
             </Card>
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent className="w-[95vw] sm:max-w-lg bg-card/40 backdrop-blur-2xl border border-white/5 p-8 max-h-[92vh] flex flex-col shadow-2xl">
+                <DialogContent className="w-[85vw] sm:max-w-md bg-card/40 backdrop-blur-2xl border border-white/5 p-4 sm:p-6 max-h-[85vh] flex flex-col shadow-2xl">
                     <DialogHeader className="flex-shrink-0">
-                        <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
+                        <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase">
                             {dialogMode === 'edit' ? 'Modify' : 'Schedule'} <span className="text-accent">Fixture</span>
                         </DialogTitle>
-                        <DialogDescription className="text-xs text-muted-foreground">Set match details, kickoff timing, and tournament stage.</DialogDescription>
+                        <DialogDescription className="text-[10px] text-muted-foreground">Set match details, kickoff timing, and tournament stage.</DialogDescription>
                     </DialogHeader>
-                    <ScrollArea className="flex-1 w-full mt-4 custom-scrollbar">
-                        <div className="pr-2">
+                    <div className="flex-1 w-full mt-2 overflow-y-auto custom-scrollbar">
+                        <div className="w-[90%] mx-auto pb-6">
                             <MatchForm
                                 onSubmit={handleFormSubmit}
                                 match={selectedMatch}
@@ -655,8 +701,7 @@ export default function AdminMatchesPage() {
                                 matches={matches}
                             />
                         </div>
-                        <ScrollBar orientation="vertical" className="hidden" />
-                    </ScrollArea>
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>

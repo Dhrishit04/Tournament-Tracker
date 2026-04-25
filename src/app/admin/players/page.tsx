@@ -120,7 +120,7 @@ function PlayerForm({
             <FormItem>
               <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Athlete Name</FormLabel>
               <FormControl>
-                <Input placeholder="Full legal name" className="glass-card h-12" {...field} />
+                <Input placeholder="Full legal name" className="glass-card h-10" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -135,7 +135,7 @@ function PlayerForm({
               <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Assigned Club</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="glass-card h-12">
+                  <SelectTrigger className="glass-card h-10">
                     <SelectValue placeholder="Select club" />
                   </SelectTrigger>
                 </FormControl>
@@ -150,43 +150,41 @@ function PlayerForm({
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="age"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Athlete Age</FormLabel>
+        <FormField
+          control={form.control}
+          name="age"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Athlete Age</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="Years" className="glass-card h-10 w-full" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Draft Class</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <Input type="number" placeholder="Years" className="glass-card h-12" {...field} />
+                  <SelectTrigger className="glass-card h-10 w-full">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Draft Class</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="glass-card h-12">
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="A">Class A (Elite)</SelectItem>
-                    <SelectItem value="B">Class B (Pro)</SelectItem>
-                    <SelectItem value="C">Class C (Rookie)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+                <SelectContent>
+                  <SelectItem value="A">Class A (Elite)</SelectItem>
+                  <SelectItem value="B">Class B (Pro)</SelectItem>
+                  <SelectItem value="C">Class C (Rookie)</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -196,7 +194,7 @@ function PlayerForm({
               <FormLabel className="text-xs font-bold uppercase tracking-widest opacity-70">Preferred Foot</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="glass-card h-12">
+                  <SelectTrigger className="glass-card h-10">
                     <SelectValue placeholder="Foot" />
                   </SelectTrigger>
                 </FormControl>
@@ -432,20 +430,22 @@ export default function AdminPlayersPage() {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="w-[95vw] sm:max-w-[500px] bg-card/40 backdrop-blur-2xl border border-white/5 p-0 max-h-[92vh] flex flex-col overflow-hidden gap-0 shadow-2xl">
-          <DialogHeader className="p-8 pb-4 flex-shrink-0">
-            <DialogTitle className="text-3xl font-black italic tracking-tighter uppercase">
+        <DialogContent className="w-[85vw] sm:max-w-md bg-card/40 backdrop-blur-2xl border border-white/5 p-4 sm:p-6 max-h-[85vh] flex flex-col shadow-2xl">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle className="text-2xl font-black italic tracking-tighter uppercase">
               {dialogMode === 'edit' ? 'Update' : 'Register'} <span className="text-accent">Athlete</span>
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">Modify athlete profile and draft class assignment.</DialogDescription>
+            <DialogDescription className="text-[10px] text-muted-foreground">Modify athlete profile and draft class assignment.</DialogDescription>
           </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
-            <PlayerForm
-              onSubmit={handleFormSubmit}
-              player={selectedPlayer}
-              onClose={handleCloseDialog}
-              teams={teams}
-            />
+          <div className="flex-1 w-full mt-2 overflow-y-auto custom-scrollbar">
+            <div className="w-[90%] mx-auto pb-6">
+              <PlayerForm
+                onSubmit={handleFormSubmit}
+                player={selectedPlayer}
+                onClose={handleCloseDialog}
+                teams={teams}
+              />
+            </div>
           </div>
         </DialogContent>
       </Dialog>

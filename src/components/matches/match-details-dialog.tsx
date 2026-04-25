@@ -312,11 +312,11 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                     <form onSubmit={settingsForm.handleSubmit(handleSettingsSubmit)} className="space-y-4">
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                                                             <FormField control={settingsForm.control} name="status" render={({ field }) => (
-                                                                <FormItem>
+                                                                <FormItem className="min-w-0 w-full">
                                                                     <FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Status</FormLabel>
                                                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                                         <FormControl>
-                                                                            <SelectTrigger className="h-9 text-xs glass-card"><SelectValue /></SelectTrigger>
+                                                                            <SelectTrigger className="h-9 text-xs glass-card w-full block box-border m-0 appearance-none"><SelectValue /></SelectTrigger>
                                                                         </FormControl>
                                                                         <SelectContent>
                                                                             <SelectItem value="UPCOMING">Upcoming</SelectItem>
@@ -328,11 +328,11 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                                 </FormItem>
                                                             )} />
                                                             <FormField control={settingsForm.control} name="stage" render={({ field }) => (
-                                                                <FormItem>
+                                                                <FormItem className="min-w-0 w-full">
                                                                     <FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Stage</FormLabel>
                                                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                                         <FormControl>
-                                                                            <SelectTrigger className="h-9 text-xs glass-card"><SelectValue /></SelectTrigger>
+                                                                            <SelectTrigger className="h-9 text-xs glass-card w-full block box-border m-0 appearance-none"><SelectValue /></SelectTrigger>
                                                                         </FormControl>
                                                                         <SelectContent>
                                                                             {availableStages.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
@@ -342,14 +342,14 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
                                                             )} />
                                                             {showVenue && (
                                                                 <FormField control={settingsForm.control} name="venue" render={({ field }) => (
-                                                                    <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Venue</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field} /></FormControl></FormItem>
+                                                                    <FormItem className="min-w-0 w-full"><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Venue</FormLabel><FormControl><Input className="h-9 text-xs glass-card w-full block box-border m-0 appearance-none" {...field} /></FormControl></FormItem>
                                                                 )} />
                                                             )}
                                                             <FormField control={settingsForm.control} name="date" render={({ field }) => (
-                                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Date</FormLabel><FormControl><Input type="date" className="h-9 text-xs glass-card" {...field} /></FormControl></FormItem>
+                                                                <FormItem className="min-w-0 w-full"><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Date</FormLabel><FormControl><Input type="date" className="h-9 text-xs glass-card w-full block box-border m-0 appearance-none" {...field} /></FormControl></FormItem>
                                                             )} />
                                                             <FormField control={settingsForm.control} name="time" render={({ field }) => (
-                                                                <FormItem><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Kickoff</FormLabel><FormControl><Input className="h-9 text-xs glass-card" {...field} /></FormControl></FormItem>
+                                                                <FormItem className="min-w-0 w-full"><FormLabel className="text-[9px] md:text-[10px] font-bold uppercase">Kickoff</FormLabel><FormControl><Input type="time" className="h-9 text-xs glass-card w-full block box-border m-0 appearance-none" {...field} /></FormControl></FormItem>
                                                             )} />
                                                             {currentSettingsStage !== 'GROUP_STAGE' && (
                                                                 <FormField control={settingsForm.control} name="isExtraTime" render={({ field }) => (
