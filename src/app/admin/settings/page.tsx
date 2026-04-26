@@ -2,7 +2,7 @@
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Download, Settings, Trash2, RotateCcw, Upload, FileUp, Loader2, Power, ImagePlus, X } from 'lucide-react';
+import { AlertTriangle, Download, Settings, Trash2, RotateCcw, Upload, FileUp, Loader2, Power, ImagePlus, X, Activity } from 'lucide-react';
 import { useSeason } from '@/contexts/season-context';
 import { uploadManagementImage, deleteManagementImage } from '@/firebase/storage';
 import Image from 'next/image';
@@ -162,6 +162,30 @@ export default function AdminSettingsPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-8">
+                    <Card className="glass-card border-border/50 overflow-hidden relative group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                        <CardHeader className="bg-secondary/5 border-b border-border/50 relative z-10">
+                            <CardTitle className="text-lg font-bold flex items-center gap-3">
+                                <Activity className="h-5 w-5 text-accent" /> Public Footfall
+                            </CardTitle>
+                            <CardDescription className="text-xs">
+                                Live analytics of unique visitors to the public DFPL interface.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="pt-8 pb-8 relative z-10">
+                            <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white/5 border border-white/5 shadow-inner">
+                                <div className="flex items-baseline gap-3">
+                                    <span className="text-5xl md:text-6xl font-black font-mono tracking-tighter text-foreground drop-shadow-lg">14,204</span>
+                                    <span className="text-accent font-black uppercase tracking-widest text-[10px] md:text-xs">Visits</span>
+                                </div>
+                                <div className="mt-6 flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
+                                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-green-500">Live Tracker Active</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     <Card className="glass-card border-border/50 overflow-hidden">
                         <CardHeader className="bg-secondary/5 border-b border-border/50">
                             <CardTitle className="text-lg font-bold flex items-center gap-3">
