@@ -20,7 +20,9 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useData } from '@/hooks/use-data';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useFirestore } from '@/firebase';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { AccessDenied } from '@/components/admin/access-denied';
@@ -42,6 +44,45 @@ export default function AdminSettingsPage() {
     const [isBulkImportDialogOpen, setIsBulkImportDialogOpen] = useState(false);
     const [sourceSeasonToImport, setSourceSeasonToImport] = useState('');
     const [importing, setImporting] = useState(false);
+
+    // Footfall Analytics State
+    const [footfallDocs, setFootfallDocs] = useState<any[]>([]);
+    const [footfallAllTime, setFootfallAllTime] = useState<number>(0);
+    const [footfallPeriod, setFootfallPeriod] = useState<string>('all_time');
+    const firestore = useFirestore();
+
+    useEffect(() => {
+        if (!firestore) return;
+        
+        const allTimeRef = doc(firestore, 'analytics', 'footfall_all_time');
+        const unsubAllTime = onSnapshot(allTimeRef, (docSnap) => {
+            if (docSnap.exists()) {
+                setFootfallAllTime(docSnap.data().count || 0);
+            }
+        });
+
+        const dailyQuery = query(collection(firestore, 'analytics'), where('date', '>=', '2000-01-01'));
+        const unsubDaily = onSnapshot(dailyQuery, (snapshot) => {
+            const docsData = snapshot.docs.map(d => d.data());
+            setFootfallDocs(docsData.filter(d => d.date)); 
+        });
+
+        return () => {
+            unsubAllTime();
+            unsubDaily();
+        };
+    }, [firestore]);
+
+    const displayedFootfall = useMemo(() => {
+        if (footfallPeriod === 'all_time') return footfallAllTime;
+        
+        const daysToSubtract = parseInt(footfallPeriod);
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - daysToSubtract);
+        const cutoffStr = `${cutoffDate.getFullYear()}-${String(cutoffDate.getMonth() + 1).padStart(2, '0')}-${String(cutoffDate.getDate()).padStart(2, '0')}`;
+        
+        return footfallDocs.filter(d => d.date >= cutoffStr).reduce((sum, d) => sum + (d.count || 0), 0);
+    }, [footfallDocs, footfallAllTime, footfallPeriod]);
 
     // Management Slideshow State
     const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -164,18 +205,32 @@ export default function AdminSettingsPage() {
                 <div className="space-y-8">
                     <Card className="glass-card border-border/50 overflow-hidden relative group">
                         <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                        <CardHeader className="bg-secondary/5 border-b border-border/50 relative z-10">
-                            <CardTitle className="text-lg font-bold flex items-center gap-3">
-                                <Activity className="h-5 w-5 text-accent" /> Public Footfall
-                            </CardTitle>
-                            <CardDescription className="text-xs">
-                                Live analytics of unique visitors to the public DFPL interface.
-                            </CardDescription>
+                        <CardHeader className="bg-secondary/5 border-b border-border/50 relative z-10 flex flex-row items-center justify-between pb-4">
+                            <div className="space-y-1">
+                                <CardTitle className="text-lg font-bold flex items-center gap-3">
+                                    <Activity className="h-5 w-5 text-accent" /> Public Footfall
+                                </CardTitle>
+                                <CardDescription className="text-xs hidden sm:block">
+                                    Live analytics of unique visitors.
+                                </CardDescription>
+                            </div>
+                            <Select value={footfallPeriod} onValueChange={setFootfallPeriod}>
+                                <SelectTrigger className="w-[130px] h-9 text-[10px] font-black uppercase tracking-widest glass-card bg-white/5 border-white/10 shrink-0">
+                                    <SelectValue placeholder="Period" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="7">Last 7 Days</SelectItem>
+                                    <SelectItem value="15">Last 15 Days</SelectItem>
+                                    <SelectItem value="30">Last 30 Days</SelectItem>
+                                    <SelectItem value="60">Last 60 Days</SelectItem>
+                                    <SelectItem value="all_time">All Time</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </CardHeader>
                         <CardContent className="pt-8 pb-8 relative z-10">
-                            <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white/5 border border-white/5 shadow-inner">
+                            <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white/5 border border-white/5 shadow-inner transition-all duration-500 ease-in-out">
                                 <div className="flex items-baseline gap-3">
-                                    <span className="text-5xl md:text-6xl font-black font-mono tracking-tighter text-foreground drop-shadow-lg">14,204</span>
+                                    <span className="text-5xl md:text-6xl font-black font-mono tracking-tighter text-foreground drop-shadow-lg">{displayedFootfall.toLocaleString()}</span>
                                     <span className="text-accent font-black uppercase tracking-widest text-[10px] md:text-xs">Visits</span>
                                 </div>
                                 <div className="mt-6 flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
@@ -186,32 +241,7 @@ export default function AdminSettingsPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="glass-card border-border/50 overflow-hidden">
-                        <CardHeader className="bg-secondary/5 border-b border-border/50">
-                            <CardTitle className="text-lg font-bold flex items-center gap-3">
-                                <Power className="h-5 w-5 text-accent" /> System Status
-                            </CardTitle>
-                            <CardDescription className="text-xs">
-                                Toggle overall application visibility for non-administrative users.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="pt-8">
-                            <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                                <div className="space-y-0.5">
-                                    <Label htmlFor="session-active-toggle" className="text-sm font-bold uppercase tracking-tight">Public Session</Label>
-                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
-                                        {isSessionActive ? "Site is visible to the public." : "Site is hidden (Maintenance Mode)."}
-                                    </p>
-                                </div>
-                                <Switch
-                                    id="session-active-toggle"
-                                    checked={isSessionActive}
-                                    onCheckedChange={setSessionActive}
-                                    className="data-[state=checked]:bg-accent"
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
+
 
                     <Card className="glass-card border-border/50 overflow-hidden">
                         <CardHeader className="bg-secondary/5 border-b border-border/50">
@@ -329,59 +359,12 @@ export default function AdminSettingsPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="glass-card border-border/50 overflow-hidden lg:col-span-2">
-                        <CardHeader className="bg-secondary/5 border-b border-border/50">
-                            <CardTitle className="text-lg font-bold flex items-center gap-3">
-                                <ImagePlus className="h-5 w-5 text-accent" /> Management Slideshow
-                            </CardTitle>
-                            <CardDescription className="text-xs">
-                                Upload up to 5 high-resolution images (max 10MB each) for the DFPL Management section on the public homepage.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="pt-8">
-                            <div className="flex flex-col gap-6">
-                                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                    {managementImages?.map((url, index) => (
-                                        <div key={index} className="relative aspect-[4/3] rounded-xl overflow-hidden border border-white/10 group bg-card/50">
-                                            <Image src={url} alt={`Management Image ${index + 1}`} fill className="object-cover" />
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                                                <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full" onClick={() => handleRemoveManagementImage(url)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {(!managementImages || managementImages.length < 5) && (
-                                        <button
-                                            onClick={() => imageInputRef.current?.click()}
-                                            disabled={isUploadingImage}
-                                            className="aspect-[4/3] rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed group"
-                                        >
-                                            {isUploadingImage ? (
-                                                <Loader2 className="h-6 w-6 animate-spin text-accent" />
-                                            ) : (
-                                                <>
-                                                    <ImagePlus className="h-6 w-6 group-hover:scale-110 transition-transform group-hover:text-accent" />
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest">{managementImages?.length || 0}/5 Upload</span>
-                                                </>
-                                            )}
-                                        </button>
-                                    )}
-                                </div>
-                                <input
-                                    type="file"
-                                    accept="image/png, image/jpeg, image/jpg"
-                                    className="hidden"
-                                    ref={imageInputRef}
-                                    onChange={handleManagementImageUpload}
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
+
                 </div>
 
-                <Card className="glass-card border-destructive/20 bg-destructive/5 overflow-hidden h-fit">
-                    <CardHeader className="bg-destructive/10 border-b border-destructive/10">
+                <div className="space-y-8">
+                    <Card className="glass-card border-destructive/20 bg-destructive/5 overflow-hidden h-fit">
+                        <CardHeader className="bg-destructive/10 border-b border-destructive/10">
                         <CardTitle className="flex items-center gap-3 text-destructive uppercase tracking-tighter font-black italic">
                             <AlertTriangle className="h-5 w-5" /> Critical Zones
                         </CardTitle>
@@ -476,6 +459,84 @@ export default function AdminSettingsPage() {
                         )}
                     </CardContent>
                 </Card>
+
+                <Card className="glass-card border-border/50 overflow-hidden">
+                    <CardHeader className="bg-secondary/5 border-b border-border/50">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3">
+                            <Power className="h-5 w-5 text-accent" /> System Status
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            Toggle overall application visibility for non-administrative users.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-8">
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="session-active-toggle" className="text-sm font-bold uppercase tracking-tight">Public Session</Label>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                                    {isSessionActive ? "Site is visible to the public." : "Site is hidden (Maintenance Mode)."}
+                                </p>
+                            </div>
+                            <Switch
+                                id="session-active-toggle"
+                                checked={isSessionActive}
+                                onCheckedChange={setSessionActive}
+                                className="data-[state=checked]:bg-accent"
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="glass-card border-border/50 overflow-hidden">
+                    <CardHeader className="bg-secondary/5 border-b border-border/50">
+                        <CardTitle className="text-lg font-bold flex items-center gap-3">
+                            <ImagePlus className="h-5 w-5 text-accent" /> Management Slideshow
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            Upload up to 5 high-resolution images (max 10MB each) for the DFPL Management section on the public homepage.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-8">
+                        <div className="flex flex-col gap-6">
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                {managementImages?.map((url, index) => (
+                                    <div key={index} className="relative aspect-[4/3] rounded-xl overflow-hidden border border-white/10 group bg-card/50">
+                                        <Image src={url} alt={`Management Image ${index + 1}`} fill className="object-cover" />
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                                            <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full" onClick={() => handleRemoveManagementImage(url)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                                {(!managementImages || managementImages.length < 5) && (
+                                    <button
+                                        onClick={() => imageInputRef.current?.click()}
+                                        disabled={isUploadingImage}
+                                        className="aspect-[4/3] rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed group"
+                                    >
+                                        {isUploadingImage ? (
+                                            <Loader2 className="h-6 w-6 animate-spin text-accent" />
+                                        ) : (
+                                            <>
+                                                <ImagePlus className="h-6 w-6 group-hover:scale-110 transition-transform group-hover:text-accent" />
+                                                <span className="text-[10px] font-bold uppercase tracking-widest">{managementImages?.length || 0}/5 Upload</span>
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+                            </div>
+                            <input
+                                type="file"
+                                accept="image/png, image/jpeg, image/jpg"
+                                className="hidden"
+                                ref={imageInputRef}
+                                onChange={handleManagementImageUpload}
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
             </div>
         </div>
     );

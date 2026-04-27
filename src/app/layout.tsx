@@ -13,6 +13,7 @@ import { SeasonProvider } from '@/contexts/season-context';
 import { SessionGuard } from '@/components/layout/session-guard';
 import { SmoothScrolling } from '@/components/providers/smooth-scrolling';
 import { AboutProvider } from '@/contexts/about-context';
+import { FootfallTracker } from '@/components/layout/footfall-tracker';
 
 export const metadata: Metadata = {
   title: 'Dongre Football Premier League',
@@ -64,6 +65,7 @@ export default function RootLayout({
                           <Footer />
                         </div>
                         <div className="noise-overlay" />
+                        <FootfallTracker />
                       </SessionGuard>
                       </AboutProvider>
                       <Toaster />

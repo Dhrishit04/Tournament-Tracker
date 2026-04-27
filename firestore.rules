@@ -47,6 +47,14 @@ service cloud.firestore {
       allow read, delete: if isSystemAdmin();
       allow update: if false;
     }
+
+    /**
+     * Analytics: Open for reading and writing to allow public footfall tracking.
+     */
+    match /analytics/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
     
     match /{document=**} {
       allow read: if true;
