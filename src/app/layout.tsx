@@ -6,7 +6,6 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { AuthProvider } from '@/components/providers/auth-provider';
-import { QueryProvider } from '@/components/providers/query-provider';
 import { DataProvider } from '@/contexts/data-context';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { SeasonProvider } from '@/contexts/season-context';
@@ -46,7 +45,6 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <SmoothScrolling>
-          <QueryProvider>
             <ThemeProvider
               attribute="class"
               defaultTheme="system"
@@ -74,7 +72,6 @@ export default function RootLayout({
                 </AuthProvider>
               </FirebaseClientProvider>
             </ThemeProvider>
-          </QueryProvider>
         </SmoothScrolling>
       </body>
     </html>

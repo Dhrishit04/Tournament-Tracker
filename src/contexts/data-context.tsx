@@ -838,11 +838,3 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };
-
-export const useData = (): DataContextState => {
-  const context = useContext(DataContext);
-  if (context === undefined) {
-    throw new Error('useData must be used within a DataProvider');
-  }
-  return context;
-};
