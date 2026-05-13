@@ -1,118 +1,318 @@
 
 <div align="center">
-  <h1 style="color: #1A237E; font-family: 'Inter', sans-serif; font-size: 3em; font-weight: bold;">
-    Tournament Tracker
-  </h1>
-  <p style="color: #1A237E; font-family: 'Inter', sans-serif; font-size: 1.2em;">
-    A high-performance tournament management platform built with Next.js 15 and Firebase.
-  </p>
-  <p style="color: #FF5722; font-weight: bold; font-family: 'Inter', sans-serif;">
-    Official Domain: <a href="https://dongrefootballpremierleague.online" style="color: #FF5722;">dongrefootballpremierleague.online</a>
-  </p>
+  <h1>⚽ Tournament Tracker</h1>
+  <p><strong>A production-grade tournament management platform built with Next.js 15, Firebase, and Gemini AI.</strong></p>
+  <p>Battle-tested with <strong>200+ concurrent users</strong> during a live tournament — zero downtime.</p>
   <br>
   <p>
-    <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js 15">
-    <img src="https://img.shields.io/badge/Firebase-B22A0F?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase">
-    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+    <a href="https://dongrefootballpremierleague.online"><img src="https://img.shields.io/badge/🌐_Live_Site-dongrefootballpremierleague.online-7C3AED?style=for-the-badge" alt="Live Site"></a>
+  </p>
+  <p>
+    <img src="https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js 15">
+    <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 19">
+    <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+    <img src="https://img.shields.io/badge/Firebase-11-DD2C00?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase">
+    <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
     <img src="https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?style=for-the-badge&logo=google-gemini&logoColor=white" alt="Gemini 2.5 Flash">
   </p>
 </div>
 
 <br>
 
-<h2 style="color: #1A237E; border-bottom: 2px solid #FF5722; padding-bottom: 5px; font-family: 'Inter', sans-serif;">Technical Stack</h2>
+## Overview
 
-<ul style="font-family: 'Inter', sans-serif; list-style-type: none; padding-left: 0;">
-  <li style="margin-bottom: 10px;"><strong>Framework</strong>: Next.js 15 (App Router)</li>
-  <li style="margin-bottom: 10px;"><strong>Database</strong>: Cloud Firestore (NoSQL)</li>
-  <li style="margin-bottom: 10px;"><strong>Authentication</strong>: Hybrid (Firebase Auth for Root, Firestore Registry for Staff)</li>
-  <li style="margin-bottom: 10px;"><strong>AI Integration</strong>: Genkit with Gemini 2.5 Flash</li>
-  <li style="margin-bottom: 10px;"><strong>Styling</strong>: Tailwind CSS & ShadCN UI</li>
-  <li style="margin-bottom: 10px;"><strong>Real-time</strong>: Firebase Client SDK</li>
-</ul>
+Tournament Tracker is a full-stack web application purpose-built for the **Dongre Football Premier League (DFPL)** — a community football tournament. It provides both a public-facing website for live match tracking and a comprehensive admin command center for tournament management.
 
-<h2 style="color: #1A237E; border-bottom: 2px solid #FF5722; padding-bottom: 5px; font-family: 'Inter', sans-serif;">Backend Architecture</h2>
+### What it does
 
-<p style="font-family: 'Inter', sans-serif;">The application utilizes a serverless architecture where Firebase acts as the Backend-as-a-Service (BaaS).</p>
-<ul style="font-family: 'Inter', sans-serif; list-style-type: '✔  '; padding-left: 20px;">
-  <li style="margin-bottom: 10px; color: #1A237E;"><strong style="color: #1A237E;">Data Persistence</strong>: All league data is scoped by season and stored in Firestore.</li>
-  <li style="margin-bottom: 10px; color: #1A237E;"><strong style="color: #1A237E;">Security</strong>: Granular access control is enforced via Firestore Security Rules.</li>
-  <li style="margin-bottom: 10px; color: #1A237E;"><strong style="color: #1A237E;">Audit Engine</strong>: A built-in logging system tracks every administrative action for total accountability.</li>
-</ul>
+- **Public Site** — Real-time league standings, live match scores, player statistics, team profiles, knockout brackets, and a dynamic homepage with broadcast announcements.
+- **Admin Panel** — A complete back-office with player/team/fixture CRUD, live match event tracking (goals, assists, cards), group stage management, season lifecycle controls, bulk data import, and an AI-powered scout report.
+- **Multi-Season Architecture** — All data is scoped per season. Admins can create new seasons, migrate rosters from past seasons, or import bulk data via Excel.
 
+<br>
 
-<h2 style="color: #1A237E; border-bottom: 2px solid #FF5722; padding-bottom: 5px; font-family: 'Inter', sans-serif;">Admin Panel</h2>
+## Technical Stack
 
-<h3>Command Center — Overview</h3>
-<p>Central admin dashboard with quick stats, broadcast hub, AI season scout, and navigation to all admin modules.</p>
-<img src="public/ReadMe/1 admin - overview.png" alt="Admin Overview" width="100%">
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Framework** | Next.js 15 (App Router) | SSR, routing, server actions |
+| **Language** | TypeScript 5 | End-to-end type safety |
+| **UI Library** | React 19 | Component architecture |
+| **Styling** | Tailwind CSS + ShadCN/UI + Framer Motion | Design system, animations |
+| **Database** | Cloud Firestore (NoSQL) | Real-time document store |
+| **Auth** | Firebase Auth + Firestore Registry | Hybrid RBAC (System Admin + Staff) |
+| **Storage** | Firebase Cloud Storage | Image uploads (avatars, logos, management photos) |
+| **AI** | Genkit + Gemini 2.5 Flash | AI Season Scout report generation |
+| **Hosting** | Firebase App Hosting | Production deployment with custom domain |
+| **Smooth Scroll** | Lenis | Premium scrolling experience |
+| **Data Import** | SheetJS (xlsx) | Bulk Excel ingestion (.xlsx) |
+| **Charts** | Recharts | Data visualisation |
 
-<br><br>
+<br>
 
-<h3>Athlete Roster</h3>
-<p>Player registry with club assignments, draft classification, search, and inline CRUD actions.</p>
-<img src="public/ReadMe/2 admin - players.png" alt="Admin Players" width="100%">
+## Architecture
 
-<br><br>
+### Serverless BaaS Model
 
-<h3>Club Operations</h3>
-<p>Team management with group mode toggle, owner details, and deploy/edit/delete controls.</p>
-<img src="public/ReadMe/3 admin - teams.png" alt="Admin Teams" width="100%">
+The entire backend runs on Firebase. There are no custom API routes or server infrastructure to maintain.
 
-<br><br>
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Client (Next.js)                     │
+│                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐ │
+│  │ Season   │  │  Data    │  │  Auth    │  │  About  │ │
+│  │ Context  │  │  Context │  │  Context │  │ Context │ │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬────┘ │
+│       │              │             │              │      │
+│       └──────────────┴─────────────┴──────────────┘      │
+│                          │                               │
+│               ┌──────────┴──────────┐                    │
+│               │  Firebase SDK Layer │                    │
+│               │  (Real-time hooks)  │                    │
+│               └──────────┬──────────┘                    │
+└──────────────────────────┼───────────────────────────────┘
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+        ┌─────┴────┐ ┌────┴────┐ ┌─────┴─────┐
+        │ Firestore │ │  Auth   │ │  Storage  │
+        │           │ │         │ │           │
+        │ /seasons  │ │  Root   │ │  Avatars  │
+        │ /config   │ │  Admin  │ │  Logos    │
+        │ /admins   │ │  (Email)│ │  Photos   │
+        │ /logs     │ │         │ │           │
+        │ /analytics│ │         │ │           │
+        └───────────┘ └─────────┘ └───────────┘
+```
 
-<h3>Group Assignment</h3>
-<p>Modal for assigning clubs into tournament groups (4 teams per group) with batch save.</p>
-<img src="public/ReadMe/4 admin - teams (Assign groups).png" alt="Group Assignment" width="100%">
+### Firestore Data Schema
 
-<br><br>
+```
+firestore/
+├── config/
+│   └── app                    # SeasonConfig (current season, announcements, management images)
+├── seasons/
+│   └── {seasonId}/
+│       ├── teams/{teamId}     # Team profile + cumulative stats
+│       ├── players/{playerId} # Player profile + performance stats
+│       └── matches/{matchId}  # Fixture data + embedded match events[]
+├── admins/{adminId}           # Staff registry (email, hashed password, access level)
+├── logs/{logId}               # Audit trail (timestamp, admin, action, details)
+└── analytics/
+    ├── footfall_all_time      # Master visitor counter
+    └── daily_{YYYY-MM-DD}     # Per-day unique visitor counts
+```
 
-<h3>Group Mode Active</h3>
-<p>Club registry view with group tags displayed after group mode is enabled.</p>
-<img src="public/ReadMe/5 admin - teams (group mode active).png" alt="Group Mode Active" width="100%">
+### Real-Time Data Flow
 
-<br><br>
+All data subscriptions use Firestore `onSnapshot` listeners wrapped in custom React hooks (`useCollection`, `useDoc`). When any admin updates a match score, every connected client — spectators, other admins, the public standings page — reflects the change instantly without polling.
 
-<h3>League Standings (Group Stage)</h3>
-<p>Public standings page with split Group A/B tables showing live MP, W, D, L, GF, GA, GD, and PTS.</p>
-<img src="public/ReadMe/6 standings page (grp mode active).png" alt="Standings Group Mode" width="100%">
+### Authentication & Access Control
 
-<br><br>
+The system uses a **hybrid auth model**:
 
-<h3>Match Fixtures</h3>
-<p>Fixture scheduler with stage filtering, visibility toggles, match timing config, and live scoreline tracking.</p>
-<img src="public/ReadMe/7 admin - fixtures.png" alt="Admin Fixtures" width="100%">
+| Role | Auth Method | Capabilities |
+|---|---|---|
+| **System Admin** | Firebase Auth (email/password) | Full access — credential management, season deletion, staff elevation, settings access |
+| **Staff Admin** | Firestore registry (email/password stored in `/admins`) | CRUD operations on players, teams, matches. No access to system config or staff management |
+| **Public User** | Unauthenticated | Read-only access to public pages. Footfall tracking via localStorage |
 
-<br><br>
+Access control is enforced at **three levels**:
+1. **Firestore Security Rules** — Database-level read/write restrictions per collection
+2. **Client-side guards** — React context checks (`isAdmin`, `isSystemAdmin`, `canAccessSettings`)
+3. **Audit logging** — Every admin action is written to `/logs` with timestamp, identity, and operation details
 
-<h3>System Configuration</h3>
-<p>Settings hub — live footfall analytics, season lifecycle, bulk Excel ingestion, data migration, critical zones, and system status.</p>
-<img src="public/ReadMe/8 admin - settings.png" alt="Admin Settings" width="100%">
+<br>
 
-<br><br>
+## Key Features
 
-<h3>About Us Management</h3>
-<p>CMS for the public About page — manage team positions/roles and member profiles with social links.</p>
-<img src="public/ReadMe/9 admin - about us.png" alt="Admin About Us" width="100%">
+### Public Pages
+- 📊 **Standings** — Auto-calculated league table with group stage support (Group A/B split)
+- ⚽ **Matches** — Live match center with real-time score updates and detailed match timeline
+- 👥 **Teams & Players** — Club profiles, player cards, and performance statistics
+- 🏆 **Brackets** — Knockout stage visualisation (Semi-Finals, Finals)
+- 📈 **Stats** — Top scorers, assist leaders, and disciplinary records
+- 📢 **Broadcast Ticker** — Global announcements displayed across all pages
+- 👤 **About** — Dynamic team page with positions, member profiles, and social links
 
-<br><br>
+### Admin Command Center
+- 🎯 **Overview Dashboard** — Quick stats, broadcast hub, and AI Season Scout
+- 🤖 **AI Scout** — Gemini-powered tournament analysis with top team/player insights
+- 👟 **Player Management** — Full CRUD with draft classification, club assignment, and avatar upload
+- 🏟️ **Team Management** — Deploy clubs, assign groups, enable/disable group mode
+- 📅 **Fixture Engine** — Schedule matches, track live events (goals, assists, cards), stage filtering
+- ⚙️ **System Configuration** — Season switching, bulk Excel import, cross-season data migration
+- 📊 **Footfall Analytics** — Live visitor tracking with time-range filtering (7D/15D/30D/60D/All Time)
+- 🔐 **Admin Config** — Staff registration, access elevation, system admin credential management
+- 📋 **System Logs** — Terminal-style audit viewer with export and purge capabilities
+- ℹ️ **About CMS** — Manage public About page positions and team members
 
-<h3>Admin Configuration</h3>
-<p>Root authority management — system admin credentials, staff registration, and access elevation controls.</p>
-<img src="public/ReadMe/10 admin - config.png" alt="Admin Config" width="100%">
+### Match Event System
+The match event system handles atomic stat computation using Firestore `writeBatch`. When a goal is recorded:
+1. Match score increments
+2. Player goal tally increments
+3. Team total goals increment
+4. Opponent goals-against increments
+5. If an assist is selected, the assister's stats update in the same batch
+6. On second yellow card, a red card is auto-issued
 
-<br><br>
+All operations are **reversible** — deleting an event reverts every stat change atomically.
 
-<h3>System Terminal</h3>
-<p>Audit log viewer styled as a terminal — tracks every admin action with timestamps, identity, and operation details.</p>
-<img src="public/ReadMe/11 admin - logs.png" alt="System Logs" width="100%">
+<br>
 
-<br><br>
+## Admin Panel Screenshots
 
-<h2 style="color: #1A237E; border-bottom: 2px solid #FF5722; padding-bottom: 5px; font-family: 'Inter', sans-serif;">Color Palette</h2>
+<div style="overflow-x: auto; white-space: nowrap; padding: 16px 0;">
+<table>
+  <tr>
+    <td align="center" width="600">
+      <img src="public/ReadMe/1 admin - overview.png" width="580" alt="Command Center"><br>
+      <strong>Command Center</strong><br>
+      <sub>Central dashboard with quick stats, broadcast hub, AI season scout, and module navigation.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/2 admin - players.png" width="580" alt="Athlete Roster"><br>
+      <strong>Athlete Roster</strong><br>
+      <sub>Player registry with club assignments, draft classification, search, and inline CRUD actions.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/3 admin - teams.png" width="580" alt="Club Operations"><br>
+      <strong>Club Operations</strong><br>
+      <sub>Team management with group mode toggle, owner details, and deploy/edit/delete controls.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/4 admin - teams (Assign groups).png" width="580" alt="Group Assignment"><br>
+      <strong>Group Assignment</strong><br>
+      <sub>Assign clubs into tournament groups (4 teams per group) with batch save.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/5 admin - teams (group mode active).png" width="580" alt="Group Mode Active"><br>
+      <strong>Group Mode Active</strong><br>
+      <sub>Club registry displaying group tags (A/B) after group mode is enabled.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/6 standings page (grp mode active).png" width="580" alt="Standings - Groups"><br>
+      <strong>League Standings</strong><br>
+      <sub>Public standings with split Group A/B tables — MP, W, D, L, GF, GA, GD, PTS.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/7 admin - fixtures.png" width="580" alt="Match Fixtures"><br>
+      <strong>Match Fixtures</strong><br>
+      <sub>Fixture scheduler with stage filtering, visibility toggles, and live scoreline tracking.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/8 admin - settings.png" width="580" alt="System Configuration"><br>
+      <strong>System Configuration</strong><br>
+      <sub>Footfall analytics, season lifecycle, bulk Excel ingestion, data migration, and critical zones.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/9 admin - about us.png" width="580" alt="About Us Management"><br>
+      <strong>About Us CMS</strong><br>
+      <sub>Manage public About page — team positions, member profiles, and social links.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/10 admin - config.png" width="580" alt="Admin Configuration"><br>
+      <strong>Admin Configuration</strong><br>
+      <sub>Root authority management — system admin credentials, staff registration, access elevation.</sub>
+    </td>
+    <td align="center" width="600">
+      <img src="public/ReadMe/11 admin - logs.png" width="580" alt="System Terminal"><br>
+      <strong>System Terminal</strong><br>
+      <sub>Audit log viewer — every admin action tracked with timestamps, identity, and operations.</sub>
+    </td>
+  </tr>
+</table>
+</div>
 
-<div style="display: flex; gap: 10px; font-family: 'Inter', sans-serif;">
-  <div style="background-color: #1A237E; color: white; padding: 10px; border-radius: 5px;">Primary: #1A237E</div>
-  <div style="background-color: #F5F5F5; color: black; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">Background: #F5F5F5</div>
-  <div style="background-color: #FF5722; color: white; padding: 10px; border-radius: 5px;">Accent: #FF5722</div>
+<br>
+
+## Project Structure
+
+```
+src/
+├── app/                        # Next.js App Router pages
+│   ├── page.tsx                # Public homepage
+│   ├── standings/              # League standings
+│   ├── matches/                # Match center
+│   ├── teams/                  # Team profiles
+│   ├── players/                # Player cards
+│   ├── stats/                  # Performance statistics
+│   ├── brackets/               # Knockout bracket
+│   ├── about/                  # About page
+│   ├── admin/                  # Admin panel (7 sub-routes)
+│   └── admin-auth/             # Admin login
+├── components/
+│   ├── ui/                     # ShadCN/UI primitives
+│   ├── layout/                 # Header, Footer, SessionGuard, FootfallTracker
+│   ├── admin/                  # Admin sidebar, access control
+│   ├── providers/              # Auth, Theme, SmoothScrolling
+│   ├── matches/                # Match details dialog
+│   └── players/                # Athlete card dialog
+├── contexts/                   # React context providers
+│   ├── season-context.tsx      # Season switching, config, announcements
+│   ├── data-context.tsx        # All CRUD operations + stat computation
+│   ├── auth-context.tsx        # Auth types
+│   └── about-context.tsx       # About page CMS
+├── firebase/                   # Firebase SDK integration
+│   ├── firestore/              # useCollection, useDoc hooks
+│   ├── auth/                   # useUser hook
+│   ├── provider.tsx            # Firebase context provider
+│   └── storage.ts              # Image upload utilities
+├── hooks/                      # Custom React hooks
+├── ai/                         # Genkit AI flows
+│   └── flows/season-scout-flow.ts
+├── lib/                        # Utilities (cn, getImageUrl)
+└── types/                      # TypeScript interfaces
+```
+
+<br>
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- A Firebase project with Firestore, Auth, and Storage enabled
+
+### Setup
+
+```bash
+# Clone
+git clone https://github.com/YourUsername/Tournament-Tracker.git
+cd Tournament-Tracker
+
+# Install dependencies
+npm install
+
+# Configure environment variables
+cp .env.example .env
+# Fill in your Firebase config values
+
+# Run development server
+npm run dev
+```
+
+The app runs at `http://localhost:9002`.
+
+### Environment Variables
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+GOOGLE_GENAI_API_KEY=              # For AI Season Scout
+```
+
+<br>
+
+## License
+
+This project is proprietary to the Dongre Football Premier League.
+
+<div align="center">
+  <br>
+  <p><strong>© 2026 Dongre Football Premier League. All Rights Reserved.</strong></p>
 </div>
