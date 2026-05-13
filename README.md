@@ -1,8 +1,9 @@
 
 <div align="center">
   <h1>⚽ Tournament Tracker</h1>
-  <p><strong>A production-grade tournament management platform built with Next.js 15, Firebase, and Gemini AI.</strong></p>
-  <p>Battle-tested with <strong>200+ concurrent users</strong> during a live tournament — zero downtime.</p>
+  <a href="https://dongrefootballpremierleague.online">
+    <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=600&size=22&pause=1500&color=FF5722&center=true&vCenter=true&width=800&height=50&lines=A+production-grade+tournament+management+platform;Battle-tested+with+200%2B+concurrent+users!;Real-time+Firebase+Sync+%26+Live+Scores;Built+with+Next.js+15+%26+React+19;AI-Powered+Scout+Reports+with+Gemini" alt="Dynamic Typing Effect" />
+  </a>
   <br>
   <p>
     <a href="https://dongrefootballpremierleague.online"><img src="https://img.shields.io/badge/🌐_Live_Site-dongrefootballpremierleague.online-7C3AED?style=for-the-badge" alt="Live Site"></a>
@@ -21,13 +22,13 @@
 
 ## Overview
 
-Tournament Tracker is a full-stack web application purpose-built for the **Dongre Football Premier League (DFPL)** — a community football tournament. It provides both a public-facing website for live match tracking and a comprehensive admin command center for tournament management.
+Tournament Tracker is a full-stack web application purpose-built for the **Dongre Football Premier League (DFPL)**  a community football tournament. It provides both a public-facing website for live match tracking and a comprehensive admin command center for tournament management.
 
 ### What it does
 
-- **Public Site** — Real-time league standings, live match scores, player statistics, team profiles, knockout brackets, and a dynamic homepage with broadcast announcements.
-- **Admin Panel** — A complete back-office with player/team/fixture CRUD, live match event tracking (goals, assists, cards), group stage management, season lifecycle controls, bulk data import, and an AI-powered scout report.
-- **Multi-Season Architecture** — All data is scoped per season. Admins can create new seasons, migrate rosters from past seasons, or import bulk data via Excel.
+- **Public Site** - Real-time league standings, live match scores, player statistics, team profiles, knockout brackets, and a dynamic homepage with broadcast announcements.
+- **Admin Panel** - A complete back-office with player/team/fixture CRUD, live match event tracking (goals, assists, cards), group stage management, season lifecycle controls, bulk data import, and an AI-powered scout report.
+- **Multi-Season Architecture** - All data is scoped per season. Admins can create new seasons, migrate rosters from past seasons, or import bulk data via Excel.
 
 <br>
 
@@ -58,32 +59,32 @@ The entire backend runs on Firebase. There are no custom API routes or server in
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     Client (Next.js)                     │
-│                                                          │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐ │
-│  │ Season   │  │  Data    │  │  Auth    │  │  About  │ │
-│  │ Context  │  │  Context │  │  Context │  │ Context │ │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬────┘ │
-│       │              │             │              │      │
-│       └──────────────┴─────────────┴──────────────┘      │
-│                          │                               │
-│               ┌──────────┴──────────┐                    │
-│               │  Firebase SDK Layer │                    │
-│               │  (Real-time hooks)  │                    │
-│               └──────────┬──────────┘                    │
-└──────────────────────────┼───────────────────────────────┘
+│                     Client (Next.js)                    │
+│                                                         │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐  │
+│  │ Season   │  │  Data    │  │  Auth    │  │  About  │  │
+│  │ Context  │  │  Context │  │  Context │  │ Context │  │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬────┘  │
+│       │              │             │              │     │
+│       └──────────────┴─────────────┴──────────────┘     │
+│                          │                              │
+│               ┌──────────┴──────────┐                   │
+│               │  Firebase SDK Layer │                   │
+│               │  (Real-time hooks)  │                   │
+│               └──────────┬──────────┘                   │
+└──────────────────────────┼──────────────────────────────┘
                            │
               ┌────────────┼────────────┐
               │            │            │
-        ┌─────┴────┐ ┌────┴────┐ ┌─────┴─────┐
-        │ Firestore │ │  Auth   │ │  Storage  │
-        │           │ │         │ │           │
-        │ /seasons  │ │  Root   │ │  Avatars  │
-        │ /config   │ │  Admin  │ │  Logos    │
-        │ /admins   │ │  (Email)│ │  Photos   │
-        │ /logs     │ │         │ │           │
-        │ /analytics│ │         │ │           │
-        └───────────┘ └─────────┘ └───────────┘
+        ┌─────┴──────┐ ┌────┴────┐ ┌─────┴─────┐
+        │ Firestore  │ │  Auth   │ │  Storage  │
+        │            │ │         │ │           │
+        │ /seasons   │ │  Root   │ │  Avatars  │
+        │ /config    │ │  Admin  │ │  Logos    │
+        │ /admins    │ │         │ │  Photos   │
+        │ /logs      │ │         │ │           │
+        │ /analytics │ │         │ │           │
+        └────────────┘ └─────────┘ └───────────┘
 ```
 
 ### Firestore Data Schema
@@ -106,47 +107,48 @@ firestore/
 
 ### Real-Time Data Flow
 
-All data subscriptions use Firestore `onSnapshot` listeners wrapped in custom React hooks (`useCollection`, `useDoc`). When any admin updates a match score, every connected client — spectators, other admins, the public standings page — reflects the change instantly without polling.
+All data subscriptions use Firestore `onSnapshot` listeners wrapped in custom React hooks (`useCollection`, `useDoc`). When any admin updates a match score, every connected client - spectators, other admins, the public standings page - reflects the change instantly without polling.
 
 ### Authentication & Access Control
 
-The system uses a **hybrid auth model**:
+The system uses a **hybrid auth model** with a 3-tier admin hierarchy:
 
 | Role | Auth Method | Capabilities |
 |---|---|---|
-| **System Admin** | Firebase Auth (email/password) | Full access — credential management, season deletion, staff elevation, settings access |
-| **Staff Admin** | Firestore registry (email/password stored in `/admins`) | CRUD operations on players, teams, matches. No access to system config or staff management |
+| **System Admin** | Firebase Auth (email/password) | Full unrestricted access - credential management, season deletion, staff registration, access elevation, system configuration, logs, and all CRUD operations |
+| **Elevated Admin** | Firestore registry (`/admins`, `canAccessSettings: true`) | CRUD on players, teams, and matches **plus** access to the Settings page (season switching, bulk ingestion, data migration, critical zones) |
+| **Regular Admin** | Firestore registry (`/admins`) | CRUD on players, teams, and matches only. No access to settings, config, or staff management |
 | **Public User** | Unauthenticated | Read-only access to public pages. Footfall tracking via localStorage |
 
 Access control is enforced at **three levels**:
-1. **Firestore Security Rules** — Database-level read/write restrictions per collection
-2. **Client-side guards** — React context checks (`isAdmin`, `isSystemAdmin`, `canAccessSettings`)
-3. **Audit logging** — Every admin action is written to `/logs` with timestamp, identity, and operation details
+1. **Firestore Security Rules** - Database-level read/write restrictions per collection
+2. **Client-side guards** - React context checks (`isAdmin`, `isSystemAdmin`, `canAccessSettings`)
+3. **Audit logging** - Every admin action is written to `/logs` with timestamp, identity, and operation details
 
 <br>
 
 ## Key Features
 
 ### Public Pages
-- 📊 **Standings** — Auto-calculated league table with group stage support (Group A/B split)
-- ⚽ **Matches** — Live match center with real-time score updates and detailed match timeline
-- 👥 **Teams & Players** — Club profiles, player cards, and performance statistics
-- 🏆 **Brackets** — Knockout stage visualisation (Semi-Finals, Finals)
-- 📈 **Stats** — Top scorers, assist leaders, and disciplinary records
-- 📢 **Broadcast Ticker** — Global announcements displayed across all pages
-- 👤 **About** — Dynamic team page with positions, member profiles, and social links
+- 📊 **Standings** - Auto-calculated league table with group stage support (Group A/B split)
+- ⚽ **Matches** - Live match center with real-time score updates and detailed match timeline
+- 👥 **Teams & Players** - Club profiles, player cards, and performance statistics
+- 🏆 **Brackets** - Knockout stage visualisation (Semi-Finals, Finals)
+- 📈 **Stats** - Top scorers, assist leaders, and disciplinary records
+- 📢 **Broadcast Ticker** - Global announcements displayed across all pages
+- 👤 **About** - Dynamic team page with positions, member profiles, and social links
 
 ### Admin Command Center
-- 🎯 **Overview Dashboard** — Quick stats, broadcast hub, and AI Season Scout
-- 🤖 **AI Scout** — Gemini-powered tournament analysis with top team/player insights
-- 👟 **Player Management** — Full CRUD with draft classification, club assignment, and avatar upload
-- 🏟️ **Team Management** — Deploy clubs, assign groups, enable/disable group mode
-- 📅 **Fixture Engine** — Schedule matches, track live events (goals, assists, cards), stage filtering
-- ⚙️ **System Configuration** — Season switching, bulk Excel import, cross-season data migration
-- 📊 **Footfall Analytics** — Live visitor tracking with time-range filtering (7D/15D/30D/60D/All Time)
-- 🔐 **Admin Config** — Staff registration, access elevation, system admin credential management
-- 📋 **System Logs** — Terminal-style audit viewer with export and purge capabilities
-- ℹ️ **About CMS** — Manage public About page positions and team members
+- 🎯 **Overview Dashboard** - Quick stats, broadcast hub, and AI Season Scout
+- 🤖 **AI Scout** - Gemini-powered tournament analysis with top team/player insights
+- 👟 **Player Management** - Full CRUD with draft classification, club assignment, and avatar upload
+- 🏟️ **Team Management** - Deploy clubs, assign groups, enable/disable group mode
+- 📅 **Fixture Engine** - Schedule matches, track live events (goals, assists, cards), stage filtering
+- ⚙️ **System Configuration** - Season switching, bulk Excel import, cross-season data migration
+- 📊 **Footfall Analytics** - Live visitor tracking with time-range filtering (7D/15D/30D/60D/All Time)
+- 🔐 **Admin Config** - Staff registration, access elevation, system admin credential management
+- 📋 **System Logs** - Terminal-style audit viewer with export and purge capabilities
+- ℹ️ **About CMS** - Manage public About page positions and team members
 
 ### Match Event System
 The match event system handles atomic stat computation using Firestore `writeBatch`. When a goal is recorded:
@@ -157,7 +159,7 @@ The match event system handles atomic stat computation using Firestore `writeBat
 5. If an assist is selected, the assister's stats update in the same batch
 6. On second yellow card, a red card is auto-issued
 
-All operations are **reversible** — deleting an event reverts every stat change atomically.
+All operations are **reversible** - deleting an event reverts every stat change atomically.
 
 <br>
 
@@ -194,7 +196,7 @@ All operations are **reversible** — deleting an event reverts every stat chang
     <td align="center" width="600">
       <img src="public/ReadMe/6 standings page (grp mode active).png" width="580" alt="Standings - Groups"><br>
       <strong>League Standings</strong><br>
-      <sub>Public standings with split Group A/B tables — MP, W, D, L, GF, GA, GD, PTS.</sub>
+      <sub>Public standings with split Group A/B tables - MP, W, D, L, GF, GA, GD, PTS.</sub>
     </td>
     <td align="center" width="600">
       <img src="public/ReadMe/7 admin - fixtures.png" width="580" alt="Match Fixtures"><br>
@@ -209,17 +211,17 @@ All operations are **reversible** — deleting an event reverts every stat chang
     <td align="center" width="600">
       <img src="public/ReadMe/9 admin - about us.png" width="580" alt="About Us Management"><br>
       <strong>About Us CMS</strong><br>
-      <sub>Manage public About page — team positions, member profiles, and social links.</sub>
+      <sub>Manage public About page - team positions, member profiles, and social links.</sub>
     </td>
     <td align="center" width="600">
       <img src="public/ReadMe/10 admin - config.png" width="580" alt="Admin Configuration"><br>
       <strong>Admin Configuration</strong><br>
-      <sub>Root authority management — system admin credentials, staff registration, access elevation.</sub>
+      <sub>Root authority management - system admin credentials, staff registration, access elevation.</sub>
     </td>
     <td align="center" width="600">
       <img src="public/ReadMe/11 admin - logs.png" width="580" alt="System Terminal"><br>
       <strong>System Terminal</strong><br>
-      <sub>Audit log viewer — every admin action tracked with timestamps, identity, and operations.</sub>
+      <sub>Audit log viewer - every admin action tracked with timestamps, identity, and operations.</sub>
     </td>
   </tr>
 </table>
@@ -294,19 +296,6 @@ npm run dev
 
 The app runs at `http://localhost:9002`.
 
-### Environment Variables
-
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-NEXT_PUBLIC_FIREBASE_APP_ID=
-GOOGLE_GENAI_API_KEY=              # For AI Season Scout
-```
-
-<br>
 
 ## License
 
