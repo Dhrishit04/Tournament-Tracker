@@ -64,7 +64,7 @@ The entire backend runs on Firebase. There are no custom API routes or server in
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────────┐  │
 │  │ Season   │  │  Data    │  │  Auth    │  │  About  │  │
 │  │ Context  │  │  Context │  │  Context │  │ Context │  │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬────┘  │
+│  └────┬─────┘  └─── ─┬────┘  └─── ─┬────┘  └──────┬──┘  │
 │       │              │             │              │     │
 │       └──────────────┴─────────────┴──────────────┘     │
 │                          │                              │
@@ -76,7 +76,7 @@ The entire backend runs on Firebase. There are no custom API routes or server in
                            │
               ┌────────────┼────────────┐
               │            │            │
-        ┌─────┴──────┐ ┌────┴────┐ ┌─────┴─────┐
+        ┌─────┴──────┐ ┌───┴─────┐ ┌────┴──────┐
         │ Firestore  │ │  Auth   │ │  Storage  │
         │            │ │         │ │           │
         │ /seasons   │ │  Root   │ │  Avatars  │
