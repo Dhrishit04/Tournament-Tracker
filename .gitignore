@@ -31,6 +31,11 @@ tsc_utf8.log
 .env
 .env*.local
 
+# Firebase Admin SDK service account keys
+*-firebase-adminsdk-*.json
+firebase-service-account*.json
+/service-account*.json
+
 # vercel
 .vercel
 

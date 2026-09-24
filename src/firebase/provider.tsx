@@ -6,18 +6,21 @@ import type { ReactNode } from 'react';
 import type { FirebaseApp } from 'firebase/app';
 import type { Auth } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
+import type { Functions } from 'firebase/functions';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 interface FirebaseContextValue {
   app: FirebaseApp | null;
   auth: Auth | null;
   firestore: Firestore | null;
+  functions: Functions | null;
 }
 
 const FirebaseContext = createContext<FirebaseContextValue>({
   app: null,
   auth: null,
   firestore: null,
+  functions: null,
 });
 
 interface FirebaseProviderProps {
@@ -26,6 +29,7 @@ interface FirebaseProviderProps {
     app: FirebaseApp;
     auth: Auth;
     firestore: Firestore;
+    functions: Functions;
   };
 }
 
@@ -45,3 +49,4 @@ export const useFirebase = () => useContext(FirebaseContext);
 export const useFirebaseApp = () => useContext(FirebaseContext).app;
 export const useFirebaseAuth = () => useContext(FirebaseContext).auth;
 export const useFirestore = () => useContext(FirebaseContext).firestore;
+export const useFunctions = () => useContext(FirebaseContext).functions;

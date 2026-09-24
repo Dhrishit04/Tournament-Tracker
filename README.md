@@ -98,7 +98,7 @@ firestore/
 │       ├── teams/{teamId}     # Team profile + cumulative stats
 │       ├── players/{playerId} # Player profile + performance stats
 │       └── matches/{matchId}  # Fixture data + embedded match events[]
-├── admins/{adminId}           # Staff registry (email, hashed password, access level)
+├── admins/{uid}               # Staff metadata (uid, email, displayName, canAccessSettings) — credentials live in Firebase Auth, not here
 ├── logs/{logId}               # Audit trail (timestamp, admin, action, details)
 └── analytics/
     ├── footfall_all_time      # Master visitor counter
@@ -111,19 +111,26 @@ All data subscriptions use Firestore `onSnapshot` listeners wrapped in custom Re
 
 ### Authentication & Access Control
 
-The system uses a **hybrid auth model** with a 3-tier admin hierarchy:
+The system uses **Firebase Auth with custom claims** for a 2-tier admin hierarchy. All authorization decisions are made server-side by `firestore.rules`; the client is a thin presenter.
 
 | Role | Auth Method | Capabilities |
 |---|---|---|
-| **System Admin** | Firebase Auth (email/password) | Full unrestricted access - credential management, season deletion, staff registration, access elevation, system configuration, logs, and all CRUD operations |
-| **Elevated Admin** | Firestore registry (`/admins`, `canAccessSettings: true`) | CRUD on players, teams, and matches **plus** access to the Settings page (season switching, bulk ingestion, data migration, critical zones) |
-| **Regular Admin** | Firestore registry (`/admins`) | CRUD on players, teams, and matches only. No access to settings, config, or staff management |
+| **System Admin** | Firebase Auth + `role: 'system_admin'` claim | Full unrestricted access: credential management, staff registration, access elevation, season deletion, system configuration, logs, and all CRUD operations |
+| **Admin** (with optional `canAccessSettings` claim) | Firebase Auth + `role: 'admin'` claim | CRUD on players, teams, and matches. With `canAccessSettings: true`, also the Settings page (season switching, bulk ingestion, data migration, critical zones) |
 | **Public User** | Unauthenticated | Read-only access to public pages. Footfall tracking via localStorage |
 
-Access control is enforced at **three levels**:
-1. **Firestore Security Rules** - Database-level read/write restrictions per collection
-2. **Client-side guards** - React context checks (`isAdmin`, `isSystemAdmin`, `canAccessSettings`)
-3. **Audit logging** - Every admin action is written to `/logs` with timestamp, identity, and operation details
+**How a login works.** A staff member submits their email + password. The client calls `signInWithEmailAndPassword` — Firebase Auth verifies the password server-side and returns an ID token. The token's custom claims (`role`, `canAccessSettings`) are read by `AuthProvider` and by every Firestore rule. There is no client-side password check and no Firestore credential lookup.
+
+**Where authorization lives.** `firestore.rules` is the only source of truth:
+- `/seasons/**` reads are public; writes require `role in {system_admin, admin}`.
+- `/config/app` is read-public, write-system-admin-only.
+- `/admins/{uid}` is admin-readable, system-admin-writable (and only the `manageAdmin` Cloud Function writes it in practice).
+- `/logs` create is admin-only and forces `adminEmail` to match `request.auth.token.email`, so forged audit entries are rejected.
+- Anonymous writes to anything else are denied by the catch-all `match /{document=**}` block.
+
+**Staff lifecycle.** Adding, removing, or elevating a staff member happens through a single `manageAdmin` callable Cloud Function (see [`functions/index.js`](functions/index.js)). The function uses the Admin SDK to create the Firebase Auth user, set custom claims, and write the metadata doc. The config page UI is a thin wrapper that calls this function — it never writes to `/admins` directly. The first-time setup for existing staff is handled by [`scripts/migrate-admins.mjs`](scripts/migrate-admins.mjs) (one-time Node script using `firebase-admin`).
+
+**Migration & secrets.** The migration script and the system-admin bootstrap script (`scripts/manage-system-admin.mjs`) require a Firebase service account JSON, downloaded from the Firebase Console and stored **outside the repo** (path matched by `*-firebase-adminsdk-*.json` in `.gitignore`). The service account file is set as `GOOGLE_APPLICATION_CREDENTIALS` when running the scripts.
 
 <br>
 

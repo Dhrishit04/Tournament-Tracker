@@ -122,11 +122,12 @@ export interface SeasonConfig {
 
 export interface AdminProfile {
   id: string;
+  uid: string;
   email: string;
-  password?: string;
-  displayName?: string;
+  displayName?: string | null;
   createdAt: number;
   canAccessSettings?: boolean;
+  migratedFrom?: string;
 }
 
 export interface LogEntry {

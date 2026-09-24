@@ -1,43 +1,41 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, ShieldAlert, Key, Mail, Trash2, Edit, Save, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { useCollection, useFirestore } from '@/firebase';
-import { type AdminProfile } from '@/types';
-import { doc, setDoc, deleteDoc, updateDoc, getDoc } from 'firebase/firestore';
+import { UserPlus, ShieldAlert, Key, Mail, Trash2, Save, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { useCollection, useFirestore, useFunctions } from '@/firebase';
+import { httpsCallable } from 'firebase/functions';
 import { updateEmail, updatePassword, getAuth } from 'firebase/auth';
+import { type AdminProfile } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 import { AccessDenied } from '@/components/admin/access-denied';
 import { useData } from '@/hooks/use-data';
+
+type ManageAction = 'create' | 'toggleSettings' | 'delete' | 'rotatePassword';
 
 export default function AdminConfigPage() {
   const { user, isSystemAdmin } = useAuth();
   const firestore = useFirestore();
-  const { logAction } = useData();
+  const functions = useFunctions();
   const { data: adminRegistry, loading: registryLoading } = useCollection<AdminProfile>('admins');
   const { toast } = useToast();
+  const { logAction } = useData();
 
   const [newAdminEmail, setNewAdminEmail] = useState('');
-  const [newAdminPassword, setNewAdminPassword] = useState('');
+  const [newAdminCanAccessSettings, setNewAdminCanAccessSettings] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [pendingActionUid, setPendingActionUid] = useState<string | null>(null);
 
   const [isUpdatingSelf, setIsUpdatingSelf] = useState(false);
   const [selfEmail, setSelfEmail] = useState('');
   const [selfPassword, setSelfPassword] = useState('');
-
-  const [editingAdmin, setEditingAdmin] = useState<AdminProfile | null>(null);
-  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (user?.email) {
@@ -49,9 +47,17 @@ export default function AdminConfigPage() {
     return <AccessDenied />;
   }
 
-  const togglePasswordVisibility = (id: string) => {
-    setShowPasswords(prev => ({ ...prev, [id]: !prev[id] }));
-  };
+  const callManageAdmin = useCallback(
+    async (payload: { action: ManageAction; [k: string]: unknown }) => {
+      if (!functions) throw new Error('Cloud Functions not initialized');
+      const fn = httpsCallable<{ action: ManageAction; [k: string]: unknown }, { uid?: string; passwordResetLink?: string; canAccessSettings?: boolean }>(
+        functions,
+        'manageAdmin'
+      );
+      return fn(payload);
+    },
+    [functions]
+  );
 
   const handleUpdateSelf = async () => {
     const auth = getAuth();
@@ -75,116 +81,85 @@ export default function AdminConfigPage() {
     }
   };
 
-  const handleAddAdminRegistry = async () => {
-    if (!firestore || !newAdminEmail || !newAdminPassword) return;
-
+  const handleAddAdmin = async () => {
+    if (!newAdminEmail) return;
     const normalizedEmail = newAdminEmail.toLowerCase().trim();
 
     if (normalizedEmail === user?.email?.toLowerCase()) {
-      toast({ variant: 'destructive', title: 'Invalid Identity', description: 'Cannot add System Admin to regular registry.' });
+      toast({ variant: 'destructive', title: 'Invalid Identity', description: 'Cannot add System Admin as regular staff.' });
       return;
     }
-
-    const isDuplicate = adminRegistry.some(admin => admin.email.toLowerCase() === normalizedEmail);
-    if (isDuplicate) {
+    if (adminRegistry.some(a => a.email.toLowerCase() === normalizedEmail)) {
       toast({ variant: 'destructive', title: 'Duplicate Entry', description: `${normalizedEmail} is already registered.` });
       return;
     }
 
     setIsCreating(true);
-    const adminId = `admin-${Date.now()}`;
-    const adminData = {
-      email: normalizedEmail,
-      password: newAdminPassword,
-      createdAt: Date.now(),
-      canAccessSettings: false,
-    };
-    const docRef = doc(firestore, 'admins', adminId);
-
-    setDoc(docRef, adminData).then(() => {
+    try {
+      const result = await callManageAdmin({
+        action: 'create',
+        email: normalizedEmail,
+        canAccessSettings: newAdminCanAccessSettings,
+      });
       logAction("REGISTRY_ADD", `Authorized new staff: ${normalizedEmail}`);
-      toast({ title: 'Admin Created', description: `${normalizedEmail} is now authorized.` });
+      toast({
+        title: 'Admin Created',
+        description: result.data.passwordResetLink
+          ? `Send this reset link to ${normalizedEmail}: ${result.data.passwordResetLink}`
+          : `${normalizedEmail} created. Generate a reset link via "Reset Password".`,
+      });
       setNewAdminEmail('');
-      setNewAdminPassword('');
-    }).catch(async () => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'create',
-        requestResourceData: adminData
-      }));
-    }).finally(() => {
+      setNewAdminCanAccessSettings(false);
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Create Failed', description: error.message });
+    } finally {
       setIsCreating(false);
-    });
+    }
   };
 
-  const handleDeleteAdmin = async (id: string) => {
-    if (!firestore) return;
-    const adminEmail = adminRegistry.find(a => a.id === id)?.email;
-    const docRef = doc(firestore, 'admins', id);
-    deleteDoc(docRef).then(() => {
-      logAction("REGISTRY_REMOVE", `Revoked access for staff: ${adminEmail}`);
+  const handleDeleteAdmin = async (admin: AdminProfile) => {
+    if (!confirm(`Revoke access for ${admin.email}? They will be signed out immediately.`)) return;
+    setPendingActionUid(admin.uid);
+    try {
+      await callManageAdmin({ action: 'delete', uid: admin.uid });
+      logAction("REGISTRY_REMOVE", `Revoked access for staff: ${admin.email}`);
       toast({ title: 'Success', description: 'Admin access revoked.' });
-    }).catch(async () => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'delete'
-      }));
-    });
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Delete Failed', description: error.message });
+    } finally {
+      setPendingActionUid(null);
+    }
   };
 
   const handleToggleSettingsAccess = async (admin: AdminProfile, checked: boolean) => {
-    if (!firestore) return;
-    const docRef = doc(firestore, 'admins', admin.id);
-    const updateData = { canAccessSettings: checked };
-
-    updateDoc(docRef, updateData).then(() => {
+    setPendingActionUid(admin.uid);
+    try {
+      await callManageAdmin({ action: 'toggleSettings', uid: admin.uid, canAccessSettings: checked });
       logAction("PRIVILEGE_CHANGE", `${checked ? 'Elevated' : 'Demoted'} staff: ${admin.email} (Settings Access)`);
       toast({ title: 'Elevation Updated', description: `Settings access ${checked ? 'granted to' : 'revoked from'} ${admin.email}.` });
-    }).catch(async () => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'update',
-        requestResourceData: updateData
-      }));
-    });
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Elevation Failed', description: error.message });
+    } finally {
+      setPendingActionUid(null);
+    }
   };
 
-  const handleUpdateRegistryAdmin = async () => {
-    if (!editingAdmin || !firestore) return;
-
-    const normalizedEmail = (editingAdmin.email || '').toLowerCase().trim();
-
-    if (normalizedEmail === user?.email?.toLowerCase()) {
-      toast({ variant: 'destructive', title: 'Forbidden', description: 'Cannot assign System Admin email to a regular role.' });
-      return;
+  const handleRotatePassword = async (admin: AdminProfile) => {
+    setPendingActionUid(admin.uid);
+    try {
+      const result = await callManageAdmin({ action: 'rotatePassword', uid: admin.uid });
+      toast({
+        title: 'Password Reset Issued',
+        description: result.data.passwordResetLink
+          ? `Send this link to ${admin.email}: ${result.data.passwordResetLink}`
+          : `Reset issued. Configure email to send automatically.`,
+        duration: 12000,
+      });
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Reset Failed', description: error.message });
+    } finally {
+      setPendingActionUid(null);
     }
-
-    const docRef = doc(firestore, 'admins', editingAdmin.id);
-    const snap = await getDoc(docRef);
-    if (!snap.exists()) return;
-    const old = snap.data() as AdminProfile;
-
-    const logs: string[] = [];
-    if (old.email !== normalizedEmail) logs.push(`email: ${old.email} -> ${normalizedEmail}`);
-    if (old.password !== editingAdmin.password) logs.push(`password updated`);
-
-    const updateData = {
-      email: normalizedEmail,
-      password: editingAdmin.password
-    };
-
-    updateDoc(docRef, updateData).then(() => {
-      const details = logs.length > 0 ? `Modified Registry Identity for ${normalizedEmail} (${logs.join(', ')})` : `Modified credentials for staff: ${normalizedEmail}`;
-      logAction("REGISTRY_EDIT", details);
-      setEditingAdmin(null);
-      toast({ title: 'Updated', description: 'Staff credentials modified successfully.' });
-    }).catch(async () => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'update',
-        requestResourceData: updateData
-      }));
-    });
   };
 
   return (
@@ -240,7 +215,7 @@ export default function AdminConfigPage() {
             <CardTitle className="text-lg font-bold flex items-center gap-2">
               <UserPlus className="h-5 w-5 text-accent" /> Register Staff
             </CardTitle>
-            <CardDescription className="text-xs">Create a new regular admin account.</CardDescription>
+            <CardDescription className="text-xs">Create a new regular admin account. They will receive a password-reset link.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -252,17 +227,19 @@ export default function AdminConfigPage() {
                 className="glass-card"
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase opacity-70">Assigned Password</Label>
-              <Input
-                type="text"
-                placeholder="Initial password"
-                value={newAdminPassword || ''}
-                onChange={(e) => setNewAdminPassword(e.target.value)}
-                className="glass-card"
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+              <div className="space-y-0.5">
+                <Label htmlFor="new-admin-settings" className="text-xs font-bold uppercase opacity-70">Settings Access</Label>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Allow season & data controls</p>
+              </div>
+              <Switch
+                id="new-admin-settings"
+                checked={newAdminCanAccessSettings}
+                onCheckedChange={setNewAdminCanAccessSettings}
+                className="data-[state=checked]:bg-accent"
               />
             </div>
-            <Button onClick={handleAddAdminRegistry} disabled={isCreating || !newAdminEmail || !newAdminPassword} className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white">
+            <Button onClick={handleAddAdmin} disabled={isCreating || !newAdminEmail} className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white">
               {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Authorize Identity"}
             </Button>
           </CardContent>
@@ -289,54 +266,62 @@ export default function AdminConfigPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {adminRegistry.length > 0 ? adminRegistry.map((admin) => (
-                    <TableRow key={admin.id} className="border-white/5 hover:bg-white/5 transition-colors group">
-                      <TableCell className="px-8 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center border border-accent/20">
-                            <span className="text-accent text-[10px] font-black">{admin.email[0].toUpperCase()}</span>
-                          </div>
-                          <div>
-                            <p className="font-bold text-sm">{admin.email}</p>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">PW:</span>
-                              <span className="text-[10px] font-mono tracking-tighter opacity-60">
-                                {showPasswords[admin.id] ? admin.password : '••••••••'}
-                              </span>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-4 w-4 opacity-40 hover:opacity-100"
-                                onClick={() => togglePasswordVisibility(admin.id)}
-                              >
-                                {showPasswords[admin.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                              </Button>
+                  {adminRegistry.length > 0 ? adminRegistry.map((admin) => {
+                    const isSelf = admin.uid === user?.id;
+                    const isPending = pendingActionUid === admin.uid;
+                    return (
+                      <TableRow key={admin.id} className="border-white/5 hover:bg-white/5 transition-colors group">
+                        <TableCell className="px-8 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center border border-accent/20">
+                              <span className="text-accent text-[10px] font-black">{admin.email[0].toUpperCase()}</span>
+                            </div>
+                            <div>
+                              <p className="font-bold text-sm">{admin.email}</p>
+                              {isSelf && (
+                                <p className="text-[10px] uppercase font-black tracking-widest text-accent">You</p>
+                              )}
                             </div>
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-4 py-4 text-center">
-                        <div className="flex flex-col items-center gap-1">
-                          <Switch
-                            checked={admin.canAccessSettings || false}
-                            onCheckedChange={(checked) => handleToggleSettingsAccess(admin, checked)}
-                            className="scale-75 data-[state=checked]:bg-accent"
-                          />
-                          <span className="text-[8px] font-black uppercase tracking-tighter opacity-40">Settings Access</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-8 py-4 text-right">
-                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="ghost" size="icon" onClick={() => setEditingAdmin(admin)} className="hover:bg-white/10">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteAdmin(admin.id)} className="text-destructive hover:bg-destructive/10">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )) : (
+                        </TableCell>
+                        <TableCell className="px-4 py-4 text-center">
+                          <div className="flex flex-col items-center gap-1">
+                            <Switch
+                              checked={admin.canAccessSettings || false}
+                              disabled={isSelf || isPending}
+                              onCheckedChange={(checked) => handleToggleSettingsAccess(admin, checked)}
+                              className="scale-75 data-[state=checked]:bg-accent"
+                            />
+                            <span className="text-[8px] font-black uppercase tracking-tighter opacity-40">Settings Access</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-8 py-4 text-right">
+                          <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={isPending}
+                              onClick={() => handleRotatePassword(admin)}
+                              title="Issue password reset link"
+                              className="hover:bg-white/10"
+                            >
+                              {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={isSelf || isPending}
+                              onClick={() => handleDeleteAdmin(admin)}
+                              title="Revoke access"
+                              className="text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }) : (
                     <TableRow>
                       <TableCell colSpan={3} className="h-32 text-center text-muted-foreground italic text-sm">
                         No staff currently registered.
@@ -349,37 +334,6 @@ export default function AdminConfigPage() {
           </CardContent>
         </Card>
       </div>
-
-      <Dialog open={!!editingAdmin} onOpenChange={(open) => !open && setEditingAdmin(null)}>
-        <DialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">Modify <span className="text-accent">Identity</span></DialogTitle>
-            <DialogDescription className="text-muted-foreground">Update credentials for {editingAdmin?.email}.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase opacity-70">Staff Email</Label>
-              <Input
-                value={editingAdmin?.email || ''}
-                onChange={(e) => setEditingAdmin(prev => prev ? { ...prev, email: e.target.value } : null)}
-                className="glass-card"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase opacity-70">Staff Password</Label>
-              <Input
-                value={editingAdmin?.password || ''}
-                onChange={(e) => setEditingAdmin(prev => prev ? { ...prev, password: e.target.value } : null)}
-                className="glass-card"
-              />
-            </div>
-          </div>
-          <DialogFooter className="pt-6">
-            <Button variant="ghost" onClick={() => setEditingAdmin(null)} className="hover:bg-white/5">Cancel</Button>
-            <Button onClick={handleUpdateRegistryAdmin} className="bg-accent hover:bg-accent/90">Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
