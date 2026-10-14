@@ -188,22 +188,12 @@ All operations are **reversible** - deleting an event reverts every stat change 
     <td align="center" width="600">
       <img src="public/ReadMe/3 admin - teams.png" width="580" alt="Club Operations"><br>
       <strong>Club Operations</strong><br>
-      <sub>Team management with group mode toggle, owner details, and deploy/edit/delete controls.</sub>
+      <sub>Team management with group mode controls (assign clubs to groups of 4), owner details, and deploy/edit/delete controls.</sub>
     </td>
     <td align="center" width="600">
-      <img src="public/ReadMe/4 admin - teams (Assign groups).png" width="580" alt="Group Assignment"><br>
-      <strong>Group Assignment</strong><br>
-      <sub>Assign clubs into tournament groups (4 teams per group) with batch save.</sub>
-    </td>
-    <td align="center" width="600">
-      <img src="public/ReadMe/5 admin - teams (group mode active).png" width="580" alt="Group Mode Active"><br>
-      <strong>Group Mode Active</strong><br>
-      <sub>Club registry displaying group tags (A/B) after group mode is enabled.</sub>
-    </td>
-    <td align="center" width="600">
-      <img src="public/ReadMe/6 standings page (grp mode active).png" width="580" alt="Standings - Groups"><br>
+      <img src="public/ReadMe/6 standings page.png" width="580" alt="League Standings"><br>
       <strong>League Standings</strong><br>
-      <sub>Public standings with split Group A/B tables - MP, W, D, L, GF, GA, GD, PTS.</sub>
+      <sub>Public league table - MP, W, D, L, GF, GA, GD, PTS - with inline edit for signed-in admins. Splits into Group A/B tables when group mode is on.</sub>
     </td>
     <td align="center" width="600">
       <img src="public/ReadMe/7 admin - fixtures.png" width="580" alt="Match Fixtures"><br>
