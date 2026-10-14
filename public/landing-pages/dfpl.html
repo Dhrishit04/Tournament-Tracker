@@ -14,7 +14,7 @@
 a.card{ display:block; }
 .les h3 em{ font-family:inherit; letter-spacing:.14em; }
 .hero-side .v{ text-orientation:upright; letter-spacing:.3em; }
-.les[hidden]{ display:none; }
+.les[hidden]{ display:none !important; }   /* beats the B layout's display:flex */
 </style>
 <style>
 /* ============================================================= tokens */
@@ -3278,9 +3278,10 @@ function buildLeafFall() {
   scene.add(inst);
   WORLD.leaves = { mesh: inst, list: list };
 }
-const LEAF_M = new THREE.Matrix4(), LEAF_Q = new THREE.Quaternion();
-const LEAF_E = new THREE.Euler(), LEAF_P = new THREE.Vector3(), LEAF_S = new THREE.Vector3();
-const LEAF_F = new THREE.Vector3();
+const HAS3 = !!window.THREE;   /* DFPL: if three.min.js failed to load, skip these so the script survives and falls back to the no-WebGL page */
+const LEAF_M = HAS3 ? new THREE.Matrix4() : null, LEAF_Q = HAS3 ? new THREE.Quaternion() : null;
+const LEAF_E = HAS3 ? new THREE.Euler() : null, LEAF_P = HAS3 ? new THREE.Vector3() : null, LEAF_S = HAS3 ? new THREE.Vector3() : null;
+const LEAF_F = HAS3 ? new THREE.Vector3() : null;
 function updateLeaves(dt) {
   const LV = WORLD.leaves; if (!LV) return;
   const cy = camera.position.y, L = LV.list;
@@ -4119,7 +4120,7 @@ function buildRig() {
   tmpCam = new THREE.PerspectiveCamera(CAM[0].fov, vpW() / vpH(), .35, 220);
   camera.layers.enable(1); camera.layers.enable(2);
 }
-const _p = new THREE.Vector3(), _t = new THREE.Vector3(), _d = new THREE.Vector3();
+const _p = HAS3 ? new THREE.Vector3() : null, _t = HAS3 ? new THREE.Vector3() : null, _d = HAS3 ? new THREE.Vector3() : null;
 /* Every waypoint is composed for a wide frame. On a tall one the same
    numbers crop the gate in half, so the rig steps back along its own view
    axis and opens up a little instead of letting the sides fall away. */
@@ -4531,7 +4532,7 @@ function buildCards() {
 /* A render target keeps its own viewport/scissor — renderer.setScissor()
    only ever reaches the default framebuffer, so the region has to be set on
    whichever surface we are actually drawing into, and re-bound to take. */
-const _push = new THREE.Vector3();
+const _push = HAS3 ? new THREE.Vector3() : null;
 function setRegion(rt, x, y, w, h) {
   if (rt) {
     const pr = renderer.getPixelRatio();
