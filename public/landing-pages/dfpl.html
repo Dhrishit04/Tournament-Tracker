@@ -294,17 +294,17 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
 .card:nth-child(1) .card-fr{
   background:
     linear-gradient(180deg,rgba(3,6,9,.04) 36%,rgba(3,6,9,.72) 100%),
-    url('https://ublctyddhtbgaersvxxb.supabase.co/storage/v1/object/public/threeui-media/scene-images/6884c5281949d2c3530ad4cf/kage-approach.webp') center / cover no-repeat;
+    url('/images/football/landing-standings.jpg') center / cover no-repeat;
 }
 .card:nth-child(2) .card-fr{
   background:
     linear-gradient(180deg,rgba(3,6,9,.06) 36%,rgba(3,6,9,.74) 100%),
-    url('https://ublctyddhtbgaersvxxb.supabase.co/storage/v1/object/public/threeui-media/scene-images/6884c5281949d2c3530ad4cf/kage-lantern-court.webp') center / cover no-repeat;
+    url('/images/football/landing-fixtures.jpg') center / cover no-repeat;
 }
 .card:nth-child(3) .card-fr{
   background:
     linear-gradient(180deg,rgba(3,6,9,.05) 36%,rgba(3,6,9,.74) 100%),
-    url('https://ublctyddhtbgaersvxxb.supabase.co/storage/v1/object/public/threeui-media/scene-images/6884c5281949d2c3530ad4cf/kage-moonwater.webp') center / cover no-repeat;
+    url('/images/football/landing-brackets.jpg') center / cover no-repeat;
 }
 .card-fr::after{ content:''; position:absolute; inset:0;
   background:linear-gradient(transparent 46%, rgba(4,6,9,.80)); pointer-events:none; }
@@ -928,6 +928,9 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 /* figures set narrow, like a stadium scoreboard */
 .gate-stats div b, .chip .num, #pre-pct, .les .k, .card-meta span:last-child, .les h3 em{ font-family:'Barlow Condensed','Onest',sans-serif; font-variant-numeric:tabular-nums; }
 .gate-stats div b{ font-weight:400; letter-spacing:.01em; font-size:clamp(28px,2.7vw,42px); }
+
+.cards .card-fr:not(.on-cloth)::before{ content:''; position:absolute; inset:0; pointer-events:none;
+  background:rgba(150,18,12,.42); mix-blend-mode:color; }
 </style>
 </head>
 <body data-layout-hero="b" data-layout-story="b" data-layout-gallery="b"
@@ -3899,6 +3902,8 @@ function clothPlate(img, w, h) {
   const s = Math.max(c.width / img.width, c.height / img.height);
   const dw = img.width * s, dh = img.height * s;
   x.drawImage(img, (c.width - dw) / 2, (c.height - dh) / 2, dw, dh);
+  x.globalCompositeOperation = 'color'; x.fillStyle = 'rgba(150,18,12,.42)';
+  x.fillRect(0, 0, c.width, c.height); x.globalCompositeOperation = 'source-over';
   let g = x.createLinearGradient(0, 0, 0, c.height);
   g.addColorStop(.36, 'rgba(3,6,9,.05)'); g.addColorStop(1, 'rgba(3,6,9,.73)');
   x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
