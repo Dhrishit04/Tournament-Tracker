@@ -14,7 +14,7 @@ import { SessionGuard } from '@/components/layout/session-guard';
 import { SmoothScrolling } from '@/components/providers/smooth-scrolling';
 import { AboutProvider } from '@/contexts/about-context';
 import { FootfallTracker } from '@/components/layout/footfall-tracker';
-import { KageMotion } from '@/components/layout/kage-motion';
+import { KageMotion, PitchLines } from '@/components/layout/kage-motion';
 
 export const metadata: Metadata = {
   title: 'Tournament Tracker | Dongre Football Premier League',
@@ -40,7 +40,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet" />
       </head>
       <body className="k-ui font-body antialiased">
         <SmoothScrolling>
@@ -56,6 +56,7 @@ export default function RootLayout({
                       <AboutProvider>
                       <SessionGuard>
                         <div className="k-backdrop" aria-hidden />
+                        <PitchLines />
                         <div className="flex min-h-screen flex-col">
                           <Header />
                           <main className="flex-grow">{children}</main>

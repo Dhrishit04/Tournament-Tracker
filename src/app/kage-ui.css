@@ -19,8 +19,9 @@
 }
 
 /* ============================================================ panels (Card)
-   hairline frame + corner registration ticks + a light that follows the
-   pointer around the border (--mx/--my are written by the admin shell) */
+   hairline frame + a corner-flag arc in each corner, like the quarter
+   circles at the corners of a pitch + a light that follows the pointer
+   around the border (--mx/--my are written by KageMotion) */
 .k-ui .k-card {
   position: relative;
   isolation: isolate;
@@ -28,14 +29,10 @@
   border-radius: 2px;
   box-shadow: none;
   background:
-    linear-gradient(var(--hair-hi), var(--hair-hi)) top left / 9px 1px no-repeat,
-    linear-gradient(var(--hair-hi), var(--hair-hi)) top left / 1px 9px no-repeat,
-    linear-gradient(var(--hair-hi), var(--hair-hi)) top right / 9px 1px no-repeat,
-    linear-gradient(var(--hair-hi), var(--hair-hi)) top right / 1px 9px no-repeat,
-    linear-gradient(var(--hair-hi), var(--hair-hi)) bottom left / 9px 1px no-repeat,
-    linear-gradient(var(--hair-hi), var(--hair-hi)) bottom left / 1px 9px no-repeat,
-    linear-gradient(var(--hair-hi), var(--hair-hi)) bottom right / 9px 1px no-repeat,
-    linear-gradient(var(--hair-hi), var(--hair-hi)) bottom right / 1px 9px no-repeat,
+    radial-gradient(circle at 0 0, transparent 9px, var(--hair-hi) 9px 10px, transparent 10.5px) top left / 12px 12px no-repeat,
+    radial-gradient(circle at 100% 0, transparent 9px, var(--hair-hi) 9px 10px, transparent 10.5px) top right / 12px 12px no-repeat,
+    radial-gradient(circle at 0 100%, transparent 9px, var(--hair-hi) 9px 10px, transparent 10.5px) bottom left / 12px 12px no-repeat,
+    radial-gradient(circle at 100% 100%, transparent 9px, var(--hair-hi) 9px 10px, transparent 10.5px) bottom right / 12px 12px no-repeat,
     var(--ink-wash);
   backdrop-filter: blur(14px) saturate(1.1);
   -webkit-backdrop-filter: blur(14px) saturate(1.1);
@@ -550,4 +547,15 @@
   .k-scanning::after {
     animation: none;
   }
+}
+
+/* ============================================================ scoreboard figures
+   scores, points and counters set narrow like a stadium scoreboard. The
+   System Logs terminal (.min-w-max) keeps its typewriter face. */
+.k-ui .font-mono:not(.min-w-max, .min-w-max *),
+.k-ui main .tabular-nums {
+  font-family: 'Barlow Condensed', 'Onest', sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: .02em;
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { BrandMark } from './header';
 
 /* The landing page is the Kage temple document, which runs its own cursor,
    leaf fall and preloader. These are the same motions, rebuilt light for the
@@ -10,13 +11,31 @@ import { usePathname } from 'next/navigation';
 export function KagePreloader() {
   return (
     <div className="k-pre" role="status" aria-label="Loading">
-      <svg viewBox="0 0 44 44" fill="none" aria-hidden="true" className="k-pre-mark">
-        <circle cx="22" cy="24" r="9.5" stroke="#e0231c" strokeWidth="1.2" />
-        <path d="M6 12h32M9.5 17h25M22 8v28" stroke="#dfe7e0" strokeWidth="1.2" />
-      </svg>
+      <BrandMark className="k-pre-mark" />
       <div className="k-pre-word">DFPL</div>
-      <div className="k-pre-bar"><i /></div>
+      {/* a ball rolls the touchline while the data loads */}
+      <div className="k-pre-bar"><i /><b className="k-pre-ball" /></div>
       <div className="k-pre-meta">Preparing the pitch</div>
+    </div>
+  );
+}
+
+/* a full-size pitch (105 × 68 m, in decimetres) drawn in hairline behind the
+   page: touchline, halfway line, centre circle, both boxes, arcs and corners */
+export function PitchLines() {
+  return (
+    <div className="k-pitch" aria-hidden>
+      <svg viewBox="0 0 1050 680" preserveAspectRatio="xMidYMax slice">
+        <rect x="5" y="5" width="1040" height="670" />
+        <path d="M525 5v670" />
+        <circle cx="525" cy="340" r="91.5" />
+        <circle cx="525" cy="340" r="2.5" fill="rgba(223,231,224,.12)" />
+        <path d="M5 138.5h165v403H5M5 248.5h55v183H5M170 266.9a91.5 91.5 0 0 1 0 146.2" />
+        <path d="M1045 138.5H880v403h165M1045 248.5h-55v183h55M880 266.9a91.5 91.5 0 0 0 0 146.2" />
+        <circle cx="115" cy="340" r="2.5" fill="rgba(223,231,224,.12)" />
+        <circle cx="935" cy="340" r="2.5" fill="rgba(223,231,224,.12)" />
+        <path d="M5 15a10 10 0 0 0 10-10M1035 5a10 10 0 0 0 10 10M5 665a10 10 0 0 1 10 10M1045 665a10 10 0 0 0-10 10" />
+      </svg>
     </div>
   );
 }

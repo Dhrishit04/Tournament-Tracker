@@ -43,6 +43,7 @@
     --chart-5: 142 4% 49%;
 
     --ease-out: cubic-bezier(.16, 1, .3, 1);
+    --k-ball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='9.2' fill='%23e0231c'/%3E%3Cpath d='m10 6.1 3.5 2.55-1.33 4.12H7.83L6.5 8.65Z' fill='%2305070a'/%3E%3Cpath d='M10 6.1V.9M13.5 8.65l5-1.65M12.17 12.77l3.1 4.3M7.83 12.77l-3.1 4.3M6.5 8.65l-5-1.65' stroke='%2305070a' stroke-width='1.1'/%3E%3C/svg%3E");
     --pad: clamp(20px, 3.4vw, 56px);
     --nav-h: 84px;
   }
@@ -119,28 +120,80 @@
   margin-top: 1.25rem;
 }
 
+/* the bullet is a tiny match ball rather than a plain dot */
 .k-eyebrow::before {
   content: '';
-  width: 5px;
-  height: 5px;
+  width: 9px;
+  height: 9px;
   flex: none;
   border-radius: 50%;
-  background: hsl(var(--vermilion));
-  box-shadow: 0 0 10px hsl(var(--vermilion));
+  background: var(--k-ball) center / contain no-repeat;
+  box-shadow: 0 0 10px rgba(224, 35, 28, .7);
 }
 
 /* ============================================================ backdrop
-   Inner pages sit over a still of the sanctuary, scrimmed like a chapter. */
+   Inner pages sit in a floodlit stadium at night, scrimmed like a chapter
+   and washed in the vermilion of the theme. Photo: Unsplash 1745997645080. */
 .k-backdrop {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(110% 62% at 30% 50%, rgba(4, 7, 10, .9), rgba(4, 7, 10, .74) 42%, rgba(4, 7, 10, .5) 74%, rgba(4, 7, 10, .35)),
-    linear-gradient(rgba(5, 7, 10, .55), rgba(5, 7, 10, .92)),
-    url('/landing-pages/secret-pathways-assets/generated/kage-moonwater.webp') center / cover no-repeat,
+    radial-gradient(110% 62% at 30% 50%, rgba(4, 7, 10, .9), rgba(4, 7, 10, .76) 42%, rgba(4, 7, 10, .55) 74%, rgba(4, 7, 10, .4)),
+    linear-gradient(rgba(5, 7, 10, .5), rgba(5, 7, 10, .93)),
+    linear-gradient(rgba(150, 18, 12, .55), rgba(150, 18, 12, .55)),
+    url('/images/football/stadium-night.jpg') center 30% / cover no-repeat,
     hsl(var(--ink));
+  background-blend-mode: normal, normal, color, normal;
+  /* shallow depth of field: the stadium reads as a place, its signage doesn't */
+  inset: -16px;
+  filter: blur(5px);
+}
+
+/* two floodlight glows that breathe slowly above the stands (kept off the
+   blurred layer so the blur never has to be recomputed) */
+.k-pitch::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(28vw 18vw at 14% -4%, rgba(255, 240, 225, .1), transparent 70%),
+    radial-gradient(28vw 18vw at 86% -4%, rgba(255, 240, 225, .1), transparent 70%);
+  animation: k-flood 9s ease-in-out infinite alternate;
+}
+
+/* the pitch itself: markings and mowing stripes in the theme's hairline, rising
+   out of the bottom of the frame */
+.k-pitch {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* stripes and lines fade in from the bottom; the floodlights stay up top */
+.k-pitch::after,
+.k-pitch svg {
+  -webkit-mask-image: linear-gradient(transparent 18%, #000 85%);
+          mask-image: linear-gradient(transparent 18%, #000 85%);
+}
+
+.k-pitch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgba(14, 34, 22, .16) 0 7vw, transparent 7vw 14vw);
+}
+
+.k-pitch svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke: rgba(223, 231, 224, .07);
+  stroke-width: 1;
+  fill: none;
 }
 
 .k-vignette {
@@ -442,17 +495,29 @@
   position: relative;
   width: min(260px, 60vw);
   height: 1px;
-  overflow: hidden;
   background: rgba(223, 231, 224, .13);
 }
 
-/* Firebase reports no progress, so the fill sweeps instead of counting */
+/* Firebase reports no progress, so a ball rolls the touchline and chalks it
+   in behind itself, then the line fades and it goes again */
 .k-pre-bar i {
   position: absolute;
   inset: 0;
   background: hsl(var(--bone));
   transform-origin: left;
-  animation: k-sweep 2.8s cubic-bezier(.65, 0, .35, 1) infinite;
+  animation: k-chalk 2.8s cubic-bezier(.65, 0, .35, 1) infinite;
+}
+
+.k-pre-ball {
+  position: absolute;
+  top: -11px;
+  left: 0;
+  width: 11px;
+  height: 11px;
+  margin-left: -5.5px;
+  background: var(--k-ball) center / contain no-repeat;
+  filter: drop-shadow(0 0 6px rgba(224, 35, 28, .6));
+  animation: k-roll 2.8s cubic-bezier(.65, 0, .35, 1) infinite;
 }
 
 .k-pre-meta {
@@ -570,10 +635,22 @@ main tbody tr:hover::after {
   to { clip-path: inset(-20% -20% -20% -20%); transform: none; }
 }
 
-@keyframes k-sweep {
-  0% { transform: scaleX(0); }
-  42% { transform: scaleX(1); }
-  100% { transform: scaleX(1) translateX(100%); }
+@keyframes k-chalk {
+  0% { transform: scaleX(0); opacity: 1; }
+  70% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+@keyframes k-roll {
+  0% { left: 0; transform: rotate(0); opacity: 0; }
+  8% { opacity: 1; }
+  70% { left: 100%; transform: rotate(720deg); opacity: 1; }
+  100% { left: 100%; transform: rotate(720deg); opacity: 0; }
+}
+
+@keyframes k-flood {
+  from { opacity: .55; }
+  to { opacity: 1; }
 }
 
 @keyframes k-breathe {

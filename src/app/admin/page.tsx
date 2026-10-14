@@ -18,9 +18,9 @@ import { CountUp } from '@/components/ui/animations';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// the landing's scene stills, one behind each section card
-const STILLS = ['kage-approach', 'kage-lantern-court', 'kage-moonwater', 'kage-sanmon-preview']
-  .map((n) => `/landing-pages/secret-pathways-assets/generated/${n}.webp`);
+// night-football photography behind each section card (Unsplash, free licence)
+const STILLS = ['card-players', 'card-teams', 'card-fixtures', 'card-settings']
+  .map((n) => `/images/football/${n}.jpg`);
 
 /* the AI summary arrives a word at a time */
 function TypeIn({ text }: { text: string }) {

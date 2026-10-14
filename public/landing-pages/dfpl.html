@@ -8,7 +8,7 @@
 <meta name="description" content="Live standings, fixtures, clubs and player statistics for the Dongre Football Premier League.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305070a'/%3E%3Ccircle cx='16' cy='17' r='8' fill='%23e0231c'/%3E%3Crect x='4' y='8' width='24' height='2.6' fill='%23dfe7e0'/%3E%3Crect x='7' y='13' width='18' height='2' fill='%23dfe7e0'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="secret-pathways-assets/fonts.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@600&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@600&family=Barlow+Condensed:wght@400;500&display=block">
 <style>
 /* DFPL: interactive chapter elements are real links */
 a.card{ display:block; }
@@ -914,6 +914,20 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 .mgmt-roles span{ font-size:10px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
 .mgmt-roles b{ font-size:13px; font-weight:400; color:var(--bone); text-align:right; }
 @media (max-width:1080px){ .mgmt-grid{ grid-template-columns:1fr; gap:34px; } }
+
+/* ---- DFPL: football identity */
+:root{ --ball:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='9.2' fill='%23e0231c'/%3E%3Cpath d='m10 6.1 3.5 2.55-1.33 4.12H7.83L6.5 8.65Z' fill='%2305070a'/%3E%3Cpath d='M10 6.1V.9M13.5 8.65l5-1.65M12.17 12.77l3.1 4.3M7.83 12.77l-3.1 4.3M6.5 8.65l-5-1.65' stroke='%2305070a' stroke-width='1.1'/%3E%3C/svg%3E"); }
+/* the eyebrow bullet is a tiny match ball */
+.hero-top .eyebrow .dot{ width:9px; height:9px; background:var(--ball) center / contain no-repeat; box-shadow:0 0 10px rgba(224,35,28,.7); }
+/* a ball rides the leading edge of the real progress bar */
+.pre-bar{ overflow:visible; }
+#pre-fill::after{ content:''; position:absolute; right:-6px; top:-11px; width:11px; height:11px;
+  background:var(--ball) center / contain no-repeat; filter:drop-shadow(0 0 6px rgba(224,35,28,.6));
+  animation:dfpl-spin .9s linear infinite; }
+@keyframes dfpl-spin{ to{ transform:rotate(360deg); } }
+/* figures set narrow, like a stadium scoreboard */
+.gate-stats div b, .chip .num, #pre-pct, .les .k, .card-meta span:last-child, .les h3 em{ font-family:'Barlow Condensed','Onest',sans-serif; font-variant-numeric:tabular-nums; }
+.gate-stats div b{ font-weight:400; letter-spacing:.01em; font-size:clamp(28px,2.7vw,42px); }
 </style>
 </head>
 <body data-layout-hero="b" data-layout-story="b" data-layout-gallery="b"
@@ -929,8 +943,7 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   <div class="pre-in">
     <div class="pre-mark">
       <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
-        <circle cx="22" cy="24" r="9.5" stroke="#e0231c" stroke-width="1.2"/>
-        <path d="M6 12h32M9.5 17h25M22 8v28" stroke="#dfe7e0" stroke-width="1.2"/>
+        <path d="M22 4.5 36 9.2v12.3c0 9.1-5.8 15.4-14 18.3-8.2-2.9-14-9.2-14-18.3V9.2Z" stroke="#dfe7e0" stroke-width="1.4"/><circle cx="22" cy="22" r="8.4" fill="#e0231c"/><path d="m22 18.3 3.2 2.35-1.2 3.8h-4l-1.2-3.8Z" fill="#05070a"/><path d="M22 18.3v-4.7M25.2 20.65l4.8-1.25M24 24.45l2.9 4.35M20 24.45l-2.9 4.35M18.8 20.65 14 19.4" stroke="#05070a" stroke-width="1"/>
       </svg>
     </div>
     <div class="pre-jp">DFPL</div>
@@ -945,9 +958,7 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 <header class="nav" id="nav">
   <a class="brand" href="#top" data-cursor>
     <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
-      <circle cx="22" cy="25" r="8.6" fill="#e0231c" fill-opacity=".9"/>
-      <path d="M5 13h34M9 18.4h26M22 8.5v27" stroke="#dfe7e0" stroke-width="1.5"/>
-      <path d="M14 35.5h16" stroke="#dfe7e0" stroke-width="1.2" stroke-opacity=".6"/>
+      <path d="M22 4.5 36 9.2v12.3c0 9.1-5.8 15.4-14 18.3-8.2-2.9-14-9.2-14-18.3V9.2Z" stroke="#dfe7e0" stroke-width="1.4"/><circle cx="22" cy="22" r="8.4" fill="#e0231c"/><path d="m22 18.3 3.2 2.35-1.2 3.8h-4l-1.2-3.8Z" fill="#05070a"/><path d="M22 18.3v-4.7M25.2 20.65l4.8-1.25M24 24.45l2.9 4.35M20 24.45l-2.9 4.35M18.8 20.65 14 19.4" stroke="#05070a" stroke-width="1"/>
     </svg>
     <span class="brand-tx"><b>DFPL</b><i>DONGRE FOOTBALL PREMIER LEAGUE</i></span>
   </a>
@@ -1220,8 +1231,7 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   <div class="foot-grid">
     <div class="foot-brand">
       <svg viewBox="0 0 44 44" fill="none" width="34" height="34" aria-hidden="true">
-        <circle cx="22" cy="25" r="8.6" fill="#e0231c" fill-opacity=".9"/>
-        <path d="M5 13h34M9 18.4h26M22 8.5v27" stroke="#dfe7e0" stroke-width="1.5"/>
+        <path d="M22 4.5 36 9.2v12.3c0 9.1-5.8 15.4-14 18.3-8.2-2.9-14-9.2-14-18.3V9.2Z" stroke="#dfe7e0" stroke-width="1.4"/><circle cx="22" cy="22" r="8.4" fill="#e0231c"/><path d="m22 18.3 3.2 2.35-1.2 3.8h-4l-1.2-3.8Z" fill="#05070a"/><path d="M22 18.3v-4.7M25.2 20.65l4.8-1.25M24 24.45l2.9 4.35M20 24.45l-2.9 4.35M18.8 20.65 14 19.4" stroke="#05070a" stroke-width="1"/>
       </svg>
       <p>The official record of the Dongre Football Premier League, from the first fixture to the final table.</p>
     </div>

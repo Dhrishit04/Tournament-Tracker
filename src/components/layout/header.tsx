@@ -20,10 +20,12 @@ const navLinks = [
 
 export function BrandMark({ className }: { className?: string }) {
   return (
+    // club crest: hairline shield around a vermilion ball (centre panel + seams)
     <svg viewBox="0 0 44 44" fill="none" aria-hidden="true" className={className}>
-      <circle cx="22" cy="25" r="8.6" fill="#e0231c" fillOpacity=".9" />
-      <path d="M5 13h34M9 18.4h26M22 8.5v27" stroke="#dfe7e0" strokeWidth="1.5" />
-      <path d="M14 35.5h16" stroke="#dfe7e0" strokeWidth="1.2" strokeOpacity=".6" />
+      <path d="M22 4.5 36 9.2v12.3c0 9.1-5.8 15.4-14 18.3-8.2-2.9-14-9.2-14-18.3V9.2Z" stroke="#dfe7e0" strokeWidth="1.4" />
+      <circle cx="22" cy="22" r="8.4" fill="#e0231c" />
+      <path d="m22 18.3 3.2 2.35-1.2 3.8h-4l-1.2-3.8Z" fill="#05070a" />
+      <path d="M22 18.3v-4.7M25.2 20.65l4.8-1.25M24 24.45l2.9 4.35M20 24.45l-2.9 4.35M18.8 20.65 14 19.4" stroke="#05070a" strokeWidth="1" />
     </svg>
   );
 }
