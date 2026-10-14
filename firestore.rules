@@ -59,11 +59,14 @@ service cloud.firestore {
     // Only authed admins can create. The create rule forces `adminEmail`
     // to match the caller's token, blocking forged entries.
     // Only the system admin can read (the logs page is system-admin-only).
+    // Entries can never be edited; only the system admin can delete them,
+    // which is what "Purge History" on the logs page does.
     match /logs/{logId} {
       allow create: if isAnyAdmin()
         && request.resource.data.adminEmail == request.auth.token.email;
       allow read: if isSystemAdmin();
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if isSystemAdmin();
     }
 
     // ---- /analytics/** (footfall counters) ----
@@ -74,6 +77,19 @@ service cloud.firestore {
       allow read: if true;
       allow create, update: if true;
       allow delete: if isSystemAdmin();
+    }
+
+    // ---- /about-positions, /about-members (public About page) ----
+    // Read by the public About page and the landing page's committee
+    // section. Managed only from the system-admin About Us page.
+    match /about-positions/{positionId} {
+      allow read: if true;
+      allow create, update, delete: if isSystemAdmin();
+    }
+
+    match /about-members/{memberId} {
+      allow read: if true;
+      allow create, update, delete: if isSystemAdmin();
     }
 
     // ---- catch-all ----
