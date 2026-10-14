@@ -20,6 +20,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { AthleteCardDialog } from '@/components/players/athlete-card-dialog';
+import { CountUp } from '@/components/ui/animations';
 
 const playerEditSchema = z.object({
   age: z.coerce.number().min(1, 'Age is required'),
@@ -445,7 +446,7 @@ export default function TeamDetailPage() {
                 {statItems.map(stat => (
                   <div key={stat.label} className="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/5">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{stat.label}</span>
-                    <span className="font-mono font-black text-lg text-accent">{stat.value}</span>
+                    <CountUp value={stat.value} className="font-mono font-black text-lg text-accent" />
                   </div>
                 ))}
               </div>

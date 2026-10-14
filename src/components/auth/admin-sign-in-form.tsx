@@ -82,7 +82,7 @@ export function AdminSignInForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm relative border-accent/20 bg-card overflow-hidden shadow-[0_0_40px_rgba(139,92,246,0.15)] transition-shadow duration-700 hover:shadow-[0_0_80px_rgba(139,92,246,0.3)]">
+    <Card className="w-full max-w-sm relative border-accent/20 bg-card overflow-hidden shadow-[0_0_40px_rgba(224,35,28,0.15)] transition-shadow duration-700 hover:shadow-[0_0_80px_rgba(224,35,28,0.3)]">
       {/* Animated glow border effect - optimized for mobile with pure CSS simple pulse */}
       <div className="absolute inset-0 bg-accent/5 animate-pulse pointer-events-none" />
 

@@ -16,7 +16,7 @@ import { getImageUrl, cn } from '@/lib/utils';
 import { AthleteCardDialog } from '@/components/players/athlete-card-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSeason } from '@/contexts/season-context';
-import { FadeUp, CinematicFade } from '@/components/ui/animations';
+import { FadeUp, CinematicFade, ScrollReveal } from '@/components/ui/animations';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -55,18 +55,18 @@ export default function PlayersPage() {
         className="cursor-pointer hover:bg-accent/5 transition-colors group border-b border-white/5"
         onClick={() => setSelectedPlayer(player)}
       >
-        <TableCell className="px-6 py-4">
-          <div className="flex items-center gap-4">
+        <TableCell className="px-4 sm:px-6 py-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative w-12 h-12 rounded-2xl overflow-hidden border border-white/10 group-hover:border-accent/40 transition-all duration-500 shrink-0 group-hover:scale-105">
               <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" data-ai-hint={avatar.imageHint} />
             </div>
             <div>
-              <div className="font-bold text-base uppercase tracking-tight whitespace-nowrap">{player.name}</div>
-              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap group-hover:text-accent transition-colors">{getTeamName(player.teamId)}</div>
+              <div className="font-bold text-sm sm:text-base uppercase tracking-tight sm:whitespace-nowrap">{player.name}</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground sm:whitespace-nowrap group-hover:text-accent transition-colors">{getTeamName(player.teamId)}</div>
             </div>
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell className="hidden md:table-cell">
           <div className="flex items-center gap-2">
             <div className={cn(
               "w-2 h-2 rounded-full",
@@ -76,7 +76,7 @@ export default function PlayersPage() {
             <span className="font-bold text-xs">Class {player.category}</span>
           </div>
         </TableCell>
-        <TableCell>
+        <TableCell className="hidden md:table-cell">
           <div className="flex gap-1 flex-wrap max-w-[150px]">
             {player.preferredPosition?.map(pos => (
               <span key={pos} className="text-[8px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/5">{pos}</span>
@@ -95,7 +95,7 @@ export default function PlayersPage() {
       <Table>
         <TableHeader className="bg-white/5">
           <TableRow className="border-white/5">
-            <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete Profile</TableHead>
+            <TableHead className="px-4 sm:px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete Profile</TableHead>
             <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Class</TableHead>
             <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Position</TableHead>
             <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">MP</TableHead>
@@ -135,7 +135,7 @@ export default function PlayersPage() {
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-muted-foreground text-lg">
             Official DFPL central registry and performance records.
           </motion.p>
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="mt-6 k-eyebrow">
             {currentSeason ? `${currentSeason.name} • ${currentSeason.year}` : 'CONNECTING...'}
           </motion.div>
         </div>
@@ -183,15 +183,15 @@ export default function PlayersPage() {
           <CardContent className="p-0">
             {loading ? <LoadingSkeleton /> : (
               <div className="overflow-x-auto custom-scrollbar">
-                <Table>
+                <Table className="[&_td]:px-2 [&_th]:px-2 sm:[&_td]:px-4 sm:[&_th]:px-4">
                   <TableHeader className="bg-white/5">
                     <TableRow className="border-white/5">
-                      <TableHead className="px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete Profile</TableHead>
-                      <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Draft Class</TableHead>
-                      <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Positions</TableHead>
-                      <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Played</TableHead>
-                      <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Goals</TableHead>
-                      <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Assists</TableHead>
+                      <TableHead className="px-4 sm:px-6 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete Profile</TableHead>
+                      <TableHead className="hidden md:table-cell h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Draft Class</TableHead>
+                      <TableHead className="hidden md:table-cell h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Positions</TableHead>
+                      <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground"><span className="sm:hidden">MP</span><span className="hidden sm:inline">Played</span></TableHead>
+                      <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground"><span className="sm:hidden">G</span><span className="hidden sm:inline">Goals</span></TableHead>
+                      <TableHead className="text-center h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground"><span className="sm:hidden">A</span><span className="hidden sm:inline">Assists</span></TableHead>
                     </TableRow>
                   </TableHeader>
                   <motion.tbody

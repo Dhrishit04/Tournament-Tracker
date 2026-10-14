@@ -1,6 +1,7 @@
 
 import type { Metadata } from 'next';
 import './globals.css';
+import './kage-ui.css';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/header';
@@ -13,10 +14,11 @@ import { SessionGuard } from '@/components/layout/session-guard';
 import { SmoothScrolling } from '@/components/providers/smooth-scrolling';
 import { AboutProvider } from '@/contexts/about-context';
 import { FootfallTracker } from '@/components/layout/footfall-tracker';
+import { KageMotion } from '@/components/layout/kage-motion';
 
 export const metadata: Metadata = {
-  title: 'Dongre Football Premier League',
-  description: 'The official page for the Dongre Football Premier League tournament.',
+  title: 'Tournament Tracker | Dongre Football Premier League',
+  description: 'Live standings, fixtures, teams, and player statistics for the Dongre Football Premier League.',
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -38,17 +40,13 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700;1,800&display=swap"
-          rel="stylesheet"
-        />
+        <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased">
+      <body className="k-ui font-body antialiased">
         <SmoothScrolling>
             <ThemeProvider
               attribute="class"
-              defaultTheme="system"
-              enableSystem
+              forcedTheme="dark"
               disableTransitionOnChange
             >
               <FirebaseClientProvider>
@@ -57,13 +55,16 @@ export default function RootLayout({
                     <DataProvider>
                       <AboutProvider>
                       <SessionGuard>
+                        <div className="k-backdrop" aria-hidden />
                         <div className="flex min-h-screen flex-col">
                           <Header />
                           <main className="flex-grow">{children}</main>
                           <Footer />
                         </div>
-                        <div className="noise-overlay" />
+                        <div className="k-vignette" aria-hidden />
+                        <div className="noise-overlay" aria-hidden />
                         <FootfallTracker />
+                        <KageMotion />
                       </SessionGuard>
                       </AboutProvider>
                       <Toaster />

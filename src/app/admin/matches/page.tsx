@@ -610,9 +610,9 @@ export default function AdminMatchesPage() {
                                                         <TableCell>
                                                             {(match.status === 'FINISHED' || match.status === 'LIVE') ? (
                                                                 <div className="flex items-center gap-2 font-mono font-black text-sm bg-black/40 px-2 py-0.5 rounded-md border border-white/10 w-fit shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
-                                                                    <span className={cn(match.homeScore! > match.awayScore! ? "text-accent drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" : "text-white/80")}>{match.homeScore ?? '0'}</span>
+                                                                    <span className={cn(match.homeScore! > match.awayScore! ? "text-accent drop-shadow-[0_0_8px_rgba(224,35,28,0.6)]" : "text-white/80")}>{match.homeScore ?? '0'}</span>
                                                                     <span className="opacity-20">-</span>
-                                                                    <span className={cn(match.awayScore! > match.homeScore! ? "text-accent drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" : "text-white/80")}>{match.awayScore ?? '0'}</span>
+                                                                    <span className={cn(match.awayScore! > match.homeScore! ? "text-accent drop-shadow-[0_0_8px_rgba(224,35,28,0.6)]" : "text-white/80")}>{match.awayScore ?? '0'}</span>
                                                                 </div>
                                                             ) : (
                                                                 <span className="text-[10px] font-mono font-black opacity-20">—</span>

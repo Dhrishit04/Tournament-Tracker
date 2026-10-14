@@ -16,7 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getImageUrl, cn } from '@/lib/utils';
 import { MatchDetailsDialog } from '@/components/matches/match-details-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FadeUp } from '@/components/ui/animations';
+import { FadeUp, ScrollReveal } from '@/components/ui/animations';
 
 function LivePulse() {
     return (
@@ -86,16 +86,16 @@ function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { matc
                                 {match.status === 'FINISHED' || match.status === 'LIVE' ? (
                                     <div className="flex flex-col items-center gap-1">
                                         <div className="flex items-center justify-center gap-2 text-xl md:text-2xl font-black font-mono tracking-tighter bg-black/40 px-3 py-1 rounded-xl border border-white/10 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
-                                            <span className={cn(match.homeScore! > match.awayScore! ? "text-accent drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" : "text-white/80")}>{match.homeScore ?? '0'}</span>
+                                            <span className={cn(match.homeScore! > match.awayScore! ? "text-accent drop-shadow-[0_0_8px_rgba(224,35,28,0.6)]" : "text-white/80")}>{match.homeScore ?? '0'}</span>
                                             <span className="text-white/10 font-sans font-normal">-</span>
-                                            <span className={cn(match.awayScore! > match.homeScore! ? "text-accent drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]" : "text-white/80")}>{match.awayScore ?? '0'}</span>
+                                            <span className={cn(match.awayScore! > match.homeScore! ? "text-accent drop-shadow-[0_0_8px_rgba(224,35,28,0.6)]" : "text-white/80")}>{match.awayScore ?? '0'}</span>
                                         </div>
                                         {match.isExtraTime && (
                                             <span className="text-[7px] font-black text-accent uppercase tracking-widest bg-accent/10 px-1.5 rounded-full border border-accent/20">AET</span>
                                         )}
                                     </div>
                                 ) : (
-                                    <span className="text-[10px] font-black font-mono text-accent whitespace-nowrap bg-accent/5 border border-accent/20 px-3 py-1.5 rounded-xl tracking-widest shadow-[0_0_10px_rgba(139,92,246,0.1)]">
+                                    <span className="text-[10px] font-black font-mono text-accent whitespace-nowrap bg-accent/5 border border-accent/20 px-3 py-1.5 rounded-xl tracking-widest shadow-[0_0_10px_rgba(224,35,28,0.1)]">
                                         {match.time}
                                     </span>
                                 )}

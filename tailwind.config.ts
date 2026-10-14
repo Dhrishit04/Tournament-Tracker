@@ -11,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
-        headline: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        body: ['Onest', 'system-ui', '-apple-system', '"Helvetica Neue"', 'sans-serif'],
+        headline: ['Onest', 'system-ui', '-apple-system', '"Helvetica Neue"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
@@ -67,10 +67,26 @@ export default {
           ring: 'hsl(var(--sidebar-ring))',
         },
       },
+      // Kage frames are square-cornered; only rounded-full (pills, crests) stays round.
       borderRadius: {
+        sm: '1px',
+        DEFAULT: 'var(--radius)',
+        md: 'var(--radius)',
         lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        xl: 'var(--radius)',
+        '2xl': 'var(--radius)',
+        '3xl': 'var(--radius)',
+      },
+      // The template sets type light: display 400, labels 500.
+      fontWeight: {
+        semibold: '500',
+        bold: '500',
+        extrabold: '500',
+        black: '400',
+      },
+      letterSpacing: {
+        tighter: '-0.02em',
+        tight: '-0.012em',
       },
       keyframes: {
         'accordion-down': {

@@ -9,7 +9,7 @@ import { getImageUrl, cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSeason } from '@/contexts/season-context';
-import { FadeUp, CinematicFade } from '@/components/ui/animations';
+import { FadeUp, CinematicFade, ScrollReveal } from '@/components/ui/animations';
 
 export default function StatisticsPage() {
   const { players, teams, loading } = useData();
@@ -21,13 +21,13 @@ export default function StatisticsPage() {
   const getTeamName = (tid: string) => teams.find(t => t.id === tid)?.name || 'Unassigned';
 
   const Leaderboard = ({ data, type }: { data: any[], type: 'goals' | 'assists' }) => (
-    <Table>
+    <Table className="[&_td]:px-2 [&_th]:px-2 sm:[&_td]:px-4 sm:[&_th]:px-4">
       <TableHeader>
         <TableRow className="border-white/5 hover:bg-transparent">
-          <TableHead className="w-16 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">Rank</TableHead>
+          <TableHead className="w-16 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center"><span className="sm:hidden">#</span><span className="hidden sm:inline">Rank</span></TableHead>
           <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete</TableHead>
           <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Club</TableHead>
-          <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{type === 'goals' ? 'Goals' : 'Assists'}</TableHead>
+          <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{type === 'goals' ? <><span className="sm:hidden">G</span><span className="hidden sm:inline">Goals</span></> : <><span className="sm:hidden">A</span><span className="hidden sm:inline">Assists</span></>}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -85,17 +85,19 @@ export default function StatisticsPage() {
 
   return (
     <div className="container mx-auto px-4 py-24 max-w-6xl relative z-10 space-y-12">
-      <div className="text-center md:text-left">
+      <ScrollReveal className="text-center md:text-left">
+        <div>
         <FadeUp delay={0.1}>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3 flex flex-wrap gap-[0.2em] justify-center md:justify-start">
             Elite <span className="text-gradient-purple">Stats</span>
           </h1>
         </FadeUp>
         <p className="text-muted-foreground text-lg">Season Leaderboards and Individual Brilliance.</p>
-        <div className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
+        <div className="mt-6 k-eyebrow">
           {currentSeason ? `${currentSeason.name} • ${currentSeason.year}` : 'CONNECTING...'}
         </div>
       </div>
+      </ScrollReveal>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <CinematicFade delay={0.2}>

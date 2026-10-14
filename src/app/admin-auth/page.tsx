@@ -28,7 +28,7 @@ export default function AdminAuthPage() {
         className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-300"
         style={{
           opacity: spotlightOpacity,
-          background: `radial-gradient(800px circle at ${mousePos.x}px ${mousePos.y}px, rgba(139, 92, 246, 0.12), transparent 40%)`,
+          background: `radial-gradient(800px circle at ${mousePos.x}px ${mousePos.y}px, rgba(224,35,28, 0.12), transparent 40%)`,
         }}
       />
 

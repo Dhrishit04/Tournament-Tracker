@@ -19,7 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { FadeUp, CinematicFade } from '@/components/ui/animations';
+import { FadeUp, CinematicFade, ScrollReveal } from '@/components/ui/animations';
 
 import type { Standing, Team, TeamStats } from '@/types';
 import { useData } from '@/hooks/use-data';
@@ -111,17 +111,17 @@ function StandingsEditForm({
 function StandingsTable({ standings, isAdmin, onEditClick }: { standings: Standing[], isAdmin: boolean, onEditClick: (id: string) => void }) {
     return (
         <div className="overflow-x-auto custom-scrollbar">
-            <Table>
+            <Table className="[&_td]:px-2 [&_th]:px-2 sm:[&_td]:px-4 sm:[&_th]:px-4">
                 <TableHeader className="bg-white/5">
                     <TableRow className="border-white/10">
-                        <TableHead className="w-[50px] text-center text-[10px] font-black uppercase tracking-widest">Rank</TableHead>
+                        <TableHead className="w-[50px] text-center text-[10px] font-black uppercase tracking-widest"><span className="sm:hidden">#</span><span className="hidden sm:inline">Rank</span></TableHead>
                         <TableHead className="text-[10px] font-black uppercase tracking-widest">Club</TableHead>
                         <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">MP</TableHead>
                         <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">W</TableHead>
                         <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">D</TableHead>
                         <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">L</TableHead>
-                        <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">GF</TableHead>
-                        <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">GA</TableHead>
+                        <TableHead className="hidden sm:table-cell text-center text-[10px] font-black uppercase tracking-widest">GF</TableHead>
+                        <TableHead className="hidden sm:table-cell text-center text-[10px] font-black uppercase tracking-widest">GA</TableHead>
                         <TableHead className="text-center text-[10px] font-black uppercase tracking-widest">GD</TableHead>
                         <TableHead className="font-black text-center text-[10px] uppercase tracking-widest text-accent">Pts</TableHead>
                         {isAdmin && <TableHead className="text-right text-[10px] font-black uppercase tracking-widest">Edit</TableHead>}
@@ -138,8 +138,8 @@ function StandingsTable({ standings, isAdmin, onEditClick }: { standings: Standi
                             <TableCell className="text-center font-mono text-sm text-green-500/80">{standing.won}</TableCell>
                             <TableCell className="text-center font-mono text-sm">{standing.drawn}</TableCell>
                             <TableCell className="text-center font-mono text-sm text-red-500/80">{standing.lost}</TableCell>
-                            <TableCell className="text-center font-mono text-sm">{standing.goalsFor}</TableCell>
-                            <TableCell className="text-center font-mono text-sm">{standing.goalsAgainst}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-center font-mono text-sm">{standing.goalsFor}</TableCell>
+                            <TableCell className="hidden sm:table-cell text-center font-mono text-sm">{standing.goalsAgainst}</TableCell>
                             <TableCell className={cn(
                                 "text-center font-mono text-sm font-bold",
                                 standing.goalDifference > 0 ? "text-blue-400" : standing.goalDifference < 0 ? "text-destructive" : ""
@@ -321,7 +321,7 @@ export default function StandingsPage() {
                     </h1>
                 </FadeUp>
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-muted-foreground text-lg">Real-time tournament positioning and competitive analytics.</motion.p>
-                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }} className="mt-6 k-eyebrow">
                     {currentSeason ? `${currentSeason.name} • ${currentSeason.year}` : 'CONNECTING...'}
                 </motion.div>
             </motion.div>
@@ -337,8 +337,7 @@ export default function StandingsPage() {
                                 <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
                                     <CardHeader className="bg-white/5 border-b border-white/5 py-4">
                                         <CardTitle className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
-                                            <div className="w-2 h-6 bg-accent rounded-full" />
-                                            Group {key}
+                                                                                        Group {key}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-0">
@@ -358,8 +357,7 @@ export default function StandingsPage() {
                             <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
                                 <CardHeader className="bg-white/5 border-b border-white/5 py-4">
                                     <CardTitle className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
-                                        <div className="w-2 h-6 bg-accent rounded-full" />
-                                        Global Leaderboard
+                                                                                Global Leaderboard
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-0">

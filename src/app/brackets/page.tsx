@@ -77,7 +77,7 @@ export default function BracketPage() {
       <div className="text-center">
         <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">The Championship <span className="text-gradient-purple">Road</span></h1>
         <p className="text-muted-foreground text-lg">Elimination Protocol Active</p>
-        <div className="mt-6 inline-flex items-center rounded-full bg-accent/10 px-4 py-1.5 text-sm font-bold tracking-widest uppercase text-accent border border-accent/20">
+        <div className="mt-6 k-eyebrow">
           {currentSeason ? `${currentSeason.name} • ${currentSeason.year}` : 'CONNECTING...'}
         </div>
       </div>
@@ -93,11 +93,15 @@ export default function BracketPage() {
 
         {/* GRAND FINAL */}
         <div className="flex flex-col items-center gap-12">
-          <div className="relative">
-            <div className="absolute inset-0 bg-accent/20 blur-[100px] rounded-full scale-150" />
-            <div className="relative bg-background border-4 border-accent p-8 rounded-[40px] shadow-2xl">
-              <Trophy className="h-20 w-20 text-accent" />
-            </div>
+          {/* trophy: a breathing vermilion ring inside a slowly turning dotted orbit */}
+          <div className="relative grid h-44 w-44 place-items-center">
+            <div className="absolute inset-0 rounded-full bg-accent/15 blur-[80px]" />
+            <svg viewBox="0 0 100 100" className="absolute inset-0 animate-[spin_28s_linear_infinite]" aria-hidden>
+              <circle cx="50" cy="50" r="49" fill="none" stroke="rgba(224,35,28,.55)" strokeWidth=".5" strokeDasharray=".6 2.4" />
+            </svg>
+            <span className="absolute inset-5 animate-ping rounded-full border border-primary/40 [animation-duration:2.8s]" />
+            <span className="absolute inset-5 rounded-full border border-primary/70 bg-background shadow-[0_0_40px_rgba(224,35,28,.35)]" />
+            <Trophy className="relative h-14 w-14 text-accent" strokeWidth={1.25} />
           </div>
           <div className="w-full max-w-sm">
             <div className="text-center mb-6"><span className="text-lg font-black italic uppercase tracking-tighter text-accent">Grand Finale</span></div>
