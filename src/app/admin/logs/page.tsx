@@ -63,11 +63,26 @@ export default function AdminLogsPage() {
 
   const handleClearLogs = async () => {
     if (!firestore) return;
-    const batch = writeBatch(firestore);
     const snap = await getDocs(collection(firestore, 'logs'));
-    snap.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
-    toast({ title: "Logs Purged", description: "Audit history cleared." });
+    // Firestore caps a batch at 500 writes, so delete in chunks below that.
+    const CHUNK = 450;
+    let deleted = 0;
+    try {
+      for (let i = 0; i < snap.docs.length; i += CHUNK) {
+        const batch = writeBatch(firestore);
+        snap.docs.slice(i, i + CHUNK).forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        deleted += Math.min(CHUNK, snap.docs.length - i);
+      }
+      toast({ title: "Logs Purged", description: "Audit history cleared." });
+    } catch (error) {
+      console.error("Log purge failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Purge Incomplete",
+        description: `Cleared ${deleted} of ${snap.docs.length} entries. Try again to remove the rest.`,
+      });
+    }
   };
 
   return (
