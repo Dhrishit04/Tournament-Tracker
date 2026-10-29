@@ -7,7 +7,7 @@ import type { LucideIcon } from 'lucide-react';
 
 const EFFECTIVE_DATE = 'October 14, 2026';
 
-function Section({ icon: Icon, title, children }: { icon: LucideIcon; title: string; children: React.ReactNode }) {
+function Section({ icon: Icon, title, children }: Readonly<{ icon: LucideIcon; title: string; children: React.ReactNode }>) {
   return (
     <Card className="glass-card border-white/5 overflow-hidden">
       <CardHeader className="bg-white/5 border-b border-white/5">

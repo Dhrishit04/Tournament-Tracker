@@ -62,7 +62,14 @@ function packIntoRows(
   return rows;
 }
 
-function MemberCard({ member }: { member: TeamMember }) {
+// One column for a lone member, two for a pair, up to three otherwise.
+function gridColsFor(count: number) {
+  if (count === 1) return 'grid-cols-1';
+  if (count === 2) return 'grid-cols-1 sm:grid-cols-2';
+  return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+}
+
+function MemberCard({ member }: Readonly<{ member: TeamMember }>) {
   // Firebase Storage intermittently 500s the image optimizer's fetch; fall back to the original file once.
   const [direct, setDirect] = useState(false);
   return (
@@ -97,12 +104,12 @@ function MemberCard({ member }: { member: TeamMember }) {
       <div className="flex-grow" />
       {member.socialLinks?.length > 0 && (
         <div className="mt-4 flex items-center gap-2.5">
-          {member.socialLinks.map((link: SocialLink, i: number) => {
+          {member.socialLinks.map((link: SocialLink) => {
             const { icon: Icon, label } = detectPlatform(link.url);
             return (
               // template .arrowlink .ar: a hairline ring that floods bone on hover
               <a
-                key={i}
+                key={link.url}
                 href={getSocialHref(link.url)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -145,7 +152,7 @@ export default function AboutPage() {
 
       {loading && (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="aspect-[4/5]" />)}
+          {Array.from({ length: 3 }, (_, i) => i).map((i) => <Skeleton key={i} className="aspect-[4/5]" />)}
         </div>
       )}
 
@@ -154,12 +161,12 @@ export default function AboutPage() {
       )}
 
       <div className="space-y-[clamp(46px,8vh,96px)]">
-        {rows.map((row, rowIdx) => {
+        {rows.map((row) => {
           // Total members in this row determines how wide each group stretches
           const totalInRow = row.reduce((s, g) => s + g.posMembers.length, 0);
 
           return (
-            <div key={rowIdx} className="flex flex-col gap-[clamp(28px,4vw,60px)] md:flex-row">
+            <div key={row.map(g => g.position.id).join('|')} className="flex flex-col gap-[clamp(28px,4vw,60px)] md:flex-row">
               {row.map(({ position, posMembers }) => {
                 const widthPercent = Math.round((posMembers.length / totalInRow) * 100);
                 const no = String(++groupNo).padStart(2, '0');
@@ -182,12 +189,7 @@ export default function AboutPage() {
                       <span className="h-px flex-1 bg-[rgba(223,231,224,.07)]" />
                     </motion.div>
 
-                    <div className={`grid gap-[clamp(14px,1.6vw,26px)] ${posMembers.length === 1
-                      ? 'grid-cols-1'
-                      : posMembers.length === 2
-                        ? 'grid-cols-1 sm:grid-cols-2'
-                        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                      }`}>
+                    <div className={`grid gap-[clamp(14px,1.6vw,26px)] ${gridColsFor(posMembers.length)}`}>
                       {posMembers.map((member) => <MemberCard key={member.id} member={member} />)}
                     </div>
                   </motion.section>

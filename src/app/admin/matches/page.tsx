@@ -49,7 +49,6 @@ import { useData } from '@/hooks/use-data';
 import { useSeason } from '@/contexts/season-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const matchSchema = z.object({
     homeTeamId: z.string().min(1, 'Home team is required'),
@@ -83,12 +82,12 @@ function StageSettings() {
 
     const handleConfigChange = (key: keyof MatchConfig, value: any) => {
         const newConfig = { ...matchConfig, [key]: value };
-        updateMatchConfig(newConfig);
+        void updateMatchConfig(newConfig);
     }
 
     const handleTimingChange = (type: 'duration' | 'extraTime', value: string) => {
         if (!selectedStageForTiming) return;
-        const numVal = parseInt(value) || 0;
+        const numVal = Number.parseInt(value) || 0;
         const clampedVal = Math.min(90, Math.max(0, numVal));
 
         const currentTimings = matchConfig.stageTimings || {};
@@ -188,7 +187,7 @@ function StageSettings() {
     )
 }
 
-function TimingIndicator({ stage }: { stage?: MatchStage }) {
+function TimingIndicator({ stage }: Readonly<{ stage?: MatchStage }>) {
     const { currentSeason } = useSeason();
     if (!stage || !currentSeason?.matchConfig.stageTimings?.[stage]) return null;
 
@@ -216,13 +215,13 @@ function MatchForm({
     onClose,
     teams,
     matches,
-}: {
+}: Readonly<{
     onSubmit: (data: z.infer<typeof matchSchema>) => void;
     match?: Match | null;
     onClose: () => void;
     teams: Team[];
     matches: Match[];
-}) {
+}>) {
     const { currentSeason } = useSeason();
 
     // Convert stored 12h time string (e.g. "12:30 PM") to 24h HTML input value (e.g. "12:30")
@@ -243,7 +242,7 @@ function MatchForm({
         defaultValues: {
             homeTeamId: match?.homeTeamId || '',
             awayTeamId: match?.awayTeamId || '',
-            date: match ? (match.date instanceof Date ? format(match.date, 'yyyy-MM-dd') : format(new Date(match.date), 'yyyy-MM-dd')) : '',
+            date: match ? format(new Date(match.date), 'yyyy-MM-dd') : '',
             time: parseTimeFor24hInput(match?.time),
             status: match?.status || 'UPCOMING',
             stage: match?.stage || 'GROUP_STAGE',
@@ -262,8 +261,7 @@ function MatchForm({
         if (currentSeason.matchConfig.showQuarterFinals && teams.length >= 16) {
             stages.push({ value: 'QUARTER_FINALS', label: 'Quarter-Finals' });
         }
-        stages.push({ value: 'SEMI_FINALS', label: 'Semi-Finals' });
-        stages.push({ value: 'FINALS', label: 'Finals' });
+        stages.push({ value: 'SEMI_FINALS', label: 'Semi-Finals' }, { value: 'FINALS', label: 'Finals' });
         if (currentSeason.matchConfig.showOthers) {
             stages.push({ value: 'OTHERS', label: 'Others' });
         }
@@ -273,7 +271,7 @@ function MatchForm({
 
     const handleValidationAndSubmit = (data: z.infer<typeof matchSchema>) => {
         // Restriction: Only 2 Semi-Finals and 1 Final per season
-        if (!match || (match && match.stage !== data.stage)) {
+        if (match?.stage !== data.stage) {
             if (data.stage === 'SEMI_FINALS') {
                 const count = matches.filter(m => m.stage === 'SEMI_FINALS').length;
                 if (count >= 2) {
@@ -420,7 +418,6 @@ export default function AdminMatchesPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
     const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-    const [matchToDelete, setMatchToDelete] = useState<Match | null>(null);
     const { toast } = useToast();
 
     const getTeamName = (teamId: string) => teams.find(t => t.id === teamId)?.name || '...';
@@ -446,7 +443,7 @@ export default function AdminMatchesPage() {
         return `${h12}:${String(m).padStart(2, '0')} ${meridiem}`;
     };
 
-    const handleFormSubmit = async (data: z.infer<typeof matchSchema>) => {
+    const handleFormSubmit = (data: z.infer<typeof matchSchema>) => {
         const kickoffTime = formatTimeTo12h(data.time);
 
         if (dialogMode === 'edit' && selectedMatch) {
@@ -461,7 +458,7 @@ export default function AdminMatchesPage() {
                 description: data.description,
                 isThirdPlacePlayoff: data.isThirdPlacePlayoff,
             };
-            updateMatch(updatedMatchData);
+            void updateMatch(updatedMatchData);
             toast({ title: 'Fixture Updated', description: `${getTeamName(data.homeTeamId)} vs ${getTeamName(data.awayTeamId)} has been modified.` });
         } else {
             const newMatch: Match = {
@@ -485,15 +482,6 @@ export default function AdminMatchesPage() {
         handleCloseDialog();
     };
 
-    const confirmDelete = () => {
-        if (matchToDelete) {
-            const homeName = getTeamName(matchToDelete.homeTeamId);
-            const awayName = getTeamName(matchToDelete.awayTeamId);
-            deleteMatch(matchToDelete.id);
-            setMatchToDelete(null);
-            toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${homeName} vs ${awayName} has been removed.` });
-        }
-    }
 
     const pageLoading = loading || seasonLoading || !currentSeason;
 
@@ -632,7 +620,7 @@ export default function AdminMatchesPage() {
                                                                         </AlertDialogHeader>
                                                                         <AlertDialogFooter>
                                                                             <AlertDialogCancel>Abort</AlertDialogCancel>
-                                                                            <AlertDialogAction onClick={() => { deleteMatch(match.id); toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)} has been removed.` }); }} className="hover-lift bg-destructive hover:bg-destructive/90 text-shadow-sm">Erase Match</AlertDialogAction>
+                                                                            <AlertDialogAction onClick={() => { void deleteMatch(match.id); toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)} has been removed.` }); }} className="hover-lift bg-destructive hover:bg-destructive/90 text-shadow-sm">Erase Match</AlertDialogAction>
                                                                         </AlertDialogFooter>
                                                                     </AlertDialogContent>
                                                                 </AlertDialog>
@@ -669,7 +657,7 @@ export default function AdminMatchesPage() {
                                                 <TableCell className="px-8"><Badge variant="outline" className="text-[9px] font-black tracking-tighter border-white/10">{match.stage}</Badge></TableCell>
                                                 <TableCell className="font-bold text-sm">{getTeamName(match.homeTeamId)} vs {getTeamName(match.awayTeamId)}</TableCell>
                                                 <TableCell className="px-8 text-right">
-                                                    <Button variant="ghost" size="icon" className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => { deleteMatch(match.id); toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)} has been removed.` }); }}>
+                                                    <Button variant="ghost" size="icon" className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => { void deleteMatch(match.id); toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)} has been removed.` }); }}>
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </TableCell>

@@ -19,7 +19,7 @@ function ScrollToTop() {
     return null;
 }
 
-export function SmoothScrolling({ children }: { children: ReactNode }) {
+export function SmoothScrolling({ children }: Readonly<{ children: ReactNode }>) {
     return (
         <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothWheel: true }}>
             <ScrollToTop />

@@ -19,6 +19,7 @@ a.card{ display:block; }
 <style>
 /* ============================================================= tokens */
 :root{
+  --ball:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='9.2' fill='%23e0231c'/%3E%3Cpath d='m10 6.1 3.5 2.55-1.33 4.12H7.83L6.5 8.65Z' fill='%2305070a'/%3E%3Cpath d='M10 6.1V.9M13.5 8.65l5-1.65M12.17 12.77l3.1 4.3M7.83 12.77l-3.1 4.3M6.5 8.65l-5-1.65' stroke='%2305070a' stroke-width='1.1'/%3E%3C/svg%3E");   /* DFPL match ball */
   --ink:#05070a;          /* page black */
   --ink-2:#0a0e12;        /* raised black */
   --bone:#dfe7e0;         /* the pale sage white of the wordmark */
@@ -90,9 +91,8 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
 [data-rv].rv-in{ opacity:1; transform:none;
   transition:opacity .9s var(--ease-out), transform 1.05s var(--ease-out); }
 .mask-line{ display:block; overflow:hidden; }
-.mask-line:not(.word-reveal) > span{ display:block; transform:translate3d(0,110%,0); }
+.mask-line:not(.word-reveal) > span{ display:block; transform:translate3d(0,110%,0); transition:transform 1.05s var(--ease-out); }
 .rv-in .mask-line:not(.word-reveal) > span, .mask-line:not(.word-reveal).rv-in > span{ transform:none; }
-.mask-line:not(.word-reveal) > span{ transition:transform 1.05s var(--ease-out); }
 .word-mask{ display:inline-block; overflow:hidden; vertical-align:top; }
 .word{
   display:inline-block; opacity:0; transform:translate3d(0,112%,0); will-change:transform,opacity;
@@ -112,7 +112,7 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
 .pre-mark{ margin:0 auto 26px; width:44px; height:44px; opacity:.9; }
 .pre-mark svg{ width:100%; height:100%; display:block; }
 .pre-jp{ font-size:12px; letter-spacing:.5em; color:var(--bone-dim); margin-bottom:20px; }
-.pre-bar{ position:relative; height:1px; background:rgba(223,231,224,.14); overflow:hidden; }
+.pre-bar{ position:relative; height:1px; background:rgba(223,231,224,.14); overflow:visible; }  /* visible: the ball rides past its end */
 .pre-bar i{ position:absolute; inset:0 100% 0 0; background:var(--bone); transition:right .35s linear; }
 .pre-meta{ display:flex; justify-content:space-between; margin-top:12px;
   font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
@@ -176,7 +176,8 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
   background:linear-gradient(rgba(3,6,9,.72), rgba(3,6,9,.34) 46%, transparent); }
 .hero-top{ padding-top:calc(var(--nav-h) + clamp(12px,2.6vh,34px)); max-width:min(560px,46vw); position:relative; z-index:2; }
 .hero-top .eyebrow{ display:flex; align-items:center; gap:10px; margin-bottom:20px; }
-.hero-top .eyebrow .dot{ width:5px; height:5px; border-radius:50%; background:var(--vermilion); box-shadow:0 0 10px var(--vermilion); }
+/* the eyebrow bullet is a tiny match ball (--ball lives in :root) */
+.hero-top .eyebrow .dot{ width:9px; height:9px; border-radius:50%; background:var(--ball) center / contain no-repeat; box-shadow:0 0 10px rgba(224,35,28,.7); }
 .hero h1{ margin-bottom:18px; }
 .hero-sub{ max-width:322px; text-shadow:0 1px 26px rgba(3,6,8,.95); }
 .hero-spacer{ flex:1 1 auto; min-height:clamp(140px,26vh,300px); }
@@ -273,7 +274,7 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
 .arrowlink:hover .ar svg{ transform:translate3d(2px,-2px,0); }
 .arrowlink:hover .ar svg path{ stroke:#05070a; }
 .gate-stats{ display:flex; gap:clamp(24px,4vw,62px); margin-top:clamp(46px,8vh,96px); border-top:1px solid var(--line-soft); padding-top:24px; }
-.gate-stats div b{ display:block; font-size:clamp(22px,2.1vw,32px); font-weight:300; letter-spacing:-.02em; }
+.gate-stats div b{ display:block; font-size:clamp(28px,2.7vw,42px); font-weight:400; letter-spacing:.01em; }
 .gate-stats div span{ font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
 
 /* — chapter II: pathways cards */
@@ -289,6 +290,7 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
   position:relative; aspect-ratio:4/5; background:transparent;
   outline:1px solid var(--line-soft); outline-offset:-1px;
   transition:outline-color .5s var(--ease);
+  isolation:isolate;                  /* keep the glow's screen blend inside the card */
 }
 .card:hover .card-fr{ outline-color:rgba(223,231,224,.30); }
 .card:nth-child(1) .card-fr{
@@ -332,7 +334,6 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
    only breathes through moving air, so the moons get a slow, shallow swell and
    nothing more. Giving them both a flicker is what makes this kind of thing
    look like a novelty; the difference is the whole effect. */
-.card-fr{ isolation:isolate; }        /* keep the screen blend inside the card */
 .glow{
   position:absolute; z-index:1; pointer-events:none;
   left:var(--gx); top:var(--gy); width:calc(var(--gr) * 2); aspect-ratio:1;
@@ -916,18 +917,13 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 @media (max-width:1080px){ .mgmt-grid{ grid-template-columns:1fr; gap:34px; } }
 
 /* ---- DFPL: football identity */
-:root{ --ball:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='9.2' fill='%23e0231c'/%3E%3Cpath d='m10 6.1 3.5 2.55-1.33 4.12H7.83L6.5 8.65Z' fill='%2305070a'/%3E%3Cpath d='M10 6.1V.9M13.5 8.65l5-1.65M12.17 12.77l3.1 4.3M7.83 12.77l-3.1 4.3M6.5 8.65l-5-1.65' stroke='%2305070a' stroke-width='1.1'/%3E%3C/svg%3E"); }
-/* the eyebrow bullet is a tiny match ball */
-.hero-top .eyebrow .dot{ width:9px; height:9px; background:var(--ball) center / contain no-repeat; box-shadow:0 0 10px rgba(224,35,28,.7); }
 /* a ball rides the leading edge of the real progress bar */
-.pre-bar{ overflow:visible; }
 #pre-fill::after{ content:''; position:absolute; right:-6px; top:-11px; width:11px; height:11px;
   background:var(--ball) center / contain no-repeat; filter:drop-shadow(0 0 6px rgba(224,35,28,.6));
   animation:dfpl-spin .9s linear infinite; }
 @keyframes dfpl-spin{ to{ transform:rotate(360deg); } }
 /* figures set narrow, like a stadium scoreboard */
 .gate-stats div b, .chip .num, #pre-pct, .les .k, .card-meta span:last-child, .les h3 em{ font-family:'Barlow Condensed','Onest',sans-serif; font-variant-numeric:tabular-nums; }
-.gate-stats div b{ font-weight:400; letter-spacing:.01em; font-size:clamp(28px,2.7vw,42px); }
 
 .cards .card-fr:not(.on-cloth)::before{ content:''; position:absolute; inset:0; pointer-events:none;
   background:rgba(150,18,12,.42); mix-blend-mode:color; }
@@ -936,7 +932,7 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 <body data-layout-hero="b" data-layout-story="b" data-layout-gallery="b"
       data-layout-curriculum="b" data-layout-closing="b" data-layout-footer="b">
 
-<canvas id="gl" aria-hidden="true"></canvas>
+<canvas id="gl" aria-hidden="true"></canvas> <!-- NOSONAR: decorative backdrop; a canvas without tabindex is not focusable -->
 <div id="vignette"></div>
 <div id="grain"></div>
 <div class="cur-dot" id="cursor"></div>
@@ -1284,23 +1280,24 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 /* ------------------------------------------------------------ 0 · basics */
 const Q      = new URLSearchParams(location.search);
 const qs     = (k, d) => { const v = Q.get(k); return v === null ? d : v; };
-const qn     = (k, d) => { const v = Q.get(k); return v === null ? d : parseFloat(v); };
+const qn     = (k, d) => { const v = Q.get(k); return v === null ? d : Number.parseFloat(v); };
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const COARSE = matchMedia('(hover: none)').matches;
 
-const clamp  = (v, a, b) => v < a ? a : (v > b ? b : v);
+const clamp  = (v, a, b) => Math.min(Math.max(v, a), b);
 const sat    = v => clamp(v, 0, 1);
 const lerp   = (a, b, t) => a + (b - a) * t;
 const smooth = (e0, e1, x) => { const t = sat((x - e0) / (e1 - e0)); return t * t * (3 - 2 * t); };
 const easeOut= t => 1 - Math.pow(1 - t, 3);
-const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const TAU    = Math.PI * 2;
+/* ambient motion only (leaves, motes, ripples) — nothing here is security-relevant */
+const rand   = () => Math.random();
 /* frame-rate independent damping */
 const damp   = (cur, to, rate, dt) => lerp(cur, to, 1 - Math.exp(-rate * dt));
 
 function mulberry32(a) {
   return function () {
-    a |= 0; a = a + 0x6D2B79F5 | 0;
+    a >>>= 0; a = (a + 0x6D2B79F5) >>> 0;   /* uint32 wraparound is the generator */
     let t = Math.imul(a ^ a >>> 15, 1 | a);
     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
@@ -1310,7 +1307,7 @@ function mulberry32(a) {
 function noise2D(seed) {
   const rnd = mulberry32(seed), p = new Uint8Array(256), perm = new Uint8Array(512);
   for (let i = 0; i < 256; i++) p[i] = i;
-  for (let i = 255; i > 0; i--) { const j = (rnd() * (i + 1)) | 0, t = p[i]; p[i] = p[j]; p[j] = t; }
+  for (let i = 255; i > 0; i--) { const j = Math.trunc(rnd() * (i + 1)), t = p[i]; p[i] = p[j]; p[j] = t; }
   for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
   const G = [[1, 1], [-1, 1], [1, -1], [-1, -1], [1, 0], [-1, 0], [0, 1], [0, -1]];
   const fade = t => t * t * t * (t * (t * 6 - 15) + 10);
@@ -1333,7 +1330,7 @@ function fbm(n, x, y, oct, lac, gain) {
 
 /* ------------------------------------------------------------ 1 · canvas */
 function cvs(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
-const hex = (r, g, b) => 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ')';
+const hex = (r, g, b) => 'rgb(' + Math.trunc(r) + ',' + Math.trunc(g) + ',' + Math.trunc(b) + ')';
 
 /* stacked, up-scaled value noise — 30× faster than a per-pixel fbm and
    indistinguishable once it is multiplied under a dark base colour */
@@ -1472,6 +1469,68 @@ function texFloor() {
   return { map: c, normal: normalFromHeight(h, 1.5), rough: r };
 }
 
+function woodStroke(pts, ctx, style, w) {
+  if (pts.length < 2) return;
+  ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.strokeStyle = style; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.stroke();
+}
+/* growth rings of one board: concentric arcs around a pith that usually sits
+   outside it, broken wherever the cut passes the ring */
+function woodRings(x, hx, rnd, b) {
+  const { H, bw, d0, amp, gap, pith, dAt } = b;
+  for (let k = 1; k * gap < bw * 3.4 + d0 + amp; k++) {
+    const rr = k * gap * (.88 + rnd() * .24);
+    const dark = .42 + rnd() * .38, wide = .8 + rnd() * 1.9;
+    for (const side of [-1, 1]) {
+      let pts = [];
+      const flush = () => {
+        /* latewood: a narrow dark band, with the pale earlywood just inside */
+        woodStroke(pts, x, 'rgba(0,0,0,' + dark.toFixed(2) + ')', wide);
+        woodStroke(pts, hx, 'rgba(0,0,0,' + (dark * .8).toFixed(2) + ')', wide);
+        woodStroke(pts.map(q => [q[0] + side * (wide + .6), q[1]]), x,
+                   'rgba(150,120,96,' + (dark * .30).toFixed(2) + ')', wide * .7);
+        pts = [];
+      };
+      for (let y = -3; y <= H + 3; y += 3) {
+        const d = dAt(y), q = rr * rr - d * d;
+        if (q <= 0) { flush(); continue; }
+        pts.push([pith + side * Math.sqrt(q), y]);
+      }
+      flush();
+    }
+  }
+}
+/* pores, the odd knot and the checking splits of one board */
+function woodMarks(x, hx, rnd, x0, bw, H) {
+  /* pores — the open tooth of cedar, elongated along the grain */
+  for (let i = 0; i < 220; i++) {
+    const px2 = x0 + rnd() * bw, py = rnd() * H, ln = 1.5 + rnd() * 6;
+    x.fillStyle = 'rgba(0,0,0,' + (.10 + rnd() * .22) + ')';
+    x.fillRect(px2, py, .7 + rnd() * .7, ln);
+    hx.fillStyle = 'rgba(0,0,0,.22)'; hx.fillRect(px2, py, .8, ln);
+  }
+  /* the odd knot, where a branch left the trunk */
+  if (rnd() > .55) {
+    const kx = x0 + bw * (.2 + rnd() * .6), ky = rnd() * H, kr = 2.5 + rnd() * 5;
+    for (let i = 5; i >= 1; i--) {
+      const t = i / 5;
+      x.strokeStyle = 'rgba(0,0,0,' + (.5 - t * .25).toFixed(2) + ')'; x.lineWidth = 1.1;
+      x.beginPath(); x.ellipse(kx, ky, kr * t * 1.5, kr * t * 2.4, 0, 0, TAU); x.stroke();
+      hx.strokeStyle = 'rgba(0,0,0,.30)'; hx.lineWidth = 1.1;
+      hx.beginPath(); hx.ellipse(kx, ky, kr * t * 1.5, kr * t * 2.4, 0, 0, TAU); hx.stroke();
+    }
+  }
+  /* checking: the splits a dried board opens, always along the grain */
+  for (let i = 0; i < 5; i++) {
+    const sx = x0 + rnd() * bw, sy = rnd() * H, ln = 20 + rnd() * 120;
+    const pts = [];
+    for (let y = sy; y < sy + ln; y += 6) pts.push([sx + Math.sin(y * .07) * 1.4, y]);
+    woodStroke(pts, x, 'rgba(0,0,0,.62)', .7 + rnd() * 1.2);
+    woodStroke(pts, hx, 'rgba(0,0,0,.55)', .7 + rnd() * 1.2);
+  }
+}
+
 /* --------------------------------------------------- temple timber · cedar
    Boards, not a noise field. Three things make sawn wood read as wood and
    none of them is fbm:
@@ -1516,13 +1575,6 @@ function texWood(seed, opt) {
     ws.forEach(v => { acc += v / sum * W; cuts.push(acc); });
   } else cuts.push(W);
 
-  const stroke = (pts, ctx, style, w) => {
-    if (pts.length < 2) return;
-    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-    ctx.strokeStyle = style; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.stroke();
-  };
-
   for (let b = 0; b < cuts.length - 1; b++) {
     const x0 = cuts[b], x1 = cuts[b + 1], bw = x1 - x0;
     /* every board came off a different part of the log */
@@ -1530,7 +1582,7 @@ function texWood(seed, opt) {
     const pith = x0 + bw * (rnd() * 2.8 - .9);        /* usually outside it */
     const d0 = bw * (.12 + rnd() * 1.7);              /* how deep the cut ran */
     const amp = bw * (.10 + rnd() * .40);
-    const per = 1 + ((rnd() * 2) | 0), ph = rnd() * TAU;
+    const per = 1 + Math.trunc(rnd() * 2), ph = rnd() * TAU;
     const dAt = y => d0 + Math.sin(y / H * TAU * per + ph) * amp;
     const gap = 2.4 + rnd() * 5.0;                    /* ring spacing */
 
@@ -1538,53 +1590,8 @@ function texWood(seed, opt) {
     x.fillStyle = hex(base[0] * tone, base[1] * tone, base[2] * tone);
     x.fillRect(x0, 0, bw, H);
 
-    for (let k = 1; k * gap < bw * 3.4 + d0 + amp; k++) {
-      const rr = k * gap * (.88 + rnd() * .24);
-      const dark = .42 + rnd() * .38, wide = .8 + rnd() * 1.9;
-      for (const side of [-1, 1]) {
-        let pts = [];
-        const flush = () => {
-          /* latewood: a narrow dark band, with the pale earlywood just inside */
-          stroke(pts, x, 'rgba(0,0,0,' + dark.toFixed(2) + ')', wide);
-          stroke(pts, hx, 'rgba(0,0,0,' + (dark * .8).toFixed(2) + ')', wide);
-          stroke(pts.map(q => [q[0] + side * (wide + .6), q[1]]), x,
-                 'rgba(150,120,96,' + (dark * .30).toFixed(2) + ')', wide * .7);
-          pts = [];
-        };
-        for (let y = -3; y <= H + 3; y += 3) {
-          const d = dAt(y), q = rr * rr - d * d;
-          if (q <= 0) { flush(); continue; }
-          pts.push([pith + side * Math.sqrt(q), y]);
-        }
-        flush();
-      }
-    }
-    /* pores — the open tooth of cedar, elongated along the grain */
-    for (let i = 0; i < 220; i++) {
-      const px2 = x0 + rnd() * bw, py = rnd() * H, ln = 1.5 + rnd() * 6;
-      x.fillStyle = 'rgba(0,0,0,' + (.10 + rnd() * .22) + ')';
-      x.fillRect(px2, py, .7 + rnd() * .7, ln);
-      hx.fillStyle = 'rgba(0,0,0,.22)'; hx.fillRect(px2, py, .8, ln);
-    }
-    /* the odd knot, where a branch left the trunk */
-    if (rnd() > .55) {
-      const kx = x0 + bw * (.2 + rnd() * .6), ky = rnd() * H, kr = 2.5 + rnd() * 5;
-      for (let i = 5; i >= 1; i--) {
-        const t = i / 5;
-        x.strokeStyle = 'rgba(0,0,0,' + (.5 - t * .25).toFixed(2) + ')'; x.lineWidth = 1.1;
-        x.beginPath(); x.ellipse(kx, ky, kr * t * 1.5, kr * t * 2.4, 0, 0, TAU); x.stroke();
-        hx.strokeStyle = 'rgba(0,0,0,.30)'; hx.lineWidth = 1.1;
-        hx.beginPath(); hx.ellipse(kx, ky, kr * t * 1.5, kr * t * 2.4, 0, 0, TAU); hx.stroke();
-      }
-    }
-    /* checking: the splits a dried board opens, always along the grain */
-    for (let i = 0; i < 5; i++) {
-      const sx = x0 + rnd() * bw, sy = rnd() * H, ln = 20 + rnd() * 120;
-      const pts = [];
-      for (let y = sy; y < sy + ln; y += 6) pts.push([sx + Math.sin(y * .07) * 1.4, y]);
-      stroke(pts, x, 'rgba(0,0,0,.62)', .7 + rnd() * 1.2);
-      stroke(pts, hx, 'rgba(0,0,0,.55)', .7 + rnd() * 1.2);
-    }
+    woodRings(x, hx, rnd, { H, bw, d0, amp, gap, pith, dAt });
+    woodMarks(x, hx, rnd, x0, bw, H);
     [x, hx, rx].forEach(d => d.restore());
 
     /* the joint, and the board edge that catches light beside it */
@@ -1813,7 +1820,7 @@ function texLeaf() {
   const lobes = 5, spread = 1.9;
   for (let i = 0; i < lobes; i++) {
     const a = -spread / 2 + spread * (i / (lobes - 1)) + Math.PI / 2;
-    const len = i === 2 ? .96 : (i === 1 || i === 3 ? .82 : .60);
+    const len = [.60, .82, .96, .82, .60][i];
     const wob = .17;
     x.moveTo(0, .02);
     x.lineTo(Math.cos(a - wob) * len * .55, Math.sin(a - wob) * len * .55);
@@ -2137,7 +2144,7 @@ function texGrassCutout(seed, opt) {
   }
   let pk = 0; for (let i = 0; i < W; i++) pk = Math.max(pk, prof[i]);
   for (let i = 0; i < W; i++) prof[i] *= H * peak / pk;
-  const surf = i => H - prof[clamp(i | 0, 0, W - 1)];
+  const surf = i => H - prof[clamp(Math.trunc(i), 0, W - 1)];
 
   /* --- body ------------------------------------------------------- */
   x.beginPath(); x.moveTo(0, H);
@@ -2157,7 +2164,7 @@ function texGrassCutout(seed, opt) {
   const N = opt.blades || 15000;
   const blades = [];
   for (let k = 0; k < N; k++) {
-    const i = (rnd() * W) | 0;
+    const i = Math.trunc(rnd() * W);
     const s = surf(i);
     /* bias the population toward the silhouette so the edge stays ragged */
     const depth = Math.pow(rnd(), 2.3);
@@ -2168,8 +2175,7 @@ function texGrassCutout(seed, opt) {
   blades.sort((a, b) => a.by - b.by);                 /* far (high) first */
 
   const LEN = (opt.len || 46) * (W / 2048);
-  for (let k = 0; k < blades.length; k++) {
-    const b = blades[k];
+  for (const b of blades) {
     const bx = b.i + (b.r - .5) * 5;
     const grow = 1 - .52 * b.depth;
     const len = LEN * (.36 + 1.05 * b.r2 * b.r2) * grow;
@@ -2263,7 +2269,7 @@ function texRockCutout(seed, opt) {
   x.globalCompositeOperation = 'source-atop';
   for (let i = 0; i < 2600; i++) {
     const px = rnd() * W, py = H - Math.pow(rnd(), 1.7) * H * .5;
-    x.fillStyle = 'rgba(' + (40 + rnd() * 40 | 0) + ',' + (60 + rnd() * 46 | 0) + ',34,' + (.05 + rnd() * .22) + ')';
+    x.fillStyle = 'rgba(' + Math.trunc(40 + rnd() * 40) + ',' + Math.trunc(60 + rnd() * 46) + ',34,' + (.05 + rnd() * .22) + ')';
     x.fillRect(px, py, 1.6 + rnd() * 2.4, 3 + rnd() * 9);
   }
   const rb = x.createLinearGradient(W, 0, 0, 0);
@@ -2290,7 +2296,7 @@ function texBranchCutout(seed) {
       x.lineTo(cx2, cy);
     }
     x.lineCap = 'round'; x.lineWidth = wid;
-    x.strokeStyle = 'rgba(' + (26 + depth * 5 | 0) + ',' + (22 + depth * 4 | 0) + ',' + (22 + depth * 4 | 0) + ',1)';
+    x.strokeStyle = 'rgba(' + Math.trunc(26 + depth * 5) + ',' + Math.trunc(22 + depth * 4) + ',' + Math.trunc(22 + depth * 4) + ',1)';
     x.stroke();
     if (depth < 4 && len > 34) {
       const k = depth === 0 ? 3 : 2;
@@ -2456,8 +2462,33 @@ function sweepPoly(points, profile) {
    from the ridge out to the eave, and the last fifth of that run flares back
    upward — that lift at the corners is the whole silhouette. Emitted solid:
    a top shell, an underside shell, and a fascia stitching the two rims. */
+/* corner order of a grid quad's two triangles, upward- and downward-facing */
+const ROOF_WINDING = [[0, 1, 2, 0, 2, 3], [0, 2, 1, 0, 3, 2]];
+/* one shell of the roof grid: k = 0 is the top, k = 1 the underside, dropped
+   by the slab thickness with its normals flipped and its winding reversed */
+function roofShell(k, r, out) {
+  const { A, B, NX, NZ, thick, hAt } = r, e = 1e-3;
+  const N = new THREE.Vector3();
+  const off = k * (NX + 1) * (NZ + 1), dy = k * thick, sign = 1 - 2 * k;
+  const wind = ROOF_WINDING[k];
+  for (let j = 0; j <= NZ; j++) for (let i = 0; i <= NX; i++) {
+    const x = -A + 2 * A * i / NX, z = -B + 2 * B * j / NZ;
+    N.set(-(hAt(x + e, z) - hAt(x - e, z)) / (2 * e), 1,
+          -(hAt(x, z + e) - hAt(x, z - e)) / (2 * e)).normalize().multiplyScalar(sign);
+    out.pos.push(x, hAt(x, z) - dy, z);
+    out.nor.push(N.x, N.y, N.z);
+    /* one tile every seven metres: at half a metre the ribs land inside a
+       pixel at this range and the mip chain averages them to flat grey */
+    out.uv.push(x * .14, z * .14);
+  }
+  for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
+    const a = off + j * (NX + 1) + i, quad = [a, a + 1, a + NX + 2, a + NX + 1];
+    out.idx.push(...wind.map(m => quad[m]));
+  }
+}
+
 function roofGeo(A, B, R, Hr, thick, flare) {
-  const NX = 52, NZ = 34, FL = flare === undefined ? .30 : flare, e = 1e-3;
+  const NX = 52, NZ = 34, FL = flare === undefined ? .30 : flare;
   /* The lift has to be weighted toward the corners. Applied evenly along the
      eave it produces a raised rim the whole way round and the roof reads as a
      saucer; concentrated where the two runs meet, it reads as a temple. */
@@ -2469,25 +2500,9 @@ function roofGeo(A, B, R, Hr, thick, flare) {
          + FL * Hr * smooth(.72, 1, t) * (.52 + .68 * Math.min(cx, cz));
   };
   const pos = [], nor = [], uv = [], idx = [];
-  const N = new THREE.Vector3();
-  const VPS = (NX + 1) * (NZ + 1);
-  for (let k = 0; k < 2; k++) {
-    for (let j = 0; j <= NZ; j++) for (let i = 0; i <= NX; i++) {
-      const x = -A + 2 * A * i / NX, z = -B + 2 * B * j / NZ;
-      N.set(-(hAt(x + e, z) - hAt(x - e, z)) / (2 * e), 1,
-            -(hAt(x, z + e) - hAt(x, z - e)) / (2 * e)).normalize();
-      if (k) N.negate();
-      pos.push(x, hAt(x, z) - (k ? thick : 0), z);
-      nor.push(N.x, N.y, N.z);
-      /* one tile every seven metres: at half a metre the ribs land inside a
-         pixel at this range and the mip chain averages them to flat grey */
-      uv.push(x * .14, z * .14);
-    }
-    for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
-      const a = k * VPS + j * (NX + 1) + i, b = a + 1, c = a + NX + 2, d = a + NX + 1;
-      k ? idx.push(a, c, b, a, d, c) : idx.push(a, b, c, a, c, d);
-    }
-  }
+  const out = { pos, nor, uv, idx }, shell = { A, B, NX, NZ, thick, hAt };
+  roofShell(0, shell, out);
+  roofShell(1, shell, out);
   /* fascia: its own ring of vertices so the eave edge keeps a sideways normal */
   const per = [];
   for (let i = 0; i <= NX; i++) per.push([i, 0]);
@@ -2497,8 +2512,8 @@ function roofGeo(A, B, R, Hr, thick, flare) {
   const base = pos.length / 3;
   per.forEach(p => {
     const x = -A + 2 * A * p[0] / NX, z = -B + 2 * B * p[1] / NZ;
-    const nx = p[0] === 0 ? -1 : (p[0] === NX ? 1 : 0);
-    const nz = p[1] === 0 ? -1 : (p[1] === NZ ? 1 : 0);
+    const nx = Number(p[0] === NX) - Number(p[0] === 0);
+    const nz = Number(p[1] === NZ) - Number(p[1] === 0);
     const l = Math.hypot(nx, nz) || 1;
     const y = hAt(x, z);
     pos.push(x, y, z, x, y - thick, z);
@@ -2543,7 +2558,6 @@ function mergeGeos(list) {
 
 /* ========================================================== 5 · the world */
 const WORLD = {};                 /* named handles the page can animate */
-const swayers = [];               /* things the wind touches */
 
 /* ---- the site plan, in metres ----------------------------------------
    Everything downstream — camera waypoints, lantern rows, the moon — is
@@ -2677,14 +2691,14 @@ function buildTemple() {
     const parts = [];
     for (let x = -halfW; x <= halfW + 1e-3; x += step) {
       [-halfD, halfD].forEach(dz => {
-        parts.push(new THREE.BoxGeometry(.34, .46, .34).translate(x, y, TEMPLE_Z + dz));
-        parts.push(new THREE.BoxGeometry(.92, .17, .24).translate(x, y + .30, TEMPLE_Z + dz));
+        parts.push(new THREE.BoxGeometry(.34, .46, .34).translate(x, y, TEMPLE_Z + dz),
+                   new THREE.BoxGeometry(.92, .17, .24).translate(x, y + .30, TEMPLE_Z + dz));
       });
     }
     for (let dz = -halfD + step; dz < halfD - 1e-3; dz += step) {
       [-halfW, halfW].forEach(x => {
-        parts.push(new THREE.BoxGeometry(.34, .46, .34).translate(x, y, TEMPLE_Z + dz));
-        parts.push(new THREE.BoxGeometry(.24, .17, .92).translate(x, y + .30, TEMPLE_Z + dz));
+        parts.push(new THREE.BoxGeometry(.34, .46, .34).translate(x, y, TEMPLE_Z + dz),
+                   new THREE.BoxGeometry(.24, .17, .92).translate(x, y + .30, TEMPLE_Z + dz));
       });
     }
     const m = new THREE.Mesh(mergeGeos(parts), post);
@@ -2805,6 +2819,15 @@ function placeMoon() {
   WORLD.moonHalo.position.x = x;
 }
 
+/* the torii's crowning beams: a centre line swept upward toward both ends */
+function beamPath(half, rise, power) {
+  const p = [];
+  for (let i = 0; i <= 26; i++) {
+    const u = i / 26 * 2 - 1;
+    p.push(new THREE.Vector3(u * half, Math.pow(Math.abs(u), power) * rise, 0));
+  }
+  return p;
+}
 function buildTorii() {
   /* the weathering costs the gate a lot of its chroma, so the tint puts it
      back: red lifted well past green and blue rather than a flat brightening,
@@ -2845,14 +2868,6 @@ function buildTorii() {
   gakG.position.set(0, BASE + H + .68, 0); g.add(gakG);
 
   /* shimaki + kasagi — the two crowning beams, swept upward at the ends */
-  function beamPath(half, rise, power) {
-    const p = [];
-    for (let i = 0; i <= 26; i++) {
-      const u = i / 26 * 2 - 1;
-      p.push(new THREE.Vector3(u * half, Math.pow(Math.abs(u), power) * rise, 0));
-    }
-    return p;
-  }
   const shimaki = new THREE.Mesh(sweepPoly(beamPath(5.05, .40, 2.6),
     [[-.30, -.19], [.30, -.19], [.32, .06], [.28, .21], [-.28, .21], [-.32, .06]]), lac);
   shimaki.position.set(0, BASE + H - .52, 0); shimaki.castShadow = true; g.add(shimaki);
@@ -3125,7 +3140,7 @@ function buildWordmark() {
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(cw, chh),
       new THREE.MeshBasicMaterial({ map: tx(c, { aniso: 16 }), transparent: true,
         depthWrite: false, side: THREE.DoubleSide, fog: true, opacity: 1 }));
-    mesh.position.set(g.pen + (g.r - g.l) / 2, (g.asc - g.desc) / 2 + (PAD - PAD) , 0);
+    mesh.position.set(g.pen + (g.r - g.l) / 2, (g.asc - g.desc) / 2, 0);
     mesh.position.y = (g.asc - g.desc) / 2;
     mesh.renderOrder = 12;
     mesh.frustumCulled = false;
@@ -3302,8 +3317,8 @@ function updateLeaves(dt) {
     l.roll += l.rollSp * dt;
     l.tilt += l.spin * dt;
     if (seed || l.y < cy - 10) {                /* back to the top of the band */
-      l.y = seed ? cy - 10 + Math.random() * 26 : cy + 16;
-      const a = Math.random() * TAU, r = Math.sqrt(Math.random()) * LEAF_SPREAD;
+      l.y = seed ? cy - 10 + rand() * 26 : cy + 16;
+      const a = rand() * TAU, r = Math.sqrt(rand()) * LEAF_SPREAD;
       l.x = fx + Math.cos(a) * r;
       l.z = fz + Math.sin(a) * r;
     }
@@ -3404,14 +3419,14 @@ function updateWisps(dt) {
     /* The plane the trail hangs on is only about 2.2 units tall, so the
        scatter has to be read against that: a few hundredths of a unit is a
        thread stitched to the cursor, not a drift of motes. */
-    P[k] = x + (Math.random() + Math.random() - 1) * .30;
-    P[k + 1] = y + (Math.random() + Math.random() - 1) * .30;
-    P[k + 2] = -WISP_D + (Math.random() - .5) * .9;
-    w.life = 0; w.max = (weak ? 2.1 : 1.45) + Math.random() * 1.3;
-    w.vx = -Math.cos(a) * .09 + (Math.random() - .5) * .38;
-    w.vy = -Math.sin(a) * .09 + (Math.random() - .5) * .32 + .02;
-    w.sz = (weak ? .018 : .024) + Math.random() * .026;
-    w.ph = Math.random() * TAU;
+    P[k] = x + (rand() + rand() - 1) * .30;
+    P[k + 1] = y + (rand() + rand() - 1) * .30;
+    P[k + 2] = -WISP_D + (rand() - .5) * .9;
+    w.life = 0; w.max = (weak ? 2.1 : 1.45) + rand() * 1.3;
+    w.vx = -Math.cos(a) * .09 + (rand() - .5) * .38;
+    w.vy = -Math.sin(a) * .09 + (rand() - .5) * .32 + .02;
+    w.sz = (weak ? .018 : .024) + rand() * .026;
+    w.ph = rand() * TAU;
   };
 
   WISP.acc += moved;
@@ -3428,7 +3443,7 @@ function updateWisps(dt) {
      Rarely, and barely buoyant: emit often here and a stationary pointer
      grows a permanent column of smoke up the middle of the frame. */
   WISP.idle += dt;
-  if (WISP.idle > .42) { WISP.idle = 0; spawn(WISP.ex, WISP.ey, Math.random() * TAU, true); }
+  if (WISP.idle > .42) { WISP.idle = 0; spawn(WISP.ex, WISP.ey, rand() * TAU, true); }
   WISP.lx = WISP.ex; WISP.ly = WISP.ey;
 
   for (let i = 0; i < N; i++) {
@@ -3575,7 +3590,7 @@ const CLOTH_DEFAULTS = {
 };
 
 function createCloth(output, plate, options) {
-  const config = Object.assign({}, CLOTH_DEFAULTS, options || {});
+  const config = { ...CLOTH_DEFAULTS, ...options };
   const wrapper = output.parentElement || output;
   output.style.top = output.style.left = -CL_BLEED + 'px';
   output.style.width = 'calc(100% + ' + CL_BLEED * 2 + 'px)';
@@ -3668,12 +3683,18 @@ function createCloth(output, plate, options) {
   const hang = new Float32Array(CL_NODES);
   for (let a = 0; a < CL_NODES; a++) hang[a] = Math.pow(a / CL_SEG, 1.3);
 
-  let simTime = Math.random() * 60, gust = .5, energy = 1;
+  let simTime = rand() * 60, gust = .5, energy = 1;
   let edge = .048, edgeTo = .048;   /* barely there at rest, found on hover */
   const ptr = { x: -1e5, y: -1e5, inside: false };
   const touch = { x: -1e5, y: -1e5, vx: 0, vy: 0, s: 0 };
-  const axisA = (x, y) => config.pin === 'top' ? y : config.pin === 'bottom' ? CL_SEG - y
-    : config.pin === 'left' ? x : CL_SEG - x;
+  const axisA = (x, y) => {
+    switch (config.pin) {
+      case 'top':    return y;
+      case 'bottom': return CL_SEG - y;
+      case 'left':   return x;
+      default:       return CL_SEG - x;
+    }
+  };
   const axisB = (x, y) => (config.pin === 'top' || config.pin === 'bottom') ? x : y;
 
   function stepSim(dt) {
@@ -3753,6 +3774,24 @@ function createCloth(output, plate, options) {
     }
   }
 
+  /* height, normal and fold shading per node, from the composed height field */
+  function writeVertices(cw, ch) {
+    for (let y = 0; y < CL_NODES; y++) {
+      const up = Math.max(y - 1, 0) * CL_NODES, down = Math.min(y + 1, CL_SEG) * CL_NODES;
+      const row = y * CL_NODES;
+      for (let x = 0; x < CL_NODES; x++) {
+        const i = row + x;
+        const l = row + Math.max(x - 1, 0), r = row + Math.min(x + 1, CL_SEG);
+        const dzdx = (zF[r] - zF[l]) / (2 * cw), dzdy = (zF[down + x] - zF[up + x]) / (2 * ch);
+        const inv = 1 / Math.hypot(dzdx, dzdy, 1);
+        const curve = zF[l] + zF[r] + zF[up + x] + zF[down + x] - 4 * zF[i];
+        const fold = clamp(1 - curve * .01, .86, 1.06);
+        const q = i * 4;
+        vData[q] = zF[i]; vData[q + 1] = -dzdx * inv; vData[q + 2] = -dzdy * inv; vData[q + 3] = fold;
+      }
+    }
+  }
+
   function compose(width, height) {
     const amp = Math.max(config.amplitude, 0);
     const drape = config.drape * (.3 + .7 * gust);
@@ -3767,21 +3806,7 @@ function createCloth(output, plate, options) {
       }
     }
     energy = e;
-    for (let y = 0; y < CL_NODES; y++) {
-      const up = Math.max(y - 1, 0) * CL_NODES, down = Math.min(y + 1, CL_SEG) * CL_NODES;
-      const row = y * CL_NODES;
-      for (let x = 0; x < CL_NODES; x++) {
-        const i = row + x;
-        const l = row + Math.max(x - 1, 0), r = row + Math.min(x + 1, CL_SEG);
-        const dzdx = (zF[r] - zF[l]) / (2 * cw), dzdy = (zF[down + x] - zF[up + x]) / (2 * ch);
-        const inv = 1 / Math.hypot(dzdx, dzdy, 1);
-        const curve = zF[l] + zF[r] + zF[up + x] + zF[down + x] - 4 * zF[i];
-        let fold = 1 - curve * .01;
-        if (fold < .86) fold = .86; else if (fold > 1.06) fold = 1.06;
-        const q = i * 4;
-        vData[q] = zF[i]; vData[q + 1] = -dzdx * inv; vData[q + 2] = -dzdy * inv; vData[q + 3] = fold;
-      }
-    }
+    writeVertices(cw, ch);
     const mid = CL_SEG >> 1;
     if (config.pin === 'top' || config.pin === 'bottom') {
       foreshorten(CL_NODES, 1, ch, config.pin === 'top' ? 0 : CL_SEG, 1);
@@ -3899,7 +3924,7 @@ function createCloth(output, plate, options) {
    CSS used to lay over it — baked in so they ripple with the cloth instead of
    sitting flat on top of it */
 function clothPlate(img, w, h) {
-  const c = cvs(Math.max(1, w | 0), Math.max(1, h | 0)), x = c.getContext('2d');
+  const c = cvs(Math.max(1, Math.trunc(w)), Math.max(1, Math.trunc(h))), x = c.getContext('2d');
   const s = Math.max(c.width / img.width, c.height / img.height);
   const dw = img.width * s, dh = img.height * s;
   x.drawImage(img, (c.width - dw) / 2, (c.height - dh) / 2, dw, dh);
@@ -4010,7 +4035,7 @@ function initPost() {
   if (!WANT_POST) return;
   const w = renderer.domElement.width, h = renderer.domElement.height;
   const O = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.HalfFloatType, depthBuffer: false, stencilBuffer: false };
-  POST.scene = new THREE.WebGLRenderTarget(w, h, Object.assign({}, O, { depthBuffer: true, samples: LOW ? 0 : 2 }));
+  POST.scene = new THREE.WebGLRenderTarget(w, h, { ...O, depthBuffer: true, samples: LOW ? 0 : 2 });
   let lw = Math.max(2, w >> 1), lh = Math.max(2, h >> 1);
   const N = 4;
   for (let i = 0; i < N; i++) {
@@ -4157,7 +4182,7 @@ function applyCamera() {
 }
 
 /* ============================================== 9 · scroll ↔ chapters */
-const SECS = [].slice.call(document.querySelectorAll('[data-cam]'));
+const SECS = Array.from(document.querySelectorAll('[data-cam]'));
 let anchors = [], maxScroll = 1, activeSec = 0;
 function measure() {
   maxScroll = Math.max(1, document.documentElement.scrollHeight - vpH());
@@ -4212,7 +4237,7 @@ function layoutWord() {
 
 /* =================================================== 11 · page wiring */
 const $  = s => document.querySelector(s);
-const $$ = s => [].slice.call(document.querySelectorAll(s));
+const $$ = s => Array.from(document.querySelectorAll(s));
 const nav = $('#nav'), preEl = $('#pre'), preFill = $('#pre-fill'), prePct = $('#pre-pct');
 
 function wireReveals() {
@@ -4228,7 +4253,7 @@ function wireReveals() {
     es.forEach(e => {
       if (!e.isIntersecting) return;
       io.unobserve(e.target);
-      const d = parseFloat(e.target.dataset.rvd || 0);
+      const d = Number.parseFloat(e.target.dataset.rvd || 0);
       setTimeout(() => e.target.classList.add('rv-in'), REDUCE ? 0 : d);
     });
   }, { rootMargin: '0px 0px -10% 0px', threshold: .04 });
@@ -4243,7 +4268,7 @@ function splitHeadingWords() {
   if (REDUCE) return;
   $$('h1.display, h2.display').forEach(heading => {
     const lines = heading.querySelectorAll('.mask-line');
-    const targets = lines.length ? [].slice.call(lines) : [heading];
+    const targets = lines.length ? Array.from(lines) : [heading];
     targets.forEach(target => {
       if (target.dataset.wordReady === 'true') return;
       const phrase = target.textContent.replace(/\s+/g, ' ').trim();
@@ -4292,7 +4317,7 @@ function wireForegroundStages() {
     /* A re-inserted element has no previous computed style, so the entrance
        would land already finished. Resolve the parked state in its new parent
        first and the pieces have something to rise from. */
-    void stage.offsetWidth;
+    stage.getBoundingClientRect();
   };
   const park = stage => {
     const home = homes.get(stage);
@@ -4692,7 +4717,7 @@ function updateWorld(dt) {
   if (WORLD.ripples) WORLD.ripples.forEach(r => {
     const u = r.userData;
     u.t += dt * u.sp;
-    if (u.t > 4) { u.t = 0; u.x = (Math.random() - .5) * 22; u.z = -8 + Math.random() * 22; }
+    if (u.t > 4) { u.t = 0; u.x = (rand() - .5) * 22; u.z = -8 + rand() * 22; }
     const k = u.t / 4;
     const s = .3 + k * 4.2;
     r.scale.set(s, s, 1);
@@ -4738,6 +4763,16 @@ function render() {
   }
 }
 
+/* adaptive resolution: averages real frame times and steps the render scale */
+function governPerf(raw) {
+  if (PERF.locked || clock <= 2.2) return;
+  PERF.acc += raw; PERF.n++;
+  if (PERF.n < 40 && PERF.acc <= .9) return;
+  const avg = PERF.acc / PERF.n; PERF.acc = 0; PERF.n = 0;
+  if (avg > .0230 && PERF.scale > .55) { PERF.scale = Math.max(.55, PERF.scale * (avg > .05 ? .64 : .85)); resize(); }
+  else if (avg < .0138 && PERF.scale < 1) { PERF.scale = Math.min(1, PERF.scale + .08); resize(); }
+}
+
 function frame(now) {
   if (!running) return;
   const raw = (now - tPrev) / 1000 || 0;
@@ -4745,14 +4780,7 @@ function frame(now) {
   tPrev = now; clock += dt;
   fadeIn = INTRO.t0 ? sat((now - INTRO.t0) / 700) : 1;
 
-  if (!PERF.locked && clock > 2.2) {
-    PERF.acc += raw; PERF.n++;      /* … but the governor reads the truth */
-    if (PERF.n >= 40 || PERF.acc > .9) {
-      const avg = PERF.acc / PERF.n; PERF.acc = 0; PERF.n = 0;
-      if (avg > .0230 && PERF.scale > .55) { PERF.scale = Math.max(.55, PERF.scale * (avg > .05 ? .64 : .85)); resize(); }
-      else if (avg < .0138 && PERF.scale < 1) { PERF.scale = Math.min(1, PERF.scale + .08); resize(); }
-    }
-  }
+  governPerf(raw);                            /* … but the governor reads the truth */
   RIG.prog = progressFor(scrollY);
   RIG.smooth = REDUCE ? RIG.prog : damp(RIG.smooth, RIG.prog, 5.2, dt);
   RIG.mx = damp(RIG.mx, RIG.tmx, 2.6, dt);
@@ -4865,7 +4893,7 @@ function start() {
   const shot = Q.get('shot');
   if (shot !== null) {                       /* deterministic states for review */
     RIG.intro = 1; WORD.reveal = 1.2; fadeIn = 1; INTRO.t0 = 0;
-    const n = clamp(parseInt(shot, 10) || 0, 0, SECS.length - 1);
+    const n = clamp(Number.parseInt(shot, 10) || 0, 0, SECS.length - 1);
     scrollTo(0, anchors[n]);
     RIG.smooth = RIG.prog = progressFor(anchors[n]);
     $$('[data-rv], .mask-line').forEach(e => e.classList.add('rv-in'));
@@ -4880,7 +4908,8 @@ function start() {
     }, REDUCE ? 0 : 340);
   }
   running = true; tPrev = performance.now();
-  INTRO.t0 = shot !== null ? 0 : (REDUCE ? performance.now() - 4000 : performance.now());
+  if (shot !== null) INTRO.t0 = 0;
+  else INTRO.t0 = REDUCE ? performance.now() - 4000 : performance.now();
   queue();
   window.__kage = window.__secret = { RIG: RIG, WORLD: WORLD, WORD: WORD, CAM: CAM, POST: POST, renderer: renderer, scene: scene, camera: camera, anchors: () => anchors };
 }

@@ -26,6 +26,7 @@ yarn-error.log*
 ts_errors.txt
 tsc_errors.log
 tsc_utf8.log
+.playwright-mcpa
 
 # local env files
 .env
@@ -44,3 +45,4 @@ firebase-service-account*.json
 next-env.d.ts
 build logs.txt
 NewUIRevamp
+.playwright-mcp

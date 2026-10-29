@@ -16,44 +16,47 @@ interface AthleteCardDialogProps {
   onClose: () => void;
 }
 
-export function AthleteCardDialog({ player, team, isOpen, onClose }: AthleteCardDialogProps) {
+const CLASS_FRAME: Record<string, string> = {
+  A: "border-accent/40 shadow-[0_0_80px_rgba(255,87,34,0.2)]",
+  B: "border-blue-500/40 shadow-[0_0_80px_rgba(59,130,246,0.2)]",
+};
+
+function StatBar({ label, value, max, icon: Icon, colorClass }: Readonly<{ label: string, value: number, max: number, icon: any, colorClass: string }>) {
+  const percentage = max > 0 ? Math.min((value / max) * 100, 100) : 0;
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-center px-1">
+        <div className="flex items-center gap-2">
+          <Icon className="h-3 w-3 opacity-50" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</span>
+        </div>
+        <span className="font-mono font-black text-sm">{value}</span>
+      </div>
+      <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${percentage}%` }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
+          className={cn("h-full", colorClass)}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function AthleteCardDialog({ player, team, isOpen, onClose }: Readonly<AthleteCardDialogProps>) {
   if (!player) return null;
 
   const avatar = getImageUrl(player.avatarUrl);
   const totalInvolvement = (player.goals || 0) + (player.assists || 0);
 
-  const StatBar = ({ label, value, max, icon: Icon, colorClass }: { label: string, value: number, max: number, icon: any, colorClass: string }) => {
-    const percentage = max > 0 ? Math.min((value / max) * 100, 100) : 0;
-    return (
-      <div className="space-y-2">
-        <div className="flex justify-between items-center px-1">
-          <div className="flex items-center gap-2">
-            <Icon className="h-3 w-3 opacity-50" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</span>
-          </div>
-          <span className="font-mono font-black text-sm">{value}</span>
-        </div>
-        <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5 shadow-inner">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${percentage}%` }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.3 }}
-            className={cn("h-full", colorClass)}
-          />
-        </div>
-      </div>
-    );
-  };
-
   const isClassA = player.category === 'A';
-  const isClassB = player.category === 'B';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
         "w-[92vw] sm:max-w-md p-0 bg-card/40 backdrop-blur-2xl border-2 flex flex-col max-h-[92vh] gap-0 overflow-hidden shadow-2xl",
-        isClassA ? "border-accent/40 shadow-[0_0_80px_rgba(255,87,34,0.2)]" :
-          isClassB ? "border-blue-500/40 shadow-[0_0_80px_rgba(59,130,246,0.2)]" : "border-white/10"
+        CLASS_FRAME[player.category] ?? "border-white/10"
       )}>
         <DialogHeader className="sr-only">
           <DialogTitle>{player.name} Scout Card</DialogTitle>

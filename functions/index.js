@@ -1,7 +1,7 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { setGlobalOptions } = require('firebase-functions/v2');
 const admin = require('firebase-admin');
-const { randomBytes } = require('crypto');
+const { randomBytes } = require('node:crypto');
 
 admin.initializeApp();
 setGlobalOptions({ region: 'us-central1' });

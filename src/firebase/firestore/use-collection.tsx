@@ -20,7 +20,7 @@ export function useCollection<T>(collectionName: string, options: UseCollectionO
         setData([]);
         // Keep loading=true when collectionName is empty (e.g., waiting for seasonId).
         // Only set loading=false when firestore itself is unavailable.
-        setLoading(!firestore ? false : true);
+        setLoading(!!firestore);
         return;
     }
 

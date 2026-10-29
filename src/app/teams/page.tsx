@@ -25,7 +25,7 @@ export default function TeamsPage() {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
+          {Array.from({ length: 4 }, (_, i) => i).map((i) => (
             <Card key={i}>
               <CardHeader className="items-center p-6">
                 <Skeleton className="h-20 w-20 rounded-full mb-4" />

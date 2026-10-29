@@ -5,11 +5,11 @@ import { useSeason } from '@/contexts/season-context';
 import { useCollection, useFirestore } from '@/firebase';
 import { useData } from '@/hooks/use-data';
 import { type LogEntry } from '@/types';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Download, Trash2, ShieldAlert, Activity, Terminal } from 'lucide-react';
+import { Download, Trash2, Activity, Terminal } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AccessDenied } from '@/components/admin/access-denied';
@@ -55,7 +55,7 @@ export default function AdminLogsPage() {
     link.download = 'dfpl_logs.txt';
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
     URL.revokeObjectURL(url);
     logAction("EXPORT_LOGS", "Exported system audit trail to text file.");
     toast({ title: "Export Complete", description: "Audit trail downloaded." });
@@ -67,13 +67,16 @@ export default function AdminLogsPage() {
     // Firestore caps a batch at 500 writes, so delete in chunks below that.
     const CHUNK = 450;
     let deleted = 0;
+    const chunks: (typeof snap.docs)[] = [];
+    for (let i = 0; i < snap.docs.length; i += CHUNK) chunks.push(snap.docs.slice(i, i + CHUNK));
     try {
-      for (let i = 0; i < snap.docs.length; i += CHUNK) {
+      // One chunk at a time, in order, so a failure leaves an accurate count.
+      await chunks.reduce((prev, chunk) => prev.then(async () => {
         const batch = writeBatch(firestore);
-        snap.docs.slice(i, i + CHUNK).forEach(d => batch.delete(d.ref));
+        chunk.forEach(d => batch.delete(d.ref));
         await batch.commit();
-        deleted += Math.min(CHUNK, snap.docs.length - i);
-      }
+        deleted += chunk.length;
+      }), Promise.resolve());
       toast({ title: "Logs Purged", description: "Audit history cleared." });
     } catch (error) {
       console.error("Log purge failed:", error);
@@ -161,12 +164,13 @@ export default function AdminLogsPage() {
           </CardHeader>
           <CardContent className="p-0">
             <ScrollArea className="h-[600px] w-full custom-scrollbar" orientation="both">
-              {loading ? (
+              {loading && (
                 <div className="p-8 space-y-4">
                   <Skeleton className="h-4 w-[80%] bg-white/5" />
                   <Skeleton className="h-4 w-[60%] bg-white/5" />
                 </div>
-              ) : sortedLogs.length > 0 ? (
+              )}
+              {!loading && (sortedLogs.length > 0 ? (
                 <div className="p-8 font-mono text-xs md:text-sm leading-relaxed whitespace-nowrap min-w-max">
                   <AnimatePresence mode="popLayout">
                     {sortedLogs.map((log, idx) => (
@@ -194,7 +198,7 @@ export default function AdminLogsPage() {
                   <Terminal className="h-16 w-16 mb-6 opacity-5" />
                   <p>NULL_LOG_BUFFER</p>
                 </div>
-              )}
+              ))}
               <ScrollBar orientation="horizontal" className="hidden" />
               <ScrollBar orientation="vertical" className="hidden" />
             </ScrollArea>

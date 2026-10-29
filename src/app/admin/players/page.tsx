@@ -42,7 +42,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { Player, Team } from '@/types';
 import { useData } from '@/hooks/use-data';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn, getImageUrl } from '@/lib/utils';
+import { cn, getImageUrl, randomPlaceholderIndex } from '@/lib/utils';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useToast } from '@/hooks/use-toast';
 
@@ -55,17 +55,22 @@ const playerSchema = z.object({
   avatarUrl: z.string().optional(),
 });
 
+const CATEGORY_DOT: Record<string, string> = {
+  A: "bg-accent shadow-[0_0_10px_rgba(255,87,34,0.5)]",
+  B: "bg-blue-500",
+};
+
 function PlayerForm({
   onSubmit,
   player,
   onClose,
   teams,
-}: {
+}: Readonly<{
   onSubmit: (data: z.infer<typeof playerSchema>) => void;
   player?: Player | null;
   onClose: () => void;
   teams: Team[];
-}) {
+}>) {
   const form = useForm<z.infer<typeof playerSchema>>({
     resolver: zodResolver(playerSchema),
     defaultValues: {
@@ -260,13 +265,13 @@ export default function AdminPlayersPage() {
 
   const handleFormSubmit = (data: z.infer<typeof playerSchema>) => {
     if (dialogMode === 'edit' && selectedPlayer) {
-      updatePlayer({ ...selectedPlayer, ...data });
+      void updatePlayer({ ...selectedPlayer, ...data });
       toast({ title: 'Athlete Updated', description: `${data.name}'s profile has been modified.` });
     } else {
       const newPlayer: Player = {
         id: `p${Date.now()}`,
         ...data,
-        avatarUrl: data.avatarUrl || `player-avatar-${(Math.floor(Math.random() * 4) + 1)}`,
+        avatarUrl: data.avatarUrl || `player-avatar-${randomPlaceholderIndex()}`,
         basePrice: 'N/A',
         preferredPosition: [],
         remarks: [],
@@ -383,8 +388,7 @@ export default function AdminPlayersPage() {
                       <div className="flex items-center gap-2">
                         <div className={cn(
                           "w-2 h-2 rounded-full",
-                          player.category === 'A' ? "bg-accent shadow-[0_0_10px_rgba(255,87,34,0.5)]" :
-                            player.category === 'B' ? "bg-blue-500" : "bg-muted"
+                          CATEGORY_DOT[player.category] ?? "bg-muted"
                         )} />
                         <span className="font-bold text-sm tracking-wide">Class {player.category}</span>
                       </div>

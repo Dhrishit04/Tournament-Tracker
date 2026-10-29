@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
-export function SpotlightCard({ children, className }: { children: React.ReactNode; className?: string }) {
+export function SpotlightCard({ children, className }: Readonly<{ children: React.ReactNode; className?: string }>) {
     const divRef = useRef<HTMLDivElement>(null);
     const [isFocused, setIsFocused] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });

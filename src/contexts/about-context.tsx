@@ -50,7 +50,7 @@ export const AboutProvider = ({ children }: { children: ReactNode }) => {
   );
 
   // ---- Logging helper (same pattern as data-context) ----
-  const logAction = useCallback(async (action: string, details: string) => {
+  const logAction = useCallback((action: string, details: string) => {
     if (!firestore || !isLoggingEnabled || !user) return;
     const adminIdentity = user.role === 'SYSTEM_ADMIN' ? 'SYS_ADMIN' : user.email.split('@')[0];
     const logRef = collection(firestore, 'logs');
@@ -65,11 +65,10 @@ export const AboutProvider = ({ children }: { children: ReactNode }) => {
   // ---- Position CRUD ----
   const seedDefaultPositions = useCallback(async () => {
     if (!firestore) return;
-    for (let i = 0; i < DEFAULT_POSITIONS.length; i++) {
-      const pos = DEFAULT_POSITIONS[i];
-      const id = `pos-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 9)}`;
-      await setDoc(doc(firestore, 'about-positions', id), pos);
-    }
+    await Promise.all(DEFAULT_POSITIONS.map((pos, i) => {
+      const id = `pos-${Date.now()}-${i}-${crypto.randomUUID().replaceAll('-', '').substring(0, 7)}`;
+      return setDoc(doc(firestore, 'about-positions', id), pos);
+    }));
     logAction('ABOUT_SEED', 'Seeded default About Us positions');
   }, [firestore, logAction]);
 
@@ -94,14 +93,9 @@ export const AboutProvider = ({ children }: { children: ReactNode }) => {
     const posTitle = pos?.title || positionId;
     // Also delete all members with this positionId
     const memberSnaps = await getDocs(collection(firestore, 'about-members'));
-    let deletedCount = 0;
-    for (const memberDoc of memberSnaps.docs) {
-      const data = memberDoc.data() as TeamMember;
-      if (data.positionId === positionId) {
-        await deleteDoc(doc(firestore, 'about-members', memberDoc.id));
-        deletedCount++;
-      }
-    }
+    const toDelete = memberSnaps.docs.filter(memberDoc => (memberDoc.data() as TeamMember).positionId === positionId);
+    await Promise.all(toDelete.map(memberDoc => deleteDoc(doc(firestore, 'about-members', memberDoc.id))));
+    const deletedCount = toDelete.length;
     await deleteDoc(doc(firestore, 'about-positions', positionId));
     logAction('ABOUT_DELETE_POSITION', `Deleted position: "${posTitle}" (${deletedCount} member${deletedCount !== 1 ? 's' : ''} also removed)`);
   }, [firestore, logAction, positionsData]);
@@ -132,12 +126,12 @@ export const AboutProvider = ({ children }: { children: ReactNode }) => {
     logAction('ABOUT_DELETE_MEMBER', `Removed member: "${memberName}" from ${pos?.title || 'Unknown'}`);
   }, [firestore, logAction, membersData, positionsData]);
 
-  const value: AboutContextState = {
+  const value: AboutContextState = useMemo(() => ({
     positions, members, loading,
     addPosition, updatePosition, deletePosition,
     addMember, updateMember, deleteMember,
     seedDefaultPositions,
-  };
+  }), [positions, members, loading, addPosition, updatePosition, deletePosition, addMember, updateMember, deleteMember, seedDefaultPositions]);
 
   return <AboutContext.Provider value={value}>{children}</AboutContext.Provider>;
 };

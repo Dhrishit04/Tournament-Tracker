@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, type FC, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useMemo, type FC, type ReactNode } from 'react';
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -9,7 +9,7 @@ import {
   type User as FirebaseUser,
   type AuthError,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, query, where, getDocs, onSnapshot, addDoc } from 'firebase/firestore';
+import { setDoc, collection, query, where, getDocs, onSnapshot, addDoc } from 'firebase/firestore';
 import { AuthContext, type AuthState, type User } from '@/contexts/auth-context';
 import { useFirebaseAuth, useFirestore } from '@/firebase';
 
@@ -258,14 +258,14 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     localStorage.removeItem('dfpl_admin_session');
   }, [fbAuth, user, firestore]);
 
-  const authState: AuthState = {
+  const authState: AuthState = useMemo(() => ({
     user,
     isAdmin: user?.role === 'ADMIN' || user?.role === 'SYSTEM_ADMIN',
     isSystemAdmin: user?.role === 'SYSTEM_ADMIN',
     login,
     logout,
     loading,
-  };
+  }), [user, login, logout, loading]);
 
   return <AuthContext.Provider value={authState}>{children}</AuthContext.Provider>;
 };

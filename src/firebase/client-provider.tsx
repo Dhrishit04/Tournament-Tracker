@@ -4,14 +4,14 @@ import type { ReactNode } from 'react';
 import type { FirebaseServices } from './index';
 import { FirebaseProvider } from './provider';
 
-export function FirebaseClientProvider({ children }: { children: ReactNode }) {
+export function FirebaseClientProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [firebase, setFirebase] = useState<FirebaseServices | null>(null);
   useEffect(() => {
     const initialize = async () => {
       const { initializeFirebase } = await import('./index');
       setFirebase(initializeFirebase());
     };
-    initialize();
+    void initialize();
   }, []);
   if (!firebase) {
     return null;

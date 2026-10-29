@@ -24,7 +24,7 @@ const AnalyzeSeasonOutputSchema = z.object({
 export type AnalyzeSeasonOutput = z.infer<typeof AnalyzeSeasonOutputSchema>;
 
 export async function analyzeSeason(input: AnalyzeSeasonInput): Promise<AnalyzeSeasonOutput> {
-  return analyzeSeasonFlow(input);
+  return await analyzeSeasonFlow(input); // 'use server' exports must stay async
 }
 
 const prompt = ai.definePrompt({

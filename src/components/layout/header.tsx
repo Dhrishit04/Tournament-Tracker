@@ -18,7 +18,7 @@ const navLinks = [
   { href: '/brackets', label: 'Brackets', alt: 'Knockouts' },
 ];
 
-export function BrandMark({ className }: { className?: string }) {
+export function BrandMark({ className }: Readonly<{ className?: string }>) {
   return (
     // club crest: hairline shield around a vermilion ball (centre panel + seams)
     <svg viewBox="0 0 44 44" fill="none" aria-hidden="true" className={className}>

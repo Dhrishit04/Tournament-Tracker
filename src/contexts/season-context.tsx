@@ -1,9 +1,9 @@
 
 'use client';
-import { createContext, useState, useEffect, useContext, useCallback, type ReactNode } from 'react';
+import { createContext, useState, useEffect, useContext, useCallback, useMemo, type ReactNode } from 'react';
 import { useFirestore } from '@/firebase';
-import { doc, onSnapshot, updateDoc, arrayUnion, collection, addDoc, getDoc } from 'firebase/firestore';
-import type { Season, MatchConfig, GlobalAnnouncement, MatchStage } from '@/types';
+import { doc, onSnapshot, updateDoc, arrayUnion, collection, addDoc } from 'firebase/firestore';
+import type { Season, MatchConfig, GlobalAnnouncement } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -32,10 +32,10 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
     const firestore = useFirestore();
     const { toast } = useToast();
     const [seasons, setSeasons] = useState<Season[]>([]);
-    const [currentSeason, setInternalCurrentSeason] = useState<Season | null>(null);
+    const [activeSeason, setActiveSeason] = useState<Season | null>(null);
     const [globalAnnouncement, setGlobalAnnouncement] = useState<GlobalAnnouncement | null>(null);
-    const [isLoggingEnabled, setInternalLoggingEnabled] = useState(true);
-    const [isSessionActive, setInternalSessionActive] = useState(true);
+    const [isLoggingEnabled, setIsLoggingEnabled] = useState(true);
+    const [isSessionActive, setIsSessionActive] = useState(true);
     const [managementImages, setManagementImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -58,15 +58,15 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
                     ...s,
                     matchConfig: {
                         ...defaultMatchConfig,
-                        ...(s.matchConfig || {})
+                        ...s.matchConfig
                     }
                 }));
                 setSeasons(seasonList);
                 const current = seasonList.find(s => s.id === configData.currentSeasonId) || seasonList[0] || null;
-                setInternalCurrentSeason(current);
+                setActiveSeason(current);
                 setGlobalAnnouncement(configData.globalAnnouncement || { message: '', isActive: false });
-                setInternalLoggingEnabled(configData.isLoggingEnabled ?? true);
-                setInternalSessionActive(configData.isSessionActive ?? true);
+                setIsLoggingEnabled(configData.isLoggingEnabled ?? true);
+                setIsSessionActive(configData.isSessionActive ?? true);
                 setManagementImages(configData.managementImages || []);
             }
             setLoading(false);
@@ -78,28 +78,31 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
         return () => unsubscribe();
     }, [firestore]);
 
-    const logAction = useCallback(async (action: string, details: string) => {
+    // Fire-and-forget audit log: a failed write (or unreadable session) never blocks the admin action.
+    const logAction = useCallback((action: string, details: string) => {
         if (!firestore || !isLoggingEnabled) return;
+        let userObj: any;
         try {
             const savedUser = localStorage.getItem('dfpl_admin_session');
-            const userObj = savedUser ? JSON.parse(savedUser) : null;
-            const adminIdentity = userObj?.role === 'SYSTEM_ADMIN' ? 'SYS_ADMIN' : (userObj?.email?.split('@')[0] || 'Unknown');
-
-            await addDoc(collection(firestore, 'logs'), {
-                timestamp: Date.now(),
-                adminEmail: adminIdentity,
-                action,
-                details
-            });
-        } catch (e) { }
+            userObj = savedUser ? JSON.parse(savedUser) : null;
+        } catch {
+            return; // unreadable session: skip the log entry, as before
+        }
+        const adminIdentity = userObj?.role === 'SYSTEM_ADMIN' ? 'SYS_ADMIN' : (userObj?.email?.split('@')[0] || 'Unknown');
+        addDoc(collection(firestore, 'logs'), {
+            timestamp: Date.now(),
+            adminEmail: adminIdentity,
+            action,
+            details
+        }).catch(() => {});
     }, [firestore, isLoggingEnabled]);
 
     const setLoggingEnabled = useCallback(async (enabled: boolean) => {
         if (!firestore) return;
         const configRef = doc(firestore, 'config', 'app');
-        updateDoc(configRef, { isLoggingEnabled: enabled }).then(() => {
+        await updateDoc(configRef, { isLoggingEnabled: enabled }).then(() => {
             logAction("TOGGLE_LOGGING", `System Audit Logs ${enabled ? 'RESUMED' : 'PAUSED'}`);
-        }).catch(async () => {
+        }).catch(() => {
             errorEmitter.emit('permission-error', new FirestorePermissionError({
                 path: configRef.path,
                 operation: 'update'
@@ -110,10 +113,10 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
     const setSessionActive = useCallback(async (enabled: boolean) => {
         if (!firestore) return;
         const configRef = doc(firestore, 'config', 'app');
-        updateDoc(configRef, { isSessionActive: enabled }).then(() => {
+        await updateDoc(configRef, { isSessionActive: enabled }).then(() => {
             logAction("SESSION_CONTROL", `Public Access ${enabled ? 'ACTIVATED' : 'DEACTIVATED'}`);
             toast({ title: 'Status Updated', description: `Application session is now ${enabled ? 'Active' : 'Offline'}.` });
-        }).catch(async () => {
+        }).catch(() => {
             errorEmitter.emit('permission-error', new FirestorePermissionError({
                 path: configRef.path,
                 operation: 'update'
@@ -125,9 +128,9 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
         if (!firestore) return;
         const seasonName = seasons.find(s => s.id === seasonId)?.name || seasonId;
         const configRef = doc(firestore, 'config', 'app');
-        updateDoc(configRef, { currentSeasonId: seasonId }).then(() => {
+        await updateDoc(configRef, { currentSeasonId: seasonId }).then(() => {
             logAction("SWITCH_SEASON", `Active scoping shifted to ${seasonName}`);
-        }).catch(async () => {
+        }).catch(() => {
             errorEmitter.emit('permission-error', new FirestorePermissionError({
                 path: configRef.path,
                 operation: 'update',
@@ -140,10 +143,10 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
         if (!firestore) return;
         const configRef = doc(firestore, 'config', 'app');
         const data = { globalAnnouncement: { ...announcement, updatedAt: Date.now() } };
-        updateDoc(configRef, data).then(() => {
+        await updateDoc(configRef, data).then(() => {
             logAction("BROADCAST_HUB", `Update: "${announcement.message}" (${announcement.isActive ? 'ACTIVE' : 'INACTIVE'})`);
             toast({ title: 'Broadcast Updated', description: 'The public announcement is now live.' });
-        }).catch(async (error) => {
+        }).catch(() => {
             errorEmitter.emit('permission-error', new FirestorePermissionError({
                 path: configRef.path,
                 operation: 'update',
@@ -155,10 +158,10 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
     const updateManagementImages = useCallback(async (images: string[]) => {
         if (!firestore) return;
         const configRef = doc(firestore, 'config', 'app');
-        updateDoc(configRef, { managementImages: images }).then(() => {
+        await updateDoc(configRef, { managementImages: images }).then(() => {
             logAction("UPDATE_MANAGEMENT_IMAGES", `Updated DFPL Management Slideshow (${images.length} images)`);
             toast({ title: 'Slideshow Updated', description: 'Management slideshow images have been saved.' });
-        }).catch(async (error) => {
+        }).catch(() => {
             errorEmitter.emit('permission-error', new FirestorePermissionError({
                 path: configRef.path,
                 operation: 'update',
@@ -169,8 +172,8 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
 
     const createNextSeason = useCallback(async () => {
         if (!firestore || seasons.length === 0) return;
-        const lastSeason = [...seasons].sort((a, b) => a.year - b.year)[seasons.length - 1];
-        const lastSeasonNum = parseInt(lastSeason.name.split(' ')[1]) || seasons.length;
+        const lastSeason = [...seasons].sort((a, b) => a.year - b.year).at(-1)!;
+        const lastSeasonNum = Number.parseInt(lastSeason.name.split(' ')[1]) || seasons.length;
         const newSeasonNum = lastSeasonNum + 1;
         const newSeason: Season = {
             id: `season-${newSeasonNum}`,
@@ -186,13 +189,13 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
             },
         };
         const configRef = doc(firestore, 'config', 'app');
-        updateDoc(configRef, {
+        await updateDoc(configRef, {
             seasons: arrayUnion(newSeason),
             currentSeasonId: newSeason.id
         }).then(() => {
             logAction("CREATE_SEASON", `Deployed timeline for ${newSeason.name}`);
             toast({ title: 'Season Created', description: `${newSeason.name} has been created.` });
-        }).catch(async () => {
+        }).catch(() => {
             errorEmitter.emit('permission-error', new FirestorePermissionError({
                 path: configRef.path,
                 operation: 'update'
@@ -201,25 +204,25 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
     }, [firestore, seasons, toast, logAction]);
 
     const deleteCurrentSeason = useCallback(async () => {
-        if (!firestore || !currentSeason || seasons.length <= 1) return;
-        const remainingSeasons = seasons.filter(s => s.id !== currentSeason.id);
+        if (!firestore || !activeSeason || seasons.length <= 1) return;
+        const remainingSeasons = seasons.filter(s => s.id !== activeSeason.id);
         const newCurrentSeason = [...remainingSeasons].sort((a, b) => b.year - a.year)[0];
         const configRef = doc(firestore, 'config', 'app');
-        updateDoc(configRef, { seasons: remainingSeasons, currentSeasonId: newCurrentSeason.id }).then(() => {
-            logAction("DELETE_SEASON", `Permanently decommissioned ${currentSeason.name}`);
-            toast({ title: 'Season Deleted', description: `${currentSeason.name} has been removed.` });
-        }).catch(async () => {
+        await updateDoc(configRef, { seasons: remainingSeasons, currentSeasonId: newCurrentSeason.id }).then(() => {
+            logAction("DELETE_SEASON", `Permanently decommissioned ${activeSeason.name}`);
+            toast({ title: 'Season Deleted', description: `${activeSeason.name} has been removed.` });
+        }).catch(() => {
             errorEmitter.emit('permission-error', new FirestorePermissionError({
                 path: configRef.path,
                 operation: 'update'
             }));
         });
-    }, [firestore, seasons, currentSeason, toast, logAction]);
+    }, [firestore, seasons, activeSeason, toast, logAction]);
 
     const updateMatchConfig = useCallback(async (newConfig: MatchConfig) => {
-        if (!firestore || !currentSeason) return;
+        if (!firestore || !activeSeason) return;
         const configRef = doc(firestore, 'config', 'app');
-        const old = currentSeason.matchConfig;
+        const old = activeSeason.matchConfig;
         const logs: string[] = [];
 
         if (old.isGroupModeActive !== newConfig.isGroupModeActive) logs.push(newConfig.isGroupModeActive ? "ENABLED Group Mode" : "DISABLED Group Mode");
@@ -227,20 +230,21 @@ export const SeasonProvider = ({ children }: { children: ReactNode }) => {
             logs.push("Modified Match Timings");
         }
 
-        const details = logs.length > 0 ? `Scoping updates for ${currentSeason.name}: ${logs.join(', ')}` : `Modified stage settings for ${currentSeason.name}`;
-        const updatedSeasons = seasons.map(s => s.id === currentSeason.id ? { ...s, matchConfig: newConfig } : s);
+        const details = logs.length > 0 ? `Scoping updates for ${activeSeason.name}: ${logs.join(', ')}` : `Modified stage settings for ${activeSeason.name}`;
+        const updatedSeasons = seasons.map(s => s.id === activeSeason.id ? { ...s, matchConfig: newConfig } : s);
 
-        updateDoc(configRef, { seasons: updatedSeasons }).then(() => {
+        await updateDoc(configRef, { seasons: updatedSeasons }).then(() => {
             logAction("MATCH_CONFIG", details);
-        }).catch(async () => {
+        }).catch(() => {
             errorEmitter.emit('permission-error', new FirestorePermissionError({
                 path: configRef.path,
                 operation: 'update'
             }));
         });
-    }, [firestore, seasons, currentSeason, logAction]);
+    }, [firestore, seasons, activeSeason, logAction]);
 
-    const value = { seasons, currentSeason, globalAnnouncement, isLoggingEnabled, isSessionActive, managementImages, setCurrentSeason, createNextSeason, deleteCurrentSeason, updateMatchConfig, updateGlobalAnnouncement, updateManagementImages, setLoggingEnabled, setSessionActive, loading };
+    const value = useMemo(() => ({ seasons, currentSeason: activeSeason, globalAnnouncement, isLoggingEnabled, isSessionActive, managementImages, setCurrentSeason, createNextSeason, deleteCurrentSeason, updateMatchConfig, updateGlobalAnnouncement, updateManagementImages, setLoggingEnabled, setSessionActive, loading }),
+        [seasons, activeSeason, globalAnnouncement, isLoggingEnabled, isSessionActive, managementImages, setCurrentSeason, createNextSeason, deleteCurrentSeason, updateMatchConfig, updateGlobalAnnouncement, updateManagementImages, setLoggingEnabled, setSessionActive, loading]);
     return <SeasonContext.Provider value={value}>{children}</SeasonContext.Provider>;
 };
 

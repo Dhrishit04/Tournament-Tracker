@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export function SessionGuard({ children }: { children: React.ReactNode }) {
+export function SessionGuard({ children }: Readonly<{ children: React.ReactNode }>) {
   const { isSessionActive, loading: seasonLoading } = useSeason();
   const { isAdmin, loading: authLoading } = useAuth();
   const pathname = usePathname();

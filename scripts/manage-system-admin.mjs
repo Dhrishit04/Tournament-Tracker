@@ -13,8 +13,8 @@
  *        GOOGLE_APPLICATION_CREDENTIALS=~/keys/dfpl-firebase-sa.json \
  *        node scripts/manage-system-admin.mjs
  */
-import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import { randomBytes } from 'node:crypto';
 import readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 
@@ -50,14 +50,15 @@ async function main() {
   } catch (err) {
     if (err.code === 'auth/user-not-found') {
       console.log(`No Auth user exists yet for ${SYSTEM_ADMIN_EMAIL}.`);
-      const tempPw = require('crypto').randomBytes(24).toString('base64url');
+      const tempPw = randomBytes(24).toString('base64url');
       user = await auth.createUser({ email: SYSTEM_ADMIN_EMAIL, password: tempPw });
       console.log(`Created Auth user uid=${user.uid} with random temp password.`);
       try {
         const link = await auth.generatePasswordResetLink(SYSTEM_ADMIN_EMAIL);
         console.log('\nPassword reset link (relay this to the system admin):');
         console.log(link);
-      } catch (e) {
+      } catch {
+        // Non-fatal: the user exists; the admin can set a password from the console instead.
         console.warn('Could not generate reset link (email provider may be unconfigured). Set a password via the Firebase Console.');
       }
     } else {
@@ -82,7 +83,9 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((err) => {
+try {
+  await main();
+} catch (err) {
   console.error('Failed:', err);
   process.exit(1);
-});
+}

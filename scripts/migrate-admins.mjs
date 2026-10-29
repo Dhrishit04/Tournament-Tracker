@@ -54,7 +54,7 @@ async function processOne(docSnap, rl) {
       await auth.getUser(data.uid);
       console.log(`Skipping ${email}: already migrated to uid=${data.uid}.`);
       return { skipped: true };
-    } catch (e) {
+    } catch {
       // uid field present but no Auth user — treat as stale, fall through
       console.warn(`Doc ${docSnap.id} has stale uid=${data.uid}, re-migrating.`);
     }
@@ -153,7 +153,9 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((err) => {
+try {
+  await main();
+} catch (err) {
   console.error('Fatal:', err);
   process.exit(1);
-});
+}

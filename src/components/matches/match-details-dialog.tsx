@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,7 +42,41 @@ const matchSettingsSchema = z.object({
     isThirdPlacePlayoff: z.boolean().optional(),
 });
 
-export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: string; isOpen: boolean; onClose: () => void; }) {
+// Record of past finished meetings, counted from this fixture's home side.
+function headToHead(match: Match, matches: Match[]) {
+    const past = matches.filter(m =>
+        m.status === 'FINISHED' &&
+        m.id !== match.id &&
+        ((m.homeTeamId === match.homeTeamId && m.awayTeamId === match.awayTeamId) ||
+            (m.homeTeamId === match.awayTeamId && m.awayTeamId === match.homeTeamId))
+    );
+
+    let homeWins = 0, awayWins = 0, draws = 0;
+    past.forEach(m => {
+        const hWin = (m.homeScore ?? 0) > (m.awayScore ?? 0);
+        const aWin = (m.awayScore ?? 0) > (m.homeScore ?? 0);
+        const sameSides = m.homeTeamId === match.homeTeamId;
+        const ourHomeWon = sameSides ? hWin : aWin;
+        const ourAwayWon = sameSides ? aWin : hWin;
+        if (ourHomeWon) homeWins++;
+        else if (ourAwayWon) awayWins++;
+        else draws++;
+    });
+    return { homeWins, awayWins, draws, total: past.length };
+}
+
+function EventIcon({ type }: Readonly<{ type: MatchEvent['type'] }>) {
+    switch (type) {
+        case 'Goal': return <Goal className="w-4 h-4 text-green-500" />
+        case 'Assist': return <Footprints className="w-4 h-4 text-blue-500" />
+        case 'Own Goal': return <Goal className="w-4 h-4 text-red-500" />
+        case 'Yellow Card': return <div className="w-3 h-4 bg-yellow-400 border border-black/20 rounded-sm" />
+        case 'Red Card': return <div className="w-3 h-4 bg-red-600 border border-black/20 rounded-sm" />
+        default: return null
+    }
+}
+
+export function MatchDetailsDialog({ matchId, isOpen, onClose }: Readonly<{ matchId: string; isOpen: boolean; onClose: () => void; }>) {
     const { isAdmin } = useAuth();
     const { matches, players, teams, addMatchEvent, updateMatchEvent, deleteMatchEvent, updateMatchStatus, updateMatch, deleteMatch, logAction } = useData();
     const { currentSeason } = useSeason();
@@ -66,7 +99,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         defaultValues: {
             status: match?.status || 'UPCOMING',
             stage: match?.stage || 'GROUP_STAGE',
-            date: match ? (match.date instanceof Date ? format(match.date, 'yyyy-MM-dd') : format(new Date(match.date), 'yyyy-MM-dd')) : '',
+            date: match ? format(new Date(match.date), 'yyyy-MM-dd') : '',
             time: match?.time || '',
             venue: match?.venue || '',
             description: match?.description || '',
@@ -85,24 +118,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
 
     const h2hStats = useMemo(() => {
         if (!match || !teams.length) return null;
-        const past = matches.filter(m =>
-            m.status === 'FINISHED' &&
-            m.id !== match.id &&
-            ((m.homeTeamId === match.homeTeamId && m.awayTeamId === match.awayTeamId) ||
-                (m.homeTeamId === match.awayTeamId && m.awayTeamId === match.homeTeamId))
-        );
-
-        let homeWins = 0, awayWins = 0, draws = 0;
-        past.forEach(m => {
-            const hWin = (m.homeScore ?? 0) > (m.awayScore ?? 0);
-            const aWin = (m.awayScore ?? 0) > (m.homeScore ?? 0);
-            if (m.homeTeamId === match.homeTeamId) {
-                if (hWin) homeWins++; else if (aWin) awayWins++; else draws++;
-            } else {
-                if (aWin) homeWins++; else if (hWin) awayWins++; else draws++;
-            }
-        });
-        return { homeWins, awayWins, draws, total: past.length };
+        return headToHead(match, matches);
     }, [match, matches, teams]);
 
     useEffect(() => {
@@ -110,7 +126,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
             settingsForm.reset({
                 status: match.status,
                 stage: match.stage,
-                date: match.date instanceof Date ? format(match.date, 'yyyy-MM-dd') : format(new Date(match.date), 'yyyy-MM-dd'),
+                date: format(new Date(match.date), 'yyyy-MM-dd'),
                 time: match.time,
                 venue: match.venue || '',
                 description: match.description || '',
@@ -240,17 +256,6 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: { matchId: stri
         eventForm.reset({ type: 'Goal', minute: 1, playerId: '', assisterId: 'none' });
         setShowEventForm(false);
         setEditingEvent(null);
-    };
-
-    const EventIcon = ({ type }: { type: MatchEvent['type'] }) => {
-        switch (type) {
-            case 'Goal': return <Goal className="w-4 h-4 text-green-500" />
-            case 'Assist': return <Footprints className="w-4 h-4 text-blue-500" />
-            case 'Own Goal': return <Goal className="w-4 h-4 text-red-500" />
-            case 'Yellow Card': return <div className="w-3 h-4 bg-yellow-400 border border-black/20 rounded-sm" />
-            case 'Red Card': return <div className="w-3 h-4 bg-red-600 border border-black/20 rounded-sm" />
-            default: return null
-        }
     };
 
     return (

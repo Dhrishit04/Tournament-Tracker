@@ -10,13 +10,13 @@ import { BrandMark } from './header';
 
 export function KagePreloader() {
   return (
-    <div className="k-pre" role="status" aria-label="Loading">
+    <output className="k-pre" aria-label="Loading">
       <BrandMark className="k-pre-mark" />
       <div className="k-pre-word">DFPL</div>
       {/* a ball rolls the touchline while the data loads */}
       <div className="k-pre-bar"><i /><b className="k-pre-ball" /></div>
       <div className="k-pre-meta">Preparing the pitch</div>
-    </div>
+    </output>
   );
 }
 
@@ -81,7 +81,7 @@ function leafSprite(color: string) {
   x.beginPath();
   for (let i = 0; i < 5; i++) {
     const a = -.95 + 1.9 * (i / 4) + Math.PI / 2;
-    const len = i === 2 ? .96 : i === 1 || i === 3 ? .82 : .6;
+    const len = [.6, .82, .96, .82, .6][i];
     x.moveTo(0, .02);
     x.lineTo(Math.cos(a - .17) * len * .55, Math.sin(a - .17) * len * .55);
     x.lineTo(Math.cos(a) * len, Math.sin(a) * len);

@@ -3,10 +3,10 @@ import { useState, useMemo } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import type { Player, Team, TeamStats, Match } from '@/types';
+import type { Player, Team, TeamStats } from '@/types';
 import { useAuth } from '@/hooks/use-auth';
 import { PlusCircle, Edit, Pencil, History, TrendingUp, ShieldCheck } from 'lucide-react';
 import { useData } from '@/hooks/use-data';
@@ -46,11 +46,11 @@ function PlayerEditForm({
   player,
   onSubmit,
   onClose,
-}: {
+}: Readonly<{
   player: Player;
   onSubmit: (data: z.infer<typeof playerEditSchema>) => void;
   onClose: () => void;
-}) {
+}>) {
   const form = useForm<z.infer<typeof playerEditSchema>>({
     resolver: zodResolver(playerEditSchema),
     defaultValues: {
@@ -113,11 +113,11 @@ function TeamStatsEditForm({
   team,
   onSubmit,
   onClose,
-}: {
+}: Readonly<{
   team: Team;
   onSubmit: (data: z.infer<typeof teamStatsSchema>) => void;
   onClose: () => void;
-}) {
+}>) {
   const form = useForm<z.infer<typeof teamStatsSchema>>({
     resolver: zodResolver(teamStatsSchema),
     defaultValues: {
@@ -172,6 +172,57 @@ function TeamStatsEditForm({
   );
 }
 
+const FORM_BADGE = {
+  W: "bg-green-500/20 text-green-500 border border-green-500/30",
+  L: "bg-red-500/20 text-red-500 border border-red-500/30",
+  D: "bg-muted text-muted-foreground border border-border",
+};
+
+function PlayerRow({ player, isAdmin, onView, onEdit }: Readonly<{ player: Player, isAdmin: boolean, onView: (player: Player) => void, onEdit: (e: React.MouseEvent, player: Player) => void }>) {
+  const avatar = getImageUrl(player.avatarUrl);
+  return (
+    <TableRow
+      className="border-white/5 hover:bg-white/5 transition-colors cursor-pointer group"
+      onClick={() => onView(player)}
+    >
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            "relative w-10 h-10 rounded-xl overflow-hidden border transition-all duration-300 group-hover:border-accent group-hover:scale-105",
+            player.category === 'A' ? "border-accent/40" : "border-white/10"
+          )}>
+            <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" />
+          </div>
+          <div>
+            <span className="font-bold uppercase text-xs tracking-tight block">{player.name}</span>
+            <span className={cn(
+              "text-[8px] font-black uppercase tracking-widest",
+              player.category === 'A' ? "text-accent" : "text-muted-foreground"
+            )}>Class {player.category}</span>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell className="hidden md:table-cell text-xs opacity-60 font-black">{player.age || 'N/A'}</TableCell>
+      <TableCell className="hidden sm:table-cell">
+        <div className="flex gap-1 flex-wrap">
+          {player.preferredPosition?.map(p => (
+            <span key={p} className="text-[8px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/10">{p}</span>
+          ))}
+        </div>
+      </TableCell>
+      <TableCell className="text-center font-mono font-bold text-accent">{player.goals || 0}</TableCell>
+      <TableCell className="text-center hidden sm:table-cell font-mono font-bold opacity-60">{player.assists || 0}</TableCell>
+      {isAdmin && (
+        <TableCell className="text-right">
+          <Button variant="ghost" size="icon" onClick={(e) => onEdit(e, player)} className="hover:bg-white/10">
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </TableCell>
+      )}
+    </TableRow>
+  );
+}
+
 export default function TeamDetailPage() {
   const params = useParams<{ teamId: string }>();
   const { teams, players, matches, loading, updatePlayer, updateTeam } = useData();
@@ -194,9 +245,10 @@ export default function TeamDetailPage() {
         const isHome = m.homeTeamId === team.id;
         const score = isHome ? (m.homeScore ?? 0) : (m.awayScore ?? 0);
         const opponentScore = isHome ? (m.awayScore ?? 0) : (m.homeScore ?? 0);
-        if (score > opponentScore) return 'W';
-        if (score < opponentScore) return 'L';
-        return 'D';
+        let result: 'W' | 'L' | 'D' = 'D';
+        if (score > opponentScore) result = 'W';
+        else if (score < opponentScore) result = 'L';
+        return { matchId: m.id, result };
       });
   }, [team, matches]);
 
@@ -228,7 +280,7 @@ export default function TeamDetailPage() {
       ...data,
       preferredPosition: data.preferredPosition.split(',').map(p => p.trim()),
     };
-    updatePlayer(updatedPlayer);
+    void updatePlayer(updatedPlayer);
 
     const updatedTeamStats: TeamStats = {
       ...team.stats,
@@ -240,7 +292,7 @@ export default function TeamDetailPage() {
       ...team,
       stats: updatedTeamStats,
     }
-    updateTeam(updatedTeam);
+    void updateTeam(updatedTeam);
 
     setIsPlayerDialogOpen(false);
     setSelectedPlayer(null);
@@ -277,55 +329,10 @@ export default function TeamDetailPage() {
         ...data,
       }
     };
-    updateTeam(updatedTeam);
+    void updateTeam(updatedTeam);
     setIsStatsDialogOpen(false);
   }
 
-
-  const PlayerRow = ({ player }: { player: Player }) => {
-    const avatar = getImageUrl(player.avatarUrl);
-    return (
-      <TableRow
-        className="border-white/5 hover:bg-white/5 transition-colors cursor-pointer group"
-        onClick={() => setViewingAthlete(player)}
-      >
-        <TableCell>
-          <div className="flex items-center gap-3">
-            <div className={cn(
-              "relative w-10 h-10 rounded-xl overflow-hidden border transition-all duration-300 group-hover:border-accent group-hover:scale-105",
-              player.category === 'A' ? "border-accent/40" : "border-white/10"
-            )}>
-              <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" />
-            </div>
-            <div>
-              <span className="font-bold uppercase text-xs tracking-tight block">{player.name}</span>
-              <span className={cn(
-                "text-[8px] font-black uppercase tracking-widest",
-                player.category === 'A' ? "text-accent" : "text-muted-foreground"
-              )}>Class {player.category}</span>
-            </div>
-          </div>
-        </TableCell>
-        <TableCell className="hidden md:table-cell text-xs opacity-60 font-black">{player.age || 'N/A'}</TableCell>
-        <TableCell className="hidden sm:table-cell">
-          <div className="flex gap-1 flex-wrap">
-            {player.preferredPosition?.map(p => (
-              <span key={p} className="text-[8px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded border border-white/10">{p}</span>
-            ))}
-          </div>
-        </TableCell>
-        <TableCell className="text-center font-mono font-bold text-accent">{player.goals || 0}</TableCell>
-        <TableCell className="text-center hidden sm:table-cell font-mono font-bold opacity-60">{player.assists || 0}</TableCell>
-        {isAdmin && (
-          <TableCell className="text-right">
-            <Button variant="ghost" size="icon" onClick={(e) => handlePlayerEditClick(e, player)} className="hover:bg-white/10">
-              <Pencil className="h-4 w-4" />
-            </Button>
-          </TableCell>
-        )}
-      </TableRow>
-    );
-  };
 
   const statItems = [
     { label: 'Played', value: team.stats.matchesPlayed ?? 0 },
@@ -365,12 +372,10 @@ export default function TeamDetailPage() {
             <div className="flex flex-col items-center md:items-start">
               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Recent Form</p>
               <div className="flex gap-1.5">
-                {teamForm.length > 0 ? teamForm.map((result, i) => (
-                  <div key={i} className={cn(
+                {teamForm.length > 0 ? teamForm.map(({ matchId, result }) => (
+                  <div key={matchId} className={cn(
                     "w-6 h-6 rounded flex items-center justify-center text-[10px] font-black",
-                    result === 'W' ? "bg-green-500/20 text-green-500 border border-green-500/30" :
-                      result === 'L' ? "bg-red-500/20 text-red-500 border border-red-500/30" :
-                        "bg-muted text-muted-foreground border border-border"
+                    FORM_BADGE[result]
                   )}>
                     {result}
                   </div>
@@ -417,7 +422,7 @@ export default function TeamDetailPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {teamPlayers.length > 0 ? teamPlayers.map((player) => <PlayerRow key={player.id} player={player} />) : (
+                  {teamPlayers.length > 0 ? teamPlayers.map((player) => <PlayerRow key={player.id} player={player} isAdmin={isAdmin} onView={setViewingAthlete} onEdit={handlePlayerEditClick} />) : (
                     <TableRow>
                       <TableCell colSpan={isAdmin ? 6 : 5} className="h-32 text-center text-muted-foreground italic text-xs uppercase tracking-widest">No active athletes registered</TableCell>
                     </TableRow>

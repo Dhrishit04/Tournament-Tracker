@@ -19,7 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Pencil } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { FadeUp, CinematicFade, ScrollReveal } from '@/components/ui/animations';
+import { FadeUp, CinematicFade } from '@/components/ui/animations';
 
 import type { Standing, Team, TeamStats } from '@/types';
 import { useData } from '@/hooks/use-data';
@@ -39,7 +39,7 @@ const standingEditSchema = z.object({
 });
 
 
-function TeamCell({ team }: { team: Standing['team'] }) {
+function TeamCell({ team }: Readonly<{ team: Standing['team'] }>) {
     const logo = getImageUrl(team.logoUrl);
     return (
         <div className="flex items-center gap-3">
@@ -61,11 +61,11 @@ function StandingsEditForm({
     team,
     onSubmit,
     onClose,
-}: {
+}: Readonly<{
     team: Team;
     onSubmit: (data: z.infer<typeof standingEditSchema>) => void;
     onClose: () => void;
-}) {
+}>) {
     const form = useForm<z.infer<typeof standingEditSchema>>({
         resolver: zodResolver(standingEditSchema),
         defaultValues: {
@@ -108,7 +108,13 @@ function StandingsEditForm({
     );
 }
 
-function StandingsTable({ standings, isAdmin, onEditClick }: { standings: Standing[], isAdmin: boolean, onEditClick: (id: string) => void }) {
+function goalDifferenceClass(gd: number) {
+    if (gd > 0) return "text-blue-400";
+    if (gd < 0) return "text-destructive";
+    return "";
+}
+
+function StandingsTable({ standings, isAdmin, onEditClick }: Readonly<{ standings: Standing[], isAdmin: boolean, onEditClick: (id: string) => void }>) {
     return (
         <div className="overflow-x-auto custom-scrollbar">
             <Table className="[&_td]:px-2 [&_th]:px-2 sm:[&_td]:px-4 sm:[&_th]:px-4">
@@ -142,7 +148,7 @@ function StandingsTable({ standings, isAdmin, onEditClick }: { standings: Standi
                             <TableCell className="hidden sm:table-cell text-center font-mono text-sm">{standing.goalsAgainst}</TableCell>
                             <TableCell className={cn(
                                 "text-center font-mono text-sm font-bold",
-                                standing.goalDifference > 0 ? "text-blue-400" : standing.goalDifference < 0 ? "text-destructive" : ""
+                                goalDifferenceClass(standing.goalDifference)
                             )}>
                                 {standing.goalDifference > 0 ? `+${standing.goalDifference}` : standing.goalDifference}
                             </TableCell>
@@ -181,7 +187,7 @@ function LoadingSkeleton() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {[...Array(4)].map((_, i) => (
+                    {Array.from({ length: 4 }, (_, i) => i).map((i) => (
                         <TableRow key={i}>
                             <TableCell><Skeleton className="h-5 w-5 mx-auto" /></TableCell>
                             <TableCell><div className='flex items-center gap-3'><Skeleton className="w-8 h-8 rounded-full" /><Skeleton className="h-5 w-32" /></div></TableCell>
@@ -251,10 +257,10 @@ export default function StandingsPage() {
             });
 
             Object.keys(groups).forEach(key => {
-                groups[key].sort(sortStanding)
-                    .forEach((standing, index) => {
-                        standing.rank = index + 1;
-                    });
+                groups[key].sort(sortStanding);
+                groups[key].forEach((standing, index) => {
+                    standing.rank = index + 1;
+                });
             });
             return { groups, standalone: [] };
         } else {
@@ -300,13 +306,61 @@ export default function StandingsPage() {
             stats: updatedTeamStats
         };
 
-        updateTeam(updatedTeam);
+        void updateTeam(updatedTeam);
         setIsDialogOpen(false);
         setSelectedTeam(null);
     }
 
     const pageLoading = loading || seasonLoading;
-    const groupKeys = Object.keys(standingsData.groups).sort();
+    const groupKeys = Object.keys(standingsData.groups).sort((a, b) => a.localeCompare(b));
+
+    const renderStandings = () => {
+        if (pageLoading) return <Card className="glass-card border-white/5"><CardContent className="pt-6"><LoadingSkeleton /></CardContent></Card>;
+        if (!isGroupMode) return (
+            <CinematicFade delay={0.2}>
+                <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
+                    <CardHeader className="bg-white/5 border-b border-white/5 py-4">
+                        <CardTitle className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
+                                                                    Global Leaderboard
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        {standingsData.standalone.length > 0 ? (
+                            <StandingsTable
+                                standings={standingsData.standalone}
+                                isAdmin={isAdmin}
+                                onEditClick={handleEditClick}
+                            />
+                        ) : (
+                            <p className="text-muted-foreground text-center py-20 font-bold uppercase tracking-widest text-xs opacity-30">No teams found for this season.</p>
+                        )}
+                    </CardContent>
+                </Card>
+            </CinematicFade>
+        );
+        if (groupKeys.length === 0) return <Card className="glass-card border-white/5"><CardContent><p className="text-muted-foreground text-center py-20 font-bold uppercase tracking-widest text-xs opacity-30">No groups configured.</p></CardContent></Card>;
+        return groupKeys.map((key, idx) => (
+            <CinematicFade
+                key={key}
+                delay={0.2 + (idx * 0.1)}
+            >
+                <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
+                    <CardHeader className="bg-white/5 border-b border-white/5 py-4">
+                        <CardTitle className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
+                                                                        Group {key}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <StandingsTable
+                            standings={standingsData.groups[key]}
+                            isAdmin={isAdmin}
+                            onEditClick={handleEditClick}
+                        />
+                    </CardContent>
+                </Card>
+            </CinematicFade>
+        ));
+    };
 
     return (
         <div className="container mx-auto px-4 py-24 max-w-6xl relative z-10">
@@ -327,54 +381,7 @@ export default function StandingsPage() {
             </motion.div>
 
             <div className="space-y-12">
-                {pageLoading ? <Card className="glass-card border-white/5"><CardContent className="pt-6"><LoadingSkeleton /></CardContent></Card> : (
-                    isGroupMode ? (
-                        groupKeys.length > 0 ? groupKeys.map((key, idx) => (
-                            <CinematicFade
-                                key={key}
-                                delay={0.2 + (idx * 0.1)}
-                            >
-                                <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
-                                    <CardHeader className="bg-white/5 border-b border-white/5 py-4">
-                                        <CardTitle className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
-                                                                                        Group {key}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-0">
-                                        <StandingsTable
-                                            standings={standingsData.groups[key]}
-                                            isAdmin={isAdmin}
-                                            onEditClick={handleEditClick}
-                                        />
-                                    </CardContent>
-                                </Card>
-                            </CinematicFade>
-                        )) : (
-                            <Card className="glass-card border-white/5"><CardContent><p className="text-muted-foreground text-center py-20 font-bold uppercase tracking-widest text-xs opacity-30">No groups configured.</p></CardContent></Card>
-                        )
-                    ) : (
-                        <CinematicFade delay={0.2}>
-                            <Card className="glass-card border-white/5 overflow-hidden shadow-2xl">
-                                <CardHeader className="bg-white/5 border-b border-white/5 py-4">
-                                    <CardTitle className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
-                                                                                Global Leaderboard
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-0">
-                                    {standingsData.standalone.length > 0 ? (
-                                        <StandingsTable
-                                            standings={standingsData.standalone}
-                                            isAdmin={isAdmin}
-                                            onEditClick={handleEditClick}
-                                        />
-                                    ) : (
-                                        <p className="text-muted-foreground text-center py-20 font-bold uppercase tracking-widest text-xs opacity-30">No teams found for this season.</p>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </CinematicFade>
-                    )
-                )}
+                {renderStandings()}
             </div>
 
             {selectedTeam && (

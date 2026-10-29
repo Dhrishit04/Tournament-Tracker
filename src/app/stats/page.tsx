@@ -7,9 +7,65 @@ import { Trophy, Medal, Goal, Footprints } from 'lucide-react';
 import Image from 'next/image';
 import { getImageUrl, cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSeason } from '@/contexts/season-context';
 import { FadeUp, CinematicFade, ScrollReveal } from '@/components/ui/animations';
+
+function RankBadge({ idx }: Readonly<{ idx: number }>) {
+  if (idx === 0) return <Trophy className="h-5 w-5 text-yellow-500 mx-auto" />;
+  if (idx === 1) return <Medal className="h-5 w-5 text-slate-300 mx-auto" />;
+  if (idx === 2) return <Medal className="h-5 w-5 text-orange-400 mx-auto" />;
+  return <span className="font-mono font-black text-xs opacity-30">{idx + 1}</span>;
+}
+
+function Leaderboard({ data, type, getTeamName }: Readonly<{ data: any[], type: 'goals' | 'assists', getTeamName: (tid: string) => string }>) {
+  return (
+  <Table className="[&_td]:px-2 [&_th]:px-2 sm:[&_td]:px-4 sm:[&_th]:px-4">
+    <TableHeader>
+      <TableRow className="border-white/5 hover:bg-transparent">
+        <TableHead className="w-16 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center"><span className="sm:hidden">#</span><span className="hidden sm:inline">Rank</span></TableHead>
+        <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete</TableHead>
+        <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Club</TableHead>
+        <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{type === 'goals' ? <><span className="sm:hidden">G</span><span className="hidden sm:inline">Goals</span></> : <><span className="sm:hidden">A</span><span className="hidden sm:inline">Assists</span></>}</TableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {data.map((player, idx) => {
+        const avatar = getImageUrl(player.avatarUrl);
+        const isTop3 = idx < 3;
+        return (
+          <TableRow key={player.id} className="border-white/5 transition-all duration-300 hover:bg-accent/5 hover:shadow-[inset_2px_0_0_0_hsl(var(--accent))] relative group">
+            <TableCell className="text-center">
+              <RankBadge idx={idx} />
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-3">
+                <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10">
+                  <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm uppercase tracking-tight">{player.name}</p>
+                  <p className="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground">Elite Athlete</p>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>
+              <span className="text-xs font-bold opacity-60">{getTeamName(player.teamId)}</span>
+            </TableCell>
+            <TableCell className="text-center">
+              <span className={cn(
+                "font-mono font-black text-lg",
+                isTop3 ? "text-accent" : "text-white/80"
+              )}>
+                {type === 'goals' ? player.goals : player.assists}
+              </span>
+            </TableCell>
+          </TableRow>
+        );
+      })}
+    </TableBody>
+  </Table>
+);
+}
 
 export default function StatisticsPage() {
   const { players, teams, loading } = useData();
@@ -19,57 +75,6 @@ export default function StatisticsPage() {
   const topPlaymakers = [...players].sort((a, b) => (b.assists || 0) - (a.assists || 0)).slice(0, 10);
 
   const getTeamName = (tid: string) => teams.find(t => t.id === tid)?.name || 'Unassigned';
-
-  const Leaderboard = ({ data, type }: { data: any[], type: 'goals' | 'assists' }) => (
-    <Table className="[&_td]:px-2 [&_th]:px-2 sm:[&_td]:px-4 sm:[&_th]:px-4">
-      <TableHeader>
-        <TableRow className="border-white/5 hover:bg-transparent">
-          <TableHead className="w-16 h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center"><span className="sm:hidden">#</span><span className="hidden sm:inline">Rank</span></TableHead>
-          <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Athlete</TableHead>
-          <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Club</TableHead>
-          <TableHead className="h-14 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-center">{type === 'goals' ? <><span className="sm:hidden">G</span><span className="hidden sm:inline">Goals</span></> : <><span className="sm:hidden">A</span><span className="hidden sm:inline">Assists</span></>}</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {data.map((player, idx) => {
-          const avatar = getImageUrl(player.avatarUrl);
-          const isTop3 = idx < 3;
-          return (
-            <TableRow key={player.id} className="border-white/5 transition-all duration-300 hover:bg-accent/5 hover:shadow-[inset_2px_0_0_0_hsl(var(--accent))] relative group">
-              <TableCell className="text-center">
-                {idx === 0 ? <Trophy className="h-5 w-5 text-yellow-500 mx-auto" /> :
-                  idx === 1 ? <Medal className="h-5 w-5 text-slate-300 mx-auto" /> :
-                    idx === 2 ? <Medal className="h-5 w-5 text-orange-400 mx-auto" /> :
-                      <span className="font-mono font-black text-xs opacity-30">{idx + 1}</span>}
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10">
-                    <Image src={avatar.imageUrl} alt={player.name} fill className="object-cover" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm uppercase tracking-tight">{player.name}</p>
-                    <p className="text-[8px] font-black uppercase tracking-[0.2em] text-muted-foreground">Elite Athlete</p>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <span className="text-xs font-bold opacity-60">{getTeamName(player.teamId)}</span>
-              </TableCell>
-              <TableCell className="text-center">
-                <span className={cn(
-                  "font-mono font-black text-lg",
-                  isTop3 ? "text-accent" : "text-white/80"
-                )}>
-                  {type === 'goals' ? player.goals : player.assists}
-                </span>
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
-  );
 
   if (loading) {
     return (
@@ -110,7 +115,7 @@ export default function StatisticsPage() {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <Leaderboard data={topScorers} type="goals" />
+              <Leaderboard data={topScorers} type="goals" getTeamName={getTeamName} />
             </CardContent>
           </Card>
         </CinematicFade>
@@ -125,7 +130,7 @@ export default function StatisticsPage() {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <Leaderboard data={topPlaymakers} type="assists" />
+              <Leaderboard data={topPlaymakers} type="assists" getTeamName={getTeamName} />
             </CardContent>
           </Card>
         </CinematicFade>

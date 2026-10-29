@@ -15,8 +15,8 @@ import { useSeason } from '@/contexts/season-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getImageUrl, cn } from '@/lib/utils';
 import { MatchDetailsDialog } from '@/components/matches/match-details-dialog';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FadeUp, ScrollReveal } from '@/components/ui/animations';
+import { motion } from 'framer-motion';
+import { FadeUp } from '@/components/ui/animations';
 
 function LivePulse() {
     return (
@@ -27,7 +27,7 @@ function LivePulse() {
     );
 }
 
-function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { match: Match, onCardClick: (match: Match) => void, teams: Team[], isGroupMode: boolean, showVenue: boolean }) {
+function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: Readonly<{ match: Match, onCardClick: (match: Match) => void, teams: Team[], isGroupMode: boolean, showVenue: boolean }>) {
     const homeTeam = teams.find(t => t.id === match.homeTeamId);
     const awayTeam = teams.find(t => t.id === match.awayTeamId);
 
@@ -46,7 +46,7 @@ function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { matc
             className="h-full"
         >
             <Card className="glass-card border-white/5 hover:border-accent/30 hover:shadow-2xl hover:shadow-accent/5 flex flex-col h-full overflow-hidden transition-colors group">
-                <div className="flex-grow cursor-pointer" onClick={() => onCardClick(match)}>
+                <button type="button" className="block w-full flex-grow cursor-pointer text-left" onClick={() => onCardClick(match)}>
                     <CardHeader className="pb-2 pt-4 px-4">
                         <div className="flex justify-between items-start text-xs text-muted-foreground w-full">
                             <span className="font-bold uppercase tracking-widest text-[9px] opacity-60 group-hover:text-accent transition-colors">{format(new Date(match.date), 'EEE, MMM d')}</span>
@@ -112,7 +112,7 @@ function MatchCard({ match, onCardClick, teams, isGroupMode, showVenue }: { matc
                             <p className="text-center text-[8px] uppercase font-black tracking-[0.2em] text-white/20 mt-6 truncate px-2 group-hover:text-accent/40 transition-colors">{match.venue}</p>
                         )}
                     </CardContent>
-                </div>
+                </button>
                 {match.stage === 'OTHERS' && match.description && (
                     <div className="text-center text-[9px] font-bold text-muted-foreground mt-auto mb-4 border-t border-white/5 mx-6 pt-3 italic line-clamp-2 uppercase tracking-widest opacity-40">
                         {match.description}
@@ -149,7 +149,7 @@ export default function MatchesPage() {
                     </h1>
                 </FadeUp>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-64 glass-card border-white/5" />)}
+                    {Array.from({ length: 6 }, (_, i) => i).map((i) => <Skeleton key={i} className="h-64 glass-card border-white/5" />)}
                 </div>
             </div>
         )
@@ -208,7 +208,7 @@ export default function MatchesPage() {
                         const groups = Array.from(new Set(stageMatches.map(m => {
                             const homeTeam = teams.find(t => t.id === m.homeTeamId);
                             return homeTeam?.group;
-                        }).filter(Boolean))).sort() as string[];
+                        }).filter(Boolean))).sort((a, b) => String(a).localeCompare(String(b))) as string[];
 
                         return (
                             <motion.div

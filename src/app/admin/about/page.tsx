@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -26,7 +26,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useAbout } from '@/hooks/use-about';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AccessDenied } from '@/components/admin/access-denied';
 import { uploadAboutPhoto, deleteAboutPhoto } from '@/firebase/storage';
@@ -46,11 +45,11 @@ const memberSchema = z.object({
 });
 
 // --- Position Form ---
-function PositionForm({ onSubmit, position, onCancel }: {
+function PositionForm({ onSubmit, position, onCancel }: Readonly<{
   onSubmit: (data: z.infer<typeof positionSchema>) => void;
   position?: AboutPosition;
   onCancel: () => void;
-}) {
+}>) {
   const form = useForm<z.infer<typeof positionSchema>>({
     resolver: zodResolver(positionSchema),
     defaultValues: { title: position?.title || '', order: position?.order || 1 },
@@ -83,12 +82,12 @@ function PositionForm({ onSubmit, position, onCancel }: {
 }
 
 // --- Member Form ---
-function MemberForm({ onSubmit, member, positions, onCancel }: {
+function MemberForm({ onSubmit, member, positions, onCancel }: Readonly<{
   onSubmit: (data: z.infer<typeof memberSchema>, photoFile: File | null, socialLinks: SocialLink[]) => void;
   member?: TeamMember;
   positions: AboutPosition[];
   onCancel: () => void;
-}) {
+}>) {
   const form = useForm<z.infer<typeof memberSchema>>({
     resolver: zodResolver(memberSchema),
     defaultValues: {
@@ -122,10 +121,12 @@ function MemberForm({ onSubmit, member, positions, onCancel }: {
   };
 
   const addSocialLink = () => {
-    if (!newLinkUrl.trim()) return;
+    const url = newLinkUrl.trim();
+    if (!url) return;
     if (socialLinks.length >= 3) return;
-    const platform = detectPlatformName(newLinkUrl.trim());
-    setSocialLinks([...socialLinks, { url: newLinkUrl.trim(), platform }]);
+    if (socialLinks.some(l => l.url === url)) { setNewLinkUrl(''); return; } // links are keyed by URL
+    const platform = detectPlatformName(url);
+    setSocialLinks([...socialLinks, { url, platform }]);
     setNewLinkUrl('');
   };
 
@@ -161,7 +162,7 @@ function MemberForm({ onSubmit, member, positions, onCancel }: {
 
         {/* Photo upload */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Photo</label>
+          <label htmlFor="member-photo-input" className="text-sm font-medium">Photo</label>
           <div className="flex items-center gap-4">
             {photoPreview ? (
               <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-white/10">
@@ -179,7 +180,7 @@ function MemberForm({ onSubmit, member, positions, onCancel }: {
               <p className="text-xs text-muted-foreground mt-1">JPG, JPEG, or PNG. Max 10MB.</p>
             </div>
           </div>
-          <input ref={fileInputRef} type="file" accept="image/jpeg,image/jpg,image/png" className="hidden" onChange={handleFileChange} />
+          <input id="member-photo-input" ref={fileInputRef} type="file" accept="image/jpeg,image/jpg,image/png" className="hidden" onChange={handleFileChange} />
         </div>
 
         <FormField control={form.control} name="description" render={({ field }) => (
@@ -199,11 +200,11 @@ function MemberForm({ onSubmit, member, positions, onCancel }: {
 
         {/* Social Links */}
         <div className="space-y-3">
-          <label className="text-sm font-medium">Social Links (max 3)</label>
+          <p className="text-sm font-medium">Social Links (max 3)</p>
           {socialLinks.map((link, i) => {
             const { icon: Icon, label } = detectPlatform(link.url);
             return (
-              <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/20 border border-white/10 min-w-0">
+              <div key={link.url} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/20 border border-white/10 min-w-0">
                 <Icon className="h-4 w-4 text-accent shrink-0" />
                 <span className="text-sm text-muted-foreground break-all flex-1 min-w-0">{link.url}</span>
                 <span className="text-xs text-accent font-bold uppercase shrink-0">{label}</span>
@@ -242,13 +243,11 @@ export default function AdminAboutPage() {
   const { positions, members, loading, addPosition, updatePosition, deletePosition, addMember, updateMember, deleteMember, seedDefaultPositions } = useAbout();
   const { isSystemAdmin, loading: authLoading } = useAuth();
   const { toast } = useToast();
-  const router = useRouter();
 
   const [posDialogOpen, setPosDialogOpen] = useState(false);
   const [editingPosition, setEditingPosition] = useState<AboutPosition | undefined>();
   const [memberDialogOpen, setMemberDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | undefined>();
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Removed useEffect redirect to allow rendering of AccessDenied component
 
@@ -266,7 +265,6 @@ export default function AdminAboutPage() {
 
   // --- Position handlers ---
   const handleAddPosition = async (data: z.infer<typeof positionSchema>) => {
-    setIsSubmitting(true);
     try {
       const id = `pos-${Date.now()}`;
       await addPosition({ id, ...data });
@@ -275,12 +273,10 @@ export default function AdminAboutPage() {
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to add position.' });
     }
-    setIsSubmitting(false);
   };
 
   const handleUpdatePosition = async (data: z.infer<typeof positionSchema>) => {
     if (!editingPosition) return;
-    setIsSubmitting(true);
     try {
       await updatePosition({ ...editingPosition, ...data });
       toast({ title: 'Position Updated', description: `"${data.title}" has been updated.` });
@@ -289,7 +285,6 @@ export default function AdminAboutPage() {
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to update position.' });
     }
-    setIsSubmitting(false);
   };
 
   const handleDeletePosition = async (posId: string) => {
@@ -303,7 +298,6 @@ export default function AdminAboutPage() {
 
   // --- Member handlers ---
   const handleAddMember = async (data: z.infer<typeof memberSchema>, photoFile: File | null, socialLinks: SocialLink[]) => {
-    setIsSubmitting(true);
     try {
       let photoUrl = '';
       if (photoFile) {
@@ -325,12 +319,10 @@ export default function AdminAboutPage() {
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to add member.' });
     }
-    setIsSubmitting(false);
   };
 
   const handleUpdateMember = async (data: z.infer<typeof memberSchema>, photoFile: File | null, socialLinks: SocialLink[]) => {
     if (!editingMember) return;
-    setIsSubmitting(true);
     try {
       let photoUrl = editingMember.photoUrl;
       if (photoFile) {
@@ -354,7 +346,6 @@ export default function AdminAboutPage() {
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to update member.' });
     }
-    setIsSubmitting(false);
   };
 
   const handleDeleteMember = async (memberId: string) => {
@@ -497,9 +488,9 @@ export default function AdminAboutPage() {
                       <TableCell className="text-muted-foreground">{pos?.title || 'Unknown'}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          {member.socialLinks?.map((link: SocialLink, i: number) => {
+                          {member.socialLinks?.map((link: SocialLink) => {
                             const { icon: Icon } = detectPlatform(link.url);
-                            return <Icon key={i} className="h-4 w-4 text-muted-foreground" />;
+                            return <Icon key={link.url} className="h-4 w-4 text-muted-foreground" />;
                           })}
                         </div>
                       </TableCell>

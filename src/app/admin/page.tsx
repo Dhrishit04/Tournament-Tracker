@@ -23,7 +23,7 @@ const STILLS = ['card-players', 'card-teams', 'card-fixtures', 'card-settings']
   .map((n) => `/images/football/${n}.jpg`);
 
 /* the AI summary arrives a word at a time */
-function TypeIn({ text }: { text: string }) {
+function TypeIn({ text }: Readonly<{ text: string }>) {
   return (
     <motion.p
       className="text-[15px] font-light leading-[1.7] text-[#c2cdc5]"
@@ -31,9 +31,9 @@ function TypeIn({ text }: { text: string }) {
       animate="show"
       variants={{ show: { transition: { staggerChildren: 0.035 } } }}
     >
-      {text.split(' ').map((w, i) => (
+      {text.split(' ').map((w, i) => ({ w, id: `${i}:${w}` })).map(({ w, id }) => (
         <motion.span
-          key={i}
+          key={id}
           className="inline-block whitespace-pre"
           variants={{ hidden: { opacity: 0, y: 8, filter: 'blur(4px)' }, show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.5, ease: EASE } } }}
         >
@@ -42,6 +42,12 @@ function TypeIn({ text }: { text: string }) {
       ))}
     </motion.p>
   );
+}
+
+function protocolMessage(teamCount: number, playerCount: number) {
+  if (teamCount === 0) return "Initialize the tournament by deploying teams and registering elite athletes via the registry.";
+  if (playerCount < teamCount * 4) return "Some clubs have insufficient athlete registration. Protocol requires 4+ per team for group mode stability.";
+  return "The DFPL network is fully operational. Public broadcasts will reflect live data changes in real-time.";
 }
 
 export default function AdminDashboardPage() {
@@ -83,7 +89,7 @@ export default function AdminDashboardPage() {
   ];
 
   const handleSaveMessage = () => {
-    updateGlobalAnnouncement({
+    void updateGlobalAnnouncement({
       message: announcementText,
       isActive: isBroadcastActive
     });
@@ -91,7 +97,7 @@ export default function AdminDashboardPage() {
 
   const handleToggleBroadcast = (checked: boolean) => {
     setIsBroadcastActive(checked);
-    updateGlobalAnnouncement({
+    void updateGlobalAnnouncement({
       message: announcementText,
       isActive: checked
     });
@@ -209,7 +215,7 @@ export default function AdminDashboardPage() {
                 </span>
                 <div className="flex flex-1 overflow-hidden">
                   <div className={cn('flex animate-marquee items-center gap-12 whitespace-nowrap', !isBroadcastActive && 'opacity-40')}>
-                    {[...Array(8)].map((_, i) => (
+                    {Array.from({ length: 8 }, (_, i) => i).map((i) => (
                       <span key={i} className="k-label text-[hsl(var(--bone-dim))]">
                         {announcementText || 'Your announcement preview'}<span className="ml-12 text-primary">·</span>
                       </span>
@@ -291,13 +297,7 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent className="space-y-5 pt-6">
               <p className="text-sm font-light leading-relaxed text-[#c2cdc5]">
-                {teams.length === 0 ? (
-                  "Initialize the tournament by deploying teams and registering elite athletes via the registry."
-                ) : players.length < (teams.length * 4) ? (
-                  "Some clubs have insufficient athlete registration. Protocol requires 4+ per team for group mode stability."
-                ) : (
-                  "The DFPL network is fully operational. Public broadcasts will reflect live data changes in real-time."
-                )}
+                {protocolMessage(teams.length, players.length)}
               </p>
               <div className="k-label border-t border-[rgba(223,231,224,.07)] pt-4 text-muted-foreground">
                 Persistent Data Policy Enabled

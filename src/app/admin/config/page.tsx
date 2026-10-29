@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, ShieldAlert, Key, Mail, Trash2, Save, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
-import { useCollection, useFirestore, useFunctions } from '@/firebase';
+import { UserPlus, ShieldAlert, Key, Mail, Trash2, Save, Loader2, RefreshCw } from 'lucide-react';
+import { useCollection, useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { updateEmail, updatePassword, getAuth } from 'firebase/auth';
 import { type AdminProfile } from '@/types';
@@ -22,7 +22,6 @@ type ManageAction = 'create' | 'toggleSettings' | 'delete' | 'rotatePassword';
 
 export default function AdminConfigPage() {
   const { user, isSystemAdmin } = useAuth();
-  const firestore = useFirestore();
   const functions = useFunctions();
   const { data: adminRegistry, loading: registryLoading } = useCollection<AdminProfile>('admins');
   const { toast } = useToast();
@@ -48,7 +47,7 @@ export default function AdminConfigPage() {
   }
 
   const callManageAdmin = useCallback(
-    async (payload: { action: ManageAction; [k: string]: unknown }) => {
+    (payload: { action: ManageAction; [k: string]: unknown }) => {
       if (!functions) throw new Error('Cloud Functions not initialized');
       const fn = httpsCallable<{ action: ManageAction; [k: string]: unknown }, { uid?: string; passwordResetLink?: string; canAccessSettings?: boolean }>(
         functions,

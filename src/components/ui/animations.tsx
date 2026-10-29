@@ -30,7 +30,7 @@ export function FadeUp({
     duration = 1.05,
     className,
     ...props
-}: FadeUpProps) {
+}: Readonly<FadeUpProps>) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-10%" });
 
@@ -63,7 +63,7 @@ export function CinematicFade({
     duration = 1.05,
     className,
     ...props
-}: CinematicFadeProps) {
+}: Readonly<CinematicFadeProps>) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-15%" });
 
@@ -98,7 +98,7 @@ export function TiltCard({
     className,
     borderGlowColor = "rgba(224,35,28, 0.4)", // Default Accent
     ...props
-}: TiltCardProps) {
+}: Readonly<TiltCardProps>) {
     const ref = useRef<HTMLDivElement>(null);
 
     const x = useMotionValue(0);
@@ -178,7 +178,7 @@ export function StaggeredGrid({
     className,
     staggerDelay = 0.05,
     ...props
-}: StaggeredGridProps) {
+}: Readonly<StaggeredGridProps>) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-5%" });
 
@@ -240,7 +240,7 @@ interface ScrollRevealTextProps {
     className?: string;
 }
 
-export function ScrollRevealText({ text, className }: ScrollRevealTextProps) {
+export function ScrollRevealText({ text, className }: Readonly<ScrollRevealTextProps>) {
     const containerRef = useRef(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -251,13 +251,13 @@ export function ScrollRevealText({ text, className }: ScrollRevealTextProps) {
 
     return (
         <p ref={containerRef} className={cn("flex flex-wrap gap-x-[0.25em]", className)}>
-            {words.map((word, i) => {
+            {words.map((word, i) => ({ word, id: `${i}:${word}` })).map(({ word, id }, i) => {
                 const start = i / words.length;
                 const end = start + 1 / words.length;
                 // eslint-disable-next-line react-hooks/rules-of-hooks
                 const opacity = useTransform(scrollYProgress, [start, end], [0.15, 1]);
                 return (
-                    <motion.span key={i} style={{ opacity }} className="relative text-foreground">
+                    <motion.span key={id} style={{ opacity }} className="relative text-foreground">
                         {word}
                     </motion.span>
                 );
@@ -274,7 +274,7 @@ interface ParallaxExpandProps {
     className?: string;
 }
 
-export function ParallaxExpand({ children, className }: ParallaxExpandProps) {
+export function ParallaxExpand({ children, className }: Readonly<ParallaxExpandProps>) {
     const containerRef = useRef(null);
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -299,7 +299,7 @@ interface ScrollMotionProps extends HTMLMotionProps<"div"> {
     distance?: number;
 }
 
-export function ScrollMotion({ children, className, distance = 80, ...props }: ScrollMotionProps) {
+export function ScrollMotion({ children, className, distance = 80, ...props }: Readonly<ScrollMotionProps>) {
     const ref = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
     const y = useTransform(scrollYProgress, [0, 1], [distance, -distance]);
@@ -324,12 +324,12 @@ function StoryPanel({
     index,
     progress,
     total,
-}: {
+}: Readonly<{
     step: ScrollStoryStep;
     index: number;
     progress: MotionValue<number>;
     total: number;
-}) {
+}>) {
     const shouldReduceMotion = useReducedMotion();
     const start = index / total;
     const end = Math.min(1, (index + 1) / total);
@@ -361,7 +361,7 @@ function StoryPanel({
     );
 }
 
-export function ScrollStory({ steps, className }: ScrollStoryProps) {
+export function ScrollStory({ steps, className }: Readonly<ScrollStoryProps>) {
     const ref = useRef<HTMLElement>(null);
     const shouldReduceMotion = useReducedMotion();
     const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
@@ -392,7 +392,7 @@ export function ScrollStory({ steps, className }: ScrollStoryProps) {
     );
 }
 
-export function RollingLabel({ children }: { children: React.ReactNode }) {
+export function RollingLabel({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <motion.span
             initial={{ opacity: 0, y: 18 }}
@@ -414,7 +414,7 @@ interface ScrollRevealProps extends HTMLMotionProps<"div"> {
     className?: string;
 }
 
-export function ScrollReveal({ children, delay = 0, className, ...props }: ScrollRevealProps) {
+export function ScrollReveal({ children, delay = 0, className, ...props }: Readonly<ScrollRevealProps>) {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, margin: "-15%" });
     return (
@@ -440,8 +440,8 @@ interface MarqueeStripProps {
     speed?: number;
 }
 
-export function MarqueeStrip({ text, className, speed = 30 }: MarqueeStripProps) {
-    const repeated = Array(4).fill(text).join("  ·  ");
+export function MarqueeStrip({ text, className, speed = 30 }: Readonly<MarqueeStripProps>) {
+    const repeated = new Array(4).fill(text).join("  ·  ");
     return (
         <div className={cn("overflow-hidden whitespace-nowrap bg-primary/5 border-y border-border py-4", className)}>
             <motion.div
@@ -472,7 +472,7 @@ export function ScrollProgressIndicator() {
 // ----------------------------------------------------------------------
 // CountUp (figures run up from zero the first time they scroll into view)
 // ----------------------------------------------------------------------
-export function CountUp({ value, pad = false, className }: { value: number; pad?: boolean; className?: string }) {
+export function CountUp({ value, pad = false, className }: Readonly<{ value: number; pad?: boolean; className?: string }>) {
     const ref = useRef<HTMLSpanElement>(null);
     const seen = useInView(ref, { once: true });
     const reduce = useReducedMotion();

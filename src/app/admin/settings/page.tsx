@@ -2,7 +2,7 @@
 'use client';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Download, Settings, Trash2, RotateCcw, Upload, FileUp, Loader2, Power, ImagePlus, X, Activity } from 'lucide-react';
+import { AlertTriangle, Download, Settings, Trash2, RotateCcw, Upload, FileUp, Loader2, Power, ImagePlus, Activity } from 'lucide-react';
 import { useSeason } from '@/contexts/season-context';
 import { uploadManagementImage, deleteManagementImage } from '@/firebase/storage';
 import Image from 'next/image';
@@ -76,7 +76,7 @@ export default function AdminSettingsPage() {
     const displayedFootfall = useMemo(() => {
         if (footfallPeriod === 'all_time') return footfallAllTime;
         
-        const daysToSubtract = parseInt(footfallPeriod);
+        const daysToSubtract = Number.parseInt(footfallPeriod);
         const cutoffDate = new Date();
         cutoffDate.setDate(cutoffDate.getDate() - daysToSubtract);
         const cutoffStr = `${cutoffDate.getFullYear()}-${String(cutoffDate.getMonth() + 1).padStart(2, '0')}-${String(cutoffDate.getDate()).padStart(2, '0')}`;
@@ -500,7 +500,7 @@ export default function AdminSettingsPage() {
                         <div className="flex flex-col gap-6">
                             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                                 {managementImages?.map((url, index) => (
-                                    <div key={index} className="relative aspect-[4/3] rounded-xl overflow-hidden border border-white/10 group bg-card/50">
+                                    <div key={url} className="relative aspect-[4/3] rounded-xl overflow-hidden border border-white/10 group bg-card/50">
                                         <Image src={url} alt={`Management Image ${index + 1}`} fill className="object-cover" />
                                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                                             <Button size="icon" variant="destructive" className="h-8 w-8 rounded-full" onClick={() => handleRemoveManagementImage(url)}>

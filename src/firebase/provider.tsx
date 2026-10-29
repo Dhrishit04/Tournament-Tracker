@@ -33,7 +33,7 @@ interface FirebaseProviderProps {
   };
 }
 
-export function FirebaseProvider({ children, value }: FirebaseProviderProps) {
+export function FirebaseProvider({ children, value }: Readonly<FirebaseProviderProps>) {
   const memoizedValue = useMemo(() => value, [value]);
   const isDev = process.env.NODE_ENV === 'development';
 

@@ -41,7 +41,7 @@ export function FootfallTracker() {
             }
         };
 
-        trackVisit();
+        void trackVisit();
     }, [firestore]);
 
     return null;

@@ -17,3 +17,8 @@ export function getImageUrl(url?: string) {
   // Fallback for not found or undefined url
   return { imageUrl: 'https://placehold.co/80x80', imageHint: 'placeholder' };
 }
+
+/** Picks one of the 4 bundled placeholder images (1-4) for a new team or player. */
+export function randomPlaceholderIndex() {
+  return (crypto.getRandomValues(new Uint8Array(1))[0] % 4) + 1;
+}

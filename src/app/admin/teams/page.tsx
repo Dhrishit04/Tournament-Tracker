@@ -40,14 +40,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Team, MatchConfig } from '@/types';
+import type { Team } from '@/types';
 import { useData } from '@/hooks/use-data';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, randomPlaceholderIndex } from '@/lib/utils';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useSeason } from '@/contexts/season-context';
 import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const teamSchema = z.object({
     name: z.string().min(1, 'Team name is required'),
@@ -59,11 +58,11 @@ function TeamForm({
     onSubmit,
     team,
     onClose,
-}: {
+}: Readonly<{
     onSubmit: (data: z.infer<typeof teamSchema>) => void;
     team?: Team | null;
     onClose: () => void;
-}) {
+}>) {
     const form = useForm<z.infer<typeof teamSchema>>({
         resolver: zodResolver(teamSchema),
         defaultValues: {
@@ -160,7 +159,7 @@ function TeamForm({
     );
 }
 
-function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team: Team) => void }) {
+function GroupManager({ teams, updateTeam }: Readonly<{ teams: Team[], updateTeam: (team: Team) => void }>) {
     const { currentSeason, updateMatchConfig } = useSeason();
     const { resetGroups } = useData();
     const { toast } = useToast();
@@ -170,7 +169,7 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
 
     const numGroups = Math.floor(teams.length / 4);
     const canEnableGroupMode = teams.length >= 8 && teams.length % 4 === 0;
-    const availableGroups = useMemo(() => Array.from({ length: numGroups }, (_, i) => String.fromCharCode(65 + i)), [numGroups]);
+    const availableGroups = useMemo(() => Array.from({ length: numGroups }, (_, i) => String.fromCodePoint(65 + i)), [numGroups]);
 
     useEffect(() => {
         const initial: Record<string, string> = {};
@@ -196,19 +195,20 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
 
             if (unassignedTeams.length > 0 || !allBalanced) {
                 const unassignedNames = unassignedTeams.map(t => t.name).join(', ');
+                const unassignedNote = unassignedNames ? `\n\nReference (Unassigned): ${unassignedNames}` : '';
                 toast({
                     variant: 'destructive',
                     title: 'Groups Not Balanced',
-                    description: `Please assign exactly 4 teams to each group using the "Assign Teams" button before enabling Group Mode.${unassignedNames ? `\n\nReference (Unassigned): ${unassignedNames}` : ''}`,
+                    description: `Please assign exactly 4 teams to each group using the "Assign Teams" button before enabling Group Mode.${unassignedNote}`,
                 });
                 return;
             }
         }
 
-        updateMatchConfig({ ...currentSeason.matchConfig, isGroupModeActive: checked });
+        void updateMatchConfig({ ...currentSeason.matchConfig, isGroupModeActive: checked });
     };
 
-    const handleSaveGroups = async () => {
+    const handleSaveGroups = () => {
         const groupCounts: Record<string, number> = {};
         const unassignedTeamIds = Object.keys(pendingGroups).filter(id => pendingGroups[id] === 'None');
 
@@ -226,10 +226,12 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                 .filter(Boolean)
                 .join(', ');
 
+            const groupsNote = invalidGroups.length > 0 ? `Check groups: ${invalidGroups.join(', ')}.` : '';
+            const unassignedNote = unassignedNames ? `\n\nReference (Unassigned): ${unassignedNames}` : '';
             toast({
                 variant: 'destructive',
                 title: 'Invalid Group Configuration',
-                description: `Each group must have exactly 4 teams. ${invalidGroups.length > 0 ? `Check groups: ${invalidGroups.join(', ')}.` : ''}${unassignedNames ? `\n\nReference (Unassigned): ${unassignedNames}` : ''}`,
+                description: `Each group must have exactly 4 teams. ${groupsNote}${unassignedNote}`,
             });
             return;
         }
@@ -283,7 +285,7 @@ function GroupManager({ teams, updateTeam }: { teams: Team[], updateTeam: (team:
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <div className="text-xs font-bold uppercase">
                             Status: <span className={currentSeason.matchConfig.isGroupModeActive ? 'text-primary' : 'text-muted-foreground'}>
-                                {currentSeason.matchConfig.isGroupModeActive ? `${numGroups} Groups Active (A-${availableGroups[availableGroups.length - 1]})` : 'Inactive (Standalone Mode)'}
+                                {currentSeason.matchConfig.isGroupModeActive ? `${numGroups} Groups Active (A-${availableGroups.at(-1)})` : 'Inactive (Standalone Mode)'}
                             </span>
                         </div>
                         {canEnableGroupMode && (
@@ -386,7 +388,7 @@ export default function AdminTeamsPage() {
             const allGroupsValid = activeGroupKeys.length === expectedNumGroups && activeGroupKeys.every(k => groupCounts[k] === 4);
 
             if (!isValidCount || !allGroupsValid) {
-                updateMatchConfig({ ...currentSeason.matchConfig, isGroupModeActive: false });
+                void updateMatchConfig({ ...currentSeason.matchConfig, isGroupModeActive: false });
                 setShowViolationDialog(true);
             }
         }
@@ -405,13 +407,13 @@ export default function AdminTeamsPage() {
 
     const handleFormSubmit = (data: z.infer<typeof teamSchema>) => {
         if (dialogMode === 'edit' && selectedTeam) {
-            updateTeam({ ...selectedTeam, ...data });
+            void updateTeam({ ...selectedTeam, ...data });
             toast({ title: 'Club Updated', description: `${data.name} has been modified.` });
         } else {
             const newTeam: Team = {
                 id: `t${Date.now()}`,
                 ...data,
-                logoUrl: data.logoUrl || `team-logo-${(Math.floor(Math.random() * 4) + 1)}`,
+                logoUrl: data.logoUrl || `team-logo-${randomPlaceholderIndex()}`,
                 group: 'None',
                 players: [],
                 stats: { totalGoals: 0, totalAssists: 0, matchesPlayed: 0, matchesWon: 0, matchesLost: 0, matchesDrawn: 0, totalYellowCards: 0, totalRedCards: 0, goalsAgainst: 0 },

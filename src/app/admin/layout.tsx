@@ -15,7 +15,7 @@ export default function AdminLayout({ children }: Readonly<{ children: React.Rea
           <Skeleton className="h-4 w-1/2" />
           <Skeleton className="h-7 w-2/3" />
           <div className="space-y-4 pt-6">
-            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-5 w-full" />)}
+            {Array.from({ length: 5 }, (_, i) => i).map((i) => <Skeleton key={i} className="h-5 w-full" />)}
           </div>
         </div>
         <div className="flex-1 space-y-8 p-6 md:p-10">
