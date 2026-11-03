@@ -1,0 +1,28 @@
+rules_version = '2';
+
+// Firebase Storage rules.
+// Only two paths are written by the app, both from system-admin-only screens:
+//   management-slider/  (Settings -> slideshow; the URL list lives in /config/app,
+//                        which Firestore rules also restrict to the system admin)
+//   about-photos/       (About Us admin page, system admin only)
+// Reads stay public so the landing page and About page can render the images.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSystemAdmin() {
+      return request.auth != null
+        && request.auth.token.role == 'system_admin';
+    }
+
+    match /{allPaths=**} {
+      allow read: if true;
+
+      // Settings UI caps uploads at 10MB, so mirror that here.
+      allow create, update: if isSystemAdmin()
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+
+      allow delete: if isSystemAdmin();
+    }
+  }
+}
