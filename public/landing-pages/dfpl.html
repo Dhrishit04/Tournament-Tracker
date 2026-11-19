@@ -759,13 +759,6 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 
 /* — II · still gardens: sakura and maple sweep in from the two lower corners
      and carry their whole length, a lit lantern and a low bush hold the edges */
-[data-fg="pathways"] .fg-sakura { left:-6%;  bottom:-86px;  width:clamp(430px,50vw,880px); }
-[data-fg="pathways"] .fg-leaves { right:-6%; bottom:-62px;  width:clamp(330px,38vw,670px); }
-[data-fg="pathways"] .fg-lantern{ left:-1%;  bottom:-96px;  width:clamp(120px,13vw,215px); }
-[data-fg="pathways"] .fg-bush   { right:-4%; bottom:-38px;  width:clamp(250px,30vw,530px); }
-/* the lantern is the one lit object in the library — it keeps its ember */
-[data-fg="pathways"] .fg-lantern > img{ filter:saturate(.96) brightness(1); }
-[data-fg="pathways"] .fg-leaves > img{ transform-origin:100% 40%; }
 
 /* — III · sacred craft: basalt and a low wall fragment bracket the atlas and
      a stand of grass ties them together, all three below the plate grid */
@@ -789,8 +782,6 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   /* the columns have collapsed and the copy has taken the width back, so the
      framing layers step down rather than crowd it */
   [data-fg="gate"] .fg-wall      { width:clamp(390px,42vw,600px); }
-  [data-fg="pathways"] .fg-sakura{ width:clamp(400px,46vw,660px); }
-  [data-fg="pathways"] .fg-leaves{ width:clamp(310px,35vw,500px); }
   [data-fg="lessons"] .fg-wall   { width:clamp(360px,45vw,640px); }
   [data-fg="eternity"] .fg-sakura{ width:clamp(260px,30vw,430px); }
 }
@@ -798,13 +789,10 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   /* one or two anchors per section: the stacked cards, the atlas plates and
      the call to action own the whole width here, so every duplicated piece
      of ornament goes and what stays is smaller */
-  [data-fg="gate"] .fg-pine, [data-fg="pathways"] .fg-sakura,
-  [data-fg="pathways"] .fg-leaves, [data-fg="lessons"] .fg-wall,
+  [data-fg="gate"] .fg-pine, [data-fg="lessons"] .fg-wall,
   [data-fg="eternity"] .fg-sakura, [data-fg="foot"] .fg-stones{ display:none; }
   [data-fg="gate"] .fg-wall     { left:-14%; bottom:-22px; width:min(82vw,440px); }
   [data-fg="gate"] .fg-grass    { left:auto; right:-10%; bottom:-76px; width:min(94vw,530px); }
-  [data-fg="pathways"] .fg-lantern{ left:-4%;   bottom:-58px; width:clamp(80px,20vw,128px); }
-  [data-fg="pathways"] .fg-bush   { right:-10%; bottom:-38px; width:min(72vw,400px); }
   [data-fg="lessons"] .fg-stones  { left:-8%; bottom:-34px; width:min(66vw,360px); }
   [data-fg="lessons"] .fg-grass   { left:auto; right:-8%; bottom:-44px; width:min(70vw,380px); }
   [data-fg="eternity"] .fg-ruins  { left:-8%;   bottom:-25px; width:min(54vw,300px); }
@@ -927,6 +915,123 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 
 .cards .card-fr:not(.on-cloth)::before{ content:''; position:absolute; inset:0; pointer-events:none;
   background:rgba(150,18,12,.42); mix-blend-mode:color; }
+/* ---- DFPL: match-day details */
+/* a ball rolls the length of each chapter rule as the chapter arrives */
+.sec-head .rule{ position:relative; }
+.sec-head .rule::after{ content:''; position:absolute; left:0; bottom:1px; width:9px; height:9px; opacity:0;
+  background:var(--ball) center / contain no-repeat; filter:drop-shadow(0 0 6px rgba(224,35,28,.55)); }
+.sec-head.rv-in .rule::after{ animation:dfpl-roll 2.2s var(--ease-out) .35s both; }
+@keyframes dfpl-roll{ 0%{ left:0; opacity:0; transform:rotate(0) } 10%{ opacity:1 }
+  100%{ left:calc(100% - 9px); opacity:1; transform:rotate(2160deg) } }
+/* the cursor carries a ball that rolls with the pointer */
+.cur-dot::after{ content:''; position:absolute; left:50%; top:50%; width:7px; height:7px; margin:-3.5px 0 0 -3.5px;
+  background:var(--ball) center / contain no-repeat; transform:rotate(var(--rot,0deg));
+  transition:width .35s var(--ease-out), height .35s var(--ease-out), margin .35s var(--ease-out); }
+.cur-dot.act::after{ width:14px; height:14px; margin:-7px 0 0 -7px; }
+/* scoreboard: digits flicker through like a panel before they lock */
+.gate-stats b{ transition:color .5s, text-shadow .5s; }
+.gate-stats b.rolling{ color:var(--vermilion); text-shadow:0 0 18px rgba(224,35,28,.55); }
+/* the closing button is a goal mouth: a net gathers round the pointer and
+   bellies inward on click */
+.cta::before{ content:''; position:absolute; inset:-30%; z-index:0; pointer-events:none; opacity:0;
+  background:repeating-linear-gradient(45deg, rgba(5,7,10,.30) 0 1px, transparent 1px 8px),
+             repeating-linear-gradient(-45deg, rgba(5,7,10,.30) 0 1px, transparent 1px 8px);
+  -webkit-mask:radial-gradient(circle at var(--nx,50%) var(--ny,50%), #000 0, transparent 34%);
+          mask:radial-gradient(circle at var(--nx,50%) var(--ny,50%), #000 0, transparent 34%);
+  transform-origin:var(--nx,50%) var(--ny,50%); transform:scale(1.12);
+  transition:opacity .5s, transform .6s var(--ease-out); }
+.cta:hover::before{ opacity:1; transform:none; }
+.cta.bulge::before{ animation:dfpl-net .75s var(--ease-out); }
+@keyframes dfpl-net{ 0%{ transform:none } 28%{ transform:scale(.82) } 62%{ transform:scale(1.06) } 100%{ transform:none } }
+@media (prefers-reduced-motion:reduce){
+  .sec-head.rv-in .rule::after, .cta.bulge::before{ animation:none; }
+}
+/* ---- DFPL: match-day, part 3 */
+/* 1 · GOAL: the word stamps down, the frame shakes, ticker tape falls */
+.goal-fx{ position:fixed; inset:0; z-index:70; pointer-events:none; overflow:hidden;
+  display:grid; place-items:center; }
+.goal-word{ font-weight:600; font-size:clamp(84px,17vw,280px); line-height:.9; letter-spacing:-.04em;
+  color:var(--vermilion); text-align:center; opacity:0; text-shadow:0 0 50px rgba(224,35,28,.7), 0 4px 30px rgba(0,0,0,.7); }
+.goal-word span{ display:block; margin-top:.12em; font-family:'NotoJP','Onest',sans-serif; font-weight:400;
+  font-size:.16em; letter-spacing:.9em; padding-left:.9em; color:var(--bone); }
+.goal-word::after{ content:''; display:block; height:.06em; margin:.1em auto 0; width:0; background:var(--bone);
+  box-shadow:0 0 24px rgba(223,231,224,.5); }
+.goal-word::after{ height:.03em; }
+.goal-fx.go .goal-word{ animation:dfpl-stamp 2.4s var(--ease-out) both; }
+.goal-fx.go .goal-word::after{ animation:dfpl-brush 2.4s var(--ease-out) both; }
+@keyframes dfpl-stamp{ 0%{ opacity:0; transform:scale(1.9) } 12%{ opacity:1; transform:scale(.96) }
+  20%{ transform:scale(1) } 72%{ opacity:1; transform:scale(1.03) } 100%{ opacity:0; transform:scale(1.08) } }
+@keyframes dfpl-brush{ 0%,12%{ width:0 } 34%,100%{ width:100% } }
+.goal-fx i{ position:absolute; top:-4vh; left:var(--x); width:var(--w,7px); height:14px; background:var(--c);
+  animation:dfpl-tape var(--d) cubic-bezier(.3,.1,.6,1) var(--dl) both; }
+@keyframes dfpl-tape{ 0%{ transform:translate3d(0,0,0) rotate(0) rotateY(0) }
+  100%{ transform:translate3d(var(--dx),112vh,0) rotate(var(--r)) rotateY(1080deg) } }
+#gl.shake{ animation:dfpl-shake .55s linear; }
+@keyframes dfpl-shake{ 0%,100%{ transform:none } 15%{ transform:translate3d(-7px,4px,0) scale(1.012) }
+  30%{ transform:translate3d(6px,-5px,0) scale(1.012) } 45%{ transform:translate3d(-4px,-2px,0) scale(1.008) }
+  60%{ transform:translate3d(3px,3px,0) scale(1.005) } 80%{ transform:translate3d(-1px,1px,0) } }
+
+/* 2 · the scroll bar is a ball dribbled down the touchline into a net */
+.dribble{ position:fixed; z-index:46; right:10px; top:16vh; bottom:16vh; width:14px; pointer-events:none;
+  opacity:0; transition:opacity .8s; }
+body:not(.is-locked) .dribble{ opacity:1; }
+.dribble::before{ content:''; position:absolute; left:50%; top:0; bottom:0; width:1px;
+  background:linear-gradient(var(--line-soft), var(--line) 50%, var(--line-soft)); }
+.db-ball{ position:absolute; left:0; top:0; width:14px; height:14px; will-change:transform;
+  transform:translate3d(0,var(--y,0px),0); }
+.db-ball::before{ content:''; position:absolute; inset:0; background:var(--ball) center / contain no-repeat;
+  filter:drop-shadow(0 0 8px rgba(224,35,28,.6)); transform:rotate(var(--r,0deg)); }
+.db-ball.hop::before{ animation:dfpl-hop .5s var(--ease-out); }
+@keyframes dfpl-hop{ 0%{ transform:rotate(var(--r,0deg)) } 30%{ transform:translateX(-9px) rotate(var(--r,0deg)) scale(1.25) }
+  55%{ transform:rotate(var(--r,0deg)) scale(1.15,.8) } 100%{ transform:rotate(var(--r,0deg)) } }
+.db-net{ position:absolute; left:-5px; bottom:-20px; width:24px; height:16px;
+  border:1px solid var(--line); border-top-color:rgba(223,231,224,.4);
+  background:repeating-linear-gradient(45deg, var(--line) 0 1px, transparent 1px 4px),
+             repeating-linear-gradient(-45deg, var(--line) 0 1px, transparent 1px 4px);
+  transform-origin:50% 0; transition:transform .5s var(--ease-out); }
+.dribble.scored .db-net{ transform:scaleY(1.3); border-color:rgba(224,35,28,.55); }
+@media (max-width:760px){ .dribble{ right:4px; transform:scale(.8); } }
+
+/* 3 · red flares drift up behind the closing horizon */
+#eternity > .flares{ position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden; opacity:0; transition:opacity 2s; }
+#eternity > .flares.on{ opacity:1; }
+.flares i{ position:absolute; bottom:-12%; left:var(--x); width:var(--s); aspect-ratio:1; border-radius:50%;
+  background:radial-gradient(circle, rgba(224,35,28,.55), rgba(180,20,14,.22) 45%, transparent 70%);
+  filter:blur(18px); mix-blend-mode:screen; opacity:0; animation:dfpl-flare var(--d) linear var(--dl) infinite paused; }
+.flares.on i{ animation-play-state:running; }
+.flares b{ position:absolute; bottom:8%; left:var(--x); width:6px; height:6px; border-radius:50%;
+  background:#ffd3c4; box-shadow:0 0 14px 6px rgba(255,90,60,.8), 0 0 50px 18px rgba(224,35,28,.45);
+  animation:dfpl-burn .13s steps(2) infinite; }
+@keyframes dfpl-flare{ 0%{ opacity:0; transform:translate3d(0,0,0) scale(.5) } 15%{ opacity:.9 }
+  100%{ opacity:0; transform:translate3d(var(--dx),-85vh,0) scale(2.4) } }
+@keyframes dfpl-burn{ 50%{ opacity:.75; transform:scale(.8) } }
+
+/* 4 · chapter I's tactics board: chalk lines, then a move played out */
+.gate-grid > .tactics{ grid-column:1 / 3; grid-row:2; width:min(100%,400px); aspect-ratio:3/2; pointer-events:none; opacity:.75; }
+.tactics .ln{ fill:none; stroke:var(--bone); stroke-width:1; stroke-opacity:.4; stroke-dasharray:1; stroke-dashoffset:1;
+  vector-effect:non-scaling-stroke; }
+.tactics.on .ln{ transition:stroke-dashoffset 2.2s var(--ease-io); stroke-dashoffset:0; }
+.tactics .ps{ stroke:var(--vermilion); stroke-width:1.2; stroke-dasharray:4 5; opacity:0;
+  vector-effect:non-scaling-stroke; }
+.tactics .pl{ opacity:0; transform-box:fill-box; transform-origin:center; }
+.tactics.on .pl{ transition:opacity .6s calc(1.6s + var(--i) * .12s); opacity:1; }
+.tactics .o{ fill:none; stroke:var(--vermilion); stroke-width:2; }
+.tactics .x{ stroke:var(--bone-dim); stroke-width:2; }
+.tactics .bl{ fill:var(--bone); opacity:0; }
+.tactics.on .bl{ transition:opacity .3s 2.4s; opacity:1; }
+@media (max-width:1080px){ .gate-grid > .tactics{ display:none; } }
+
+/* 6 · hover a match-centre card and the referee shows a yellow */
+.card::after{ content:''; position:absolute; z-index:4; top:-14px; left:18px; width:24px; height:34px; border-radius:2px;
+  background:linear-gradient(150deg,#ffe25a,#e8b81d); box-shadow:0 6px 18px rgba(0,0,0,.45), 0 0 22px rgba(255,214,60,.35);
+  opacity:0; transform:perspective(300px) translateY(16px) rotateY(90deg); pointer-events:none;
+  transition:opacity .25s, transform .5s var(--ease-out); }
+.card:hover::after{ opacity:1; transform:perspective(300px) translateY(0) rotate(-12deg) rotateY(0); }
+
+@media (prefers-reduced-motion:reduce){
+  .flares, .goal-fx i, .db-ball.hop::before{ display:none; animation:none; }
+  .tactics .ln{ stroke-dashoffset:0; } .tactics .pl, .tactics .bl{ opacity:1; }
+}
 </style>
 </head>
 <body data-layout-hero="b" data-layout-story="b" data-layout-gallery="b"
@@ -936,6 +1041,8 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 <div id="vignette"></div>
 <div id="grain"></div>
 <div class="cur-dot" id="cursor"></div>
+<div class="dribble" id="dribble" aria-hidden="true"><i class="db-net"></i><b class="db-ball"></b></div>
+<div class="goal-fx" id="goal-fx" aria-hidden="true"><div class="goal-word">GOAL<span>ゴール</span></div></div>
 
 <!-- ============================================================ preloader -->
 <div id="pre">
@@ -990,7 +1097,7 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   <div class="hero-spacer"></div>
 
   <div class="hero-foot">
-    <div class="hero-cue" data-rv="fade"><span>Scroll to enter</span><span class="track"><i></i></span></div>
+    <div class="hero-cue" data-rv="fade"><span>Scroll to kick off</span><span class="track"><i></i></span></div>
     <div class="chapters" id="chips">
       <a class="chip" href="/standings" target="_top" data-chip="0" data-rv="up" data-cursor><span class="num">01</span>
         <span class="tx"><b>Standings</b><p>The live table, updated the moment a result lands.</p></span></a>
@@ -1037,6 +1144,24 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   </div>
   <div class="gate-grid">
     <h2 class="display h-sec" data-rv="up">Every club, one table, one champion.</h2>
+    <svg class="tactics" viewBox="0 0 300 200" aria-hidden="true">
+      <rect class="ln" x="2" y="2" width="296" height="196" pathLength="1"/>
+      <path class="ln" d="M2 2V198" pathLength="1"/>
+      <path class="ln" d="M2 62A38 38 0 0 1 2 138" pathLength="1"/>
+      <path class="ln" d="M298 44H244V156H298" pathLength="1"/>
+      <path class="ln" d="M298 76H280V124H298" pathLength="1"/>
+      <path class="ln" d="M244 78A30 30 0 0 0 244 122" pathLength="1"/>
+      <line class="ps" x1="0" y1="0" x2="0" y2="0"/>
+      <g class="pl" style="--i:0" transform="translate(70 150)"><circle class="o" r="6"/></g>
+      <g class="pl" style="--i:1" transform="translate(140 130)"><circle class="o" r="6"/></g>
+      <g class="pl" style="--i:2" transform="translate(200 84)"><circle class="o" r="6"/></g>
+      <g class="pl" style="--i:3" transform="translate(110 60)"><circle class="o" r="6"/></g>
+      <g class="pl" style="--i:4" transform="translate(186 108)"><path class="x" d="M-4.5-4.5l9 9m0-9-9 9"/></g>
+      <g class="pl" style="--i:5" transform="translate(254 124)"><path class="x" d="M-4.5-4.5l9 9m0-9-9 9"/></g>
+      <g class="pl" style="--i:6" transform="translate(218 146)"><path class="x" d="M-4.5-4.5l9 9m0-9-9 9"/></g>
+      <g class="pl" style="--i:7" transform="translate(288 100)"><path class="x" d="M-4.5-4.5l9 9m0-9-9 9"/></g>
+      <circle class="bl" r="3.4" cx="75" cy="146"/>
+    </svg>
     <div class="gate-copy">
       <p class="lead" data-rv="up">The Dongre Football Premier League is where the best local sides meet
         over one season. Every fixture is logged, every goal is credited and every card is counted, so the
@@ -1059,21 +1184,6 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 
 <!-- ============================================================ chapter II -->
 <section class="sec" id="pathways" data-cam="2">
-  <!-- foreground: the garden frames the mosaic from the sides and the two lower corners -->
-  <div class="fg" data-fg="pathways" aria-hidden="true">
-    <span class="fg-el fg-sakura fg-el--sway" data-fg-in="left">
-      <img crossorigin="anonymous" src="https://ublctyddhtbgaersvxxb.supabase.co/storage/v1/object/public/threeui-media/scene-images/35388445965f970fa28af333/sakura-branch.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
-    </span>
-    <span class="fg-el fg-leaves fg-el--sway" data-fg-in="right">
-      <img crossorigin="anonymous" src="https://ublctyddhtbgaersvxxb.supabase.co/storage/v1/object/public/threeui-media/scene-images/35388445965f970fa28af333/maple-leaves.webp" alt="" width="1536" height="1024" loading="lazy" decoding="async">
-    </span>
-    <span class="fg-el fg-lantern" data-fg-in="up">
-      <img crossorigin="anonymous" src="https://ublctyddhtbgaersvxxb.supabase.co/storage/v1/object/public/threeui-media/scene-images/35388445965f970fa28af333/stone-lantern.webp" alt="" width="1024" height="1499" loading="lazy" decoding="async">
-    </span>
-    <span class="fg-el fg-bush" data-fg-in="up">
-      <img crossorigin="anonymous" src="https://ublctyddhtbgaersvxxb.supabase.co/storage/v1/object/public/threeui-media/scene-images/35388445965f970fa28af333/garden-bush.webp" alt="" width="1717" height="876" loading="lazy" decoding="async">
-    </span>
-  </div>
   <div class="sec-head" data-rv="fade">
     <span class="k"><b>02</b> — Match Centre</span><span class="rule"></span><span class="k">Explore</span>
   </div>
@@ -1188,6 +1298,13 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
 
 <!-- ============================================================ chapter IV -->
 <section class="sec fin" id="eternity" data-cam="4">
+  <div class="flares" aria-hidden="true">
+    <b style="--x:9%"></b><b style="--x:90%"></b>
+    <i style="--x:2%;--s:34vw;--d:9s;--dl:0s;--dx:6vw"></i><i style="--x:6%;--s:26vw;--d:11s;--dl:-4s;--dx:12vw"></i>
+    <i style="--x:-4%;--s:30vw;--d:10s;--dl:-7s;--dx:3vw"></i>
+    <i style="--x:72%;--s:32vw;--d:10s;--dl:-2s;--dx:-8vw"></i><i style="--x:78%;--s:26vw;--d:12s;--dl:-6s;--dx:-12vw"></i>
+    <i style="--x:66%;--s:28vw;--d:9s;--dl:-8s;--dx:-4vw"></i>
+  </div>
   <!-- foreground: the closing horizon: hill, ruins, grass, and the last branch -->
   <div class="fg" data-fg="eternity" aria-hidden="true">
     <span class="fg-el fg-hill" data-fg-in="up">
@@ -3039,6 +3156,184 @@ function buildRocks() {
   });
 }
 
+/* ------------------------------------------------- football in the court
+   The torii is the goal: its pillars are the posts and the nuki the bar.
+   As the page opens a ball is struck from behind the hill, under the bar,
+   into the flight behind, and two floodlight towers rise past the maples. */
+const GOAL_Z = -8.6;                        /* the torii's z: the goal line */
+const BALL_R = .32;
+const KICK = { z0: -2, zp: GOAL_Z, yp: 3.3, z1: -12.5, y1: 7 * 3.2 / 40 + BALL_R,  /* tread 2 */
+               zr: -11.83, yr: 7 * 2 / 40 + BALL_R, xp: .7, x1: .9 };          /* rests on tread 1 */
+const BALL = { mesh: null, t: -1, flash: 0, armed: false };
+
+/* the classic 32-panel ball: twelve dark pentagons around the icosahedron's
+   vertices, everything else bone. Coloured per face so the panels stay crisp. */
+function buildBall() {
+  const geo = new THREE.IcosahedronGeometry(BALL_R, 4);
+  const ico = new THREE.IcosahedronGeometry(1, 0).attributes.position, dirs = [];
+  for (let i = 0; i < ico.count; i++) {
+    const v = new THREE.Vector3().fromBufferAttribute(ico, i).normalize();
+    if (!dirs.some(d => d.distanceTo(v) < 1e-3)) dirs.push(v);
+  }
+  const p = geo.attributes.position, col = new Float32Array(p.count * 3), c = new THREE.Vector3();
+  for (let f = 0; f < p.count; f += 3) {
+    c.set(0, 0, 0);
+    for (let j = 0; j < 3; j++) c.add(new THREE.Vector3().fromBufferAttribute(p, f + j));
+    c.normalize();
+    const dark = dirs.some(d => d.dot(c) > .935);
+    for (let j = 0; j < 3; j++) col.set(dark ? [.035, .04, .045] : [.86, .9, .87], (f + j) * 3);
+  }
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const ball = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .48, metalness: .02 }));
+  ball.castShadow = true; ball.position.set(0, -2, 0);
+  scene.add(ball); BALL.mesh = ball;
+}
+
+function texBeam() {
+  const c = cvs(4, 256), x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 256);           /* canvas top = cone apex */
+  g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.35, 'rgba(255,255,255,.32)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 4, 256);
+  return c;
+}
+function texLamps() {
+  const c = cvs(256, 128), x = c.getContext('2d');
+  x.fillStyle = '#0b0f12'; x.fillRect(0, 0, 256, 128);
+  for (let r = 0; r < 3; r++) for (let q = 0; q < 6; q++) {
+    const g = x.createRadialGradient(24 + q * 42, 22 + r * 42, 0, 24 + q * 42, 22 + r * 42, 17);
+    g.addColorStop(0, '#fff'); g.addColorStop(.6, 'rgba(225,236,240,.9)'); g.addColorStop(1, 'rgba(225,236,240,0)');
+    x.fillStyle = g; x.fillRect(q * 42 + 4, r * 42 + 2, 40, 40);
+  }
+  return c;
+}
+
+function buildFloodlights() {
+  const steel = new THREE.MeshStandardMaterial({ color: 0x1a2024, roughness: .6, metalness: .55 });
+  const lamps = new THREE.MeshBasicMaterial({ map: tx(texLamps()), color: hdr(2.2, 2.35, 2.45), toneMapped: false, fog: false });
+  const glowMap = tx(texGlow('rgba(235,245,255,.95)', 'rgba(190,215,235,.30)'));
+  const beamMap = tx(texBeam());
+  const up = new THREE.Vector3(0, 1, 0);
+  WORLD.flood = [];
+  [-1, 1].forEach(s => {
+    const H = 14.5, base = new THREE.Vector3(s * 13.2, 0, -14.5);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(.13, .24, H, 10), steel);
+    pole.position.set(base.x, H / 2, base.z); pole.castShadow = true; scene.add(pole);
+
+    const head = new THREE.Group();
+    head.position.set(base.x, H + .55, base.z);
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(2.9, 1.5, .26), steel); head.add(frame);
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(2.7, 1.32), lamps); face.position.z = .14; head.add(face);
+    const aim = new THREE.Vector3(-s * 2.4, 0, -5.6);
+    head.lookAt(aim); scene.add(head);
+
+    const glow = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.MeshBasicMaterial({ map: glowMap,
+      transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: .55 }));
+    glow.position.copy(head.position); glow.renderOrder = 2; scene.add(glow);
+
+    /* the beam: an open cone, apex at the lamps, fading out onto the turf */
+    const dir = new THREE.Vector3().subVectors(head.position, aim), L = dir.length();
+    const beam = new THREE.Mesh(new THREE.ConeGeometry(4.2, L, 40, 1, true),
+      new THREE.MeshBasicMaterial({ map: beamMap, color: hdr(.75, .85, .95), transparent: true, opacity: .085,
+        blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }));
+    beam.position.copy(aim).addScaledVector(dir, .5);
+    beam.quaternion.setFromUnitVectors(up, dir.normalize());
+    beam.renderOrder = 2; scene.add(beam);
+    WORLD.flood.push({ glow, beam, ph: s * 1.7 });
+  });
+}
+
+/* the strike: z runs linearly, y is the parabola through the kick point, the
+   bar and the landing; then one short hop down to the step it settles on */
+const FLY = 1.15, HOP = .42;
+function ballAt(t, out) {
+  const K = KICK;
+  if (t < FLY) {
+    const u = t / FLY, up = (K.zp - K.z0) / (K.z1 - K.z0);
+    const a = ((K.yp - BALL_R) - (K.y1 - BALL_R) * up) / (up * up - up), b = (K.y1 - BALL_R) - a;
+    return out.set(lerp(0, K.x1, u) + Math.sin(u * Math.PI) * K.xp * .4, BALL_R + a * u * u + b * u, lerp(K.z0, K.z1, u));
+  }
+  const u = Math.min(1, (t - FLY) / HOP);
+  return out.set(K.x1, lerp(K.y1, K.yr, u) + Math.sin(u * Math.PI) * .55, lerp(K.z1, K.zr, u));
+}
+let _bp = null;
+/* 5 · photographers in the dark stands: brief white pops behind the towers */
+function buildFlashes() {
+  const map = tx(texGlow('rgba(255,255,255,1)', 'rgba(215,230,255,.35)'));
+  WORLD.flashes = [];
+  for (let k = 0; k < 7; k++) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map,
+      transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, toneMapped: false }));
+    m.renderOrder = 3; m.visible = false; scene.add(m);
+    WORLD.flashes.push({ m, a: 0 });
+  }
+}
+function updateFlashes(dt, on) {
+  if (!WORLD.flashes || REDUCE) return;
+  WORLD.flashes.forEach(F => {
+    if (F.a <= 0 && on > .3 && Math.random() < dt * .32) {
+      const s = Math.random() < .5 ? -1 : 1;
+      F.m.position.set(s * (8 + Math.random() * 10), 1.4 + Math.random() * 5.5, -13 - Math.random() * 10);
+      F.m.scale.setScalar(.9 + Math.random() * 1.1); F.a = 1;
+    }
+    F.a = Math.max(0, F.a - dt * 7);
+    F.m.visible = F.a > 0;
+    F.m.material.opacity = F.a * F.a * on;
+    F.m.quaternion.copy(camera.quaternion);
+  });
+}
+
+/* 1 · the ball crosses the line: GOAL stamps on, the frame shakes, tape falls */
+function goalFx() {
+  const box = $('#goal-fx'); if (!box || RIG.smooth > .6) return;
+  box.querySelectorAll('i').forEach(t => t.remove());
+  const cols = ['var(--vermilion)', 'var(--bone)', 'var(--gold)', 'var(--vermilion)'];
+  for (let k = 0; k < (COARSE ? 36 : 70); k++) {
+    const t = document.createElement('i');
+    t.style.cssText = '--x:' + (Math.random() * 100).toFixed(1) + '%;--dx:' + ((Math.random() - .5) * 30).toFixed(1) +
+      'vw;--r:' + ((Math.random() - .5) * 1440 | 0) + 'deg;--d:' + (2.6 + Math.random() * 2).toFixed(2) +
+      's;--dl:' + (Math.random() * .5).toFixed(2) + 's;--w:' + (4 + Math.random() * 6 | 0) + 'px;--c:' + cols[k % 4];
+    box.appendChild(t);
+  }
+  box.classList.toggle('go', false); void box.offsetWidth; box.classList.add('go');
+  const gl = $('#gl'); gl.classList.toggle('shake', false); void gl.offsetWidth; gl.classList.add('shake');
+  clearTimeout(goalFx._t);
+  goalFx._t = setTimeout(() => box.querySelectorAll('i').forEach(t => t.remove()), 5500);
+}
+
+function updateFootball(dt) {
+  const intro = RIG.intro;
+  if (WORLD.flood) WORLD.flood.forEach(F => {
+    F.glow.quaternion.copy(camera.quaternion);
+    const on = smooth(.1, .8, intro), away = 1 - smooth(2.2, 3.1, RIG.smooth);
+    F.glow.material.opacity = (.5 + (REDUCE ? 0 : Math.sin(clock * 7.3 + F.ph) * .02)) * on;
+    F.beam.material.opacity = .05 * on * away;
+  });
+  updateFlashes(dt, smooth(.1, .8, intro) * (1 - smooth(2.2, 3.1, RIG.smooth)));
+  const B = BALL.mesh; if (!B) return;
+
+  /* kick once the intro has settled; scrolling away and back replays it */
+  if (BALL.t < 0 && intro > .55) BALL.t = REDUCE ? FLY + HOP : 0;
+  if (RIG.smooth > 1.2) BALL.armed = true;
+  if (BALL.armed && RIG.smooth < .08 && !REDUCE) { BALL.armed = false; BALL.t = 0; }
+  if (BALL.t < 0) return;
+
+  const prev = BALL.t;
+  _bp = _bp || new THREE.Vector3();
+  BALL.t = Math.min(FLY + HOP, BALL.t + dt);
+  ballAt(BALL.t, _bp);
+  const moved = _bp.distanceTo(B.position);
+  B.position.copy(_bp);
+  if (BALL.t < FLY + HOP) { B.rotation.x -= moved / BALL_R; B.rotation.y += dt * 2.4; }
+
+  /* the ball crosses the line: the hall answers with a flare */
+  const tp = FLY * (KICK.zp - KICK.z0) / (KICK.z1 - KICK.z0);
+  if (prev < tp && BALL.t >= tp && !REDUCE) BALL.flash = 1;
+  if (prev < tp && BALL.t >= tp && !REDUCE) goalFx();
+  BALL.flash = damp(BALL.flash, 0, 2.2, dt);
+  if (WORLD.hallLight) WORLD.hallLight.intensity += BALL.flash * 9;
+  if (WORLD.hallHalo) WORLD.hallHalo.material.opacity += BALL.flash * .35;
+}
+
 /* ------------------------------- the transparent-PNG foreground layers */
 function cutoutMaterial(canvasEl, sway) {
   const mat = new THREE.MeshBasicMaterial({
@@ -4515,11 +4810,167 @@ function wireCursor() {
     el.addEventListener('mouseenter', () => dot.classList.add('act'));
     el.addEventListener('mouseleave', () => dot.classList.remove('act'));
   });
+  let rot = 0;
   (function tick() {
+    const px = x;
     x = lerp(x, tx2, .18); y = lerp(y, ty, .18);
+    rot += (x - px) * 8;                   /* about a 14px ball rolling */
+    dot.style.setProperty('--rot', (rot % 360).toFixed(1) + 'deg');
     dot.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0)';
     requestAnimationFrame(tick);
   })();
+}
+
+/* ---- DFPL: match-day details --------------------------------------- */
+/* the season numbers lock in digit by digit, like a stadium scoreboard */
+function wireScoreboard() {
+  const box = $('.gate-stats'); if (!box) return;
+  const els = $$('[data-dfpl^="stat-"]');
+  let seen = false;
+  const roll = (el, delay) => {
+    const want = el.textContent.trim();
+    if (!/^\d+$/.test(want) || el._shown === want) return;
+    const tok = el._tok = {};
+    if (REDUCE || !seen) { el._shown = want; return; }
+    const t0 = performance.now() + (delay || 0), D = 1000, n = want.length;
+    el.classList.add('rolling');
+    (function step(now) {
+      if (el._tok !== tok) return;
+      const k = (now - t0) / D;
+      let txt = '';
+      for (let i = 0; i < n; i++) txt += k > .4 + i * (.6 / n) ? want[i] : String(Math.random() * 10 | 0);
+      el._shown = k >= 1 ? want : txt; el.textContent = el._shown;
+      if (k < 1) requestAnimationFrame(step); else el.classList.toggle('rolling', false);
+    })(t0);
+  };
+  els.forEach(el => new MutationObserver(() => { if (el.textContent !== el._shown) roll(el); })
+    .observe(el, { childList: true, characterData: true, subtree: true }));
+  new IntersectionObserver((es, io) => {
+    if (!es.some(e => e.isIntersecting)) return;
+    io.disconnect(); seen = true;
+    els.forEach((el, i) => { el._shown = null; roll(el, 250 + i * 160); });
+  }, { threshold: .4 }).observe(box);
+}
+
+/* the goal-mouth net on the closing button */
+function wireNet() {
+  $$('.cta').forEach(b => {
+    b.addEventListener('pointermove', e => {
+      const r = b.getBoundingClientRect();
+      b.style.setProperty('--nx', ((e.clientX - r.left + r.width * .3) / (r.width * 1.6) * 100).toFixed(1) + '%');
+      b.style.setProperty('--ny', ((e.clientY - r.top + r.height * .3) / (r.height * 1.6) * 100).toFixed(1) + '%');
+    }, { passive: true });
+    b.addEventListener('click', () => { b.classList.toggle('bulge', false); void b.offsetWidth; b.classList.add('bulge'); });
+  });
+}
+
+/* a click on open sky in the hero takes the shot again */
+function wireReplay() {
+  const hero = $('#hero'); if (!hero) return;
+  hero.addEventListener('click', e => {
+    if (e.target.closest('a, button') || !BALL.mesh || BALL.t < FLY + HOP) return;
+    BALL.t = 0;
+  });
+}
+
+/* 2 · the dribbled scroll ball */
+function wireDribble() {
+  const wrap = $('#dribble'); if (!wrap) return;
+  const ball = wrap.querySelector('.db-ball');
+  const secs = $$('.hero, .sec, .foot');
+  let last = -1, queued = false;
+  const paint = () => {
+    queued = false;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const k = max > 0 ? clamp(scrollY / max, 0, 1) : 0;
+    ball.style.setProperty('--y', (k * (wrap.clientHeight - 14)).toFixed(1) + 'px');
+    ball.style.setProperty('--r', (scrollY * .6 % 360).toFixed(1) + 'deg');
+    wrap.classList.toggle('scored', k > .985);
+    let n = 0; secs.forEach((el, i) => { if (el.getBoundingClientRect().top < innerHeight * .5) n = i; });
+    if (n !== last) {
+      if (last >= 0 && !REDUCE) { ball.classList.toggle('hop', false); void ball.offsetWidth; ball.classList.add('hop'); }
+      last = n;
+    }
+  };
+  addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(paint); } }, { passive: true });
+  addEventListener('resize', paint, { passive: true });
+  paint();
+}
+
+/* 3 · flares burn only while the closing chapter is on screen;
+   4 · the tactics board draws itself once chapter I arrives */
+function wireTerraces() {
+  const fl = $('#eternity .flares');
+  if (fl && !REDUCE) new IntersectionObserver(es => fl.classList.toggle('on', es[0].isIntersecting), { threshold: .15 })
+    .observe($('#eternity'));
+  const tb = $('#gate .tactics'); if (!tb) return;
+  new IntersectionObserver((es, io) => {
+    if (!es[0].isIntersecting) return;
+    io.disconnect(); tb.classList.add('on');
+    if (!REDUCE) setTimeout(() => playTactics(tb), 2600);
+  }, { threshold: .35 }).observe(tb);
+}
+
+/* the board then runs like a match minimap: the move plays on a loop,
+   attackers make their runs, defenders shift across with the ball */
+function playTactics(tb) {
+  const pl = [...tb.querySelectorAll('.pl')], ball = tb.querySelector('.bl'), ps = tb.querySelector('.ps');
+  const O = pl.slice(0, 4), X = pl.slice(4);
+  // attacker spots per phase; HOLD[k] has the ball in phase k, the last one shoots
+  const P = [
+    [[70,150],[140,130],[200,84],[110,60]],
+    [[96,158],[160,122],[214,74],[140,54]],
+    [[120,160],[178,128],[230,68],[172,62]],
+    [[140,156],[198,136],[248,90],[198,72]],
+    [[150,152],[210,138],[262,96],[214,78]],
+  ];
+  const HOLD = [0, 1, 3, 2], GOAL = [298, 100], D = 1.5;   // seconds per phase
+  const XH = [[186,108],[254,124],[218,146],[288,100]], xs = XH.map(h => h.slice());
+  const put = (g, p) => g.setAttribute('transform', `translate(${p[0].toFixed(1)} ${p[1].toFixed(1)})`);
+  const mix = (a, b, k) => [lerp(a[0], b[0], k), lerp(a[1], b[1], k)];
+  const feet = p => [p[0] + 5, p[1] - 4];
+  const ease = k => k * k * (3 - 2 * k);
+  const N = HOLD.length, LOOP = N * D + 2.6;            // play, ball in the net, jog back
+  let live = false, clock = 0, last = 0;
+  new IntersectionObserver(es => {
+    const was = live; live = es[0].isIntersecting;
+    if (live && !was) { last = performance.now(); requestAnimationFrame(frame); }
+  }).observe(tb);
+  function frame(now) {
+    if (!live) return;
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    clock += dt;
+    const t = clock % LOOP;
+    let at, b, line = 0, bo = 1;
+    if (t < N * D) {
+      const k = Math.floor(t / D), f = t / D - k;
+      at = P[k].map((q, i) => mix(q, P[k + 1][i], ease(f)));
+      const from = feet(at[HOLD[k]]);
+      if (f < .5) b = from;                               // on the holder's feet
+      else {                                              // the pass, or the shot
+        const to = k + 1 < N ? feet(P[k + 1][HOLD[k + 1]]) : GOAL, g = ease((f - .5) / .5);
+        b = mix(from, to, g);
+        b[1] -= Math.sin(g * Math.PI) * 8;
+        ps.setAttribute('x1', from[0].toFixed(1)); ps.setAttribute('y1', from[1].toFixed(1));
+        ps.setAttribute('x2', to[0]); ps.setAttribute('y2', to[1]);
+        line = .8 * (1 - g);
+      }
+    } else {
+      const r = t - N * D;
+      at = P[N].map((q, i) => mix(q, P[0][i], ease(clamp((r - 1) / 1.4, 0, 1))));
+      b = r < 1 ? GOAL : feet(at[0]);
+      bo = r < .8 ? 1 : r < 1.2 ? 0 : clamp((r - 1.2) / .6, 0, 1);
+    }
+    O.forEach((g, i) => put(g, at[i]));
+    XH.forEach((h, i) => {                                // keeper tracks the line, rest shift
+      const w = i === 3 ? [288, clamp(b[1], 84, 116)] : mix(h, b, .28);
+      xs[i][0] = damp(xs[i][0], w[0], 4, dt); xs[i][1] = damp(xs[i][1], w[1], 4, dt);
+      put(X[i], xs[i]);
+    });
+    ball.setAttribute('cx', b[0].toFixed(1)); ball.setAttribute('cy', b[1].toFixed(1));
+    ball.style.opacity = bo; ps.style.opacity = line;
+    requestAnimationFrame(frame);
+  }
 }
 
 function makeGrain() {
@@ -4743,6 +5194,7 @@ function updateWorld(dt) {
     m.material.opacity = a;
     m.visible = a > .006;
   });
+  updateFootball(dt);
   updateLeaves(dt);
   updateWisps(dt);
   if (CARDS.length) CARDS.forEach(C => { const u = C.cam.userData; u.push = damp(u.push, u.want, 3.4, dt); });
@@ -4824,6 +5276,7 @@ const JOBS = [
       buildLantern(-cheekX(z), z, sc, cheekTop(z));
     });
   }],
+  ['Chalking the pitch', () => { buildBall(); buildFloodlights(); buildFlashes(); }],
   ['Growing the maples', () => {
     buildMaple(71, 12.6, -13.0, 1.05); buildMaple(72, -11.8, -9.4, .95);
     buildMaple(73, 9.2, -19.0, .82);   buildMaple(74, -14.5, -17.5, 1.0);
@@ -4849,7 +5302,7 @@ const JOBS = [
 
 function boot() {
   makeGrain();
-  wireReveals(); wireForegroundStages(); wireNav(); wireHeroExit(); wireFocus(); wireCursor();
+  wireReveals(); wireForegroundStages(); wireNav(); wireHeroExit(); wireFocus(); wireCursor(); wireScoreboard(); wireNet(); wireReplay(); wireDribble(); wireTerraces();
   document.body.classList.add('is-locked');
   let i = 0;
   const step = () => {
