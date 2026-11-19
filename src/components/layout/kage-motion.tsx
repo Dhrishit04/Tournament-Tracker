@@ -29,11 +29,11 @@ export function PitchLines() {
         <rect x="5" y="5" width="1040" height="670" />
         <path d="M525 5v670" />
         <circle cx="525" cy="340" r="91.5" />
-        <circle cx="525" cy="340" r="2.5" fill="rgba(223,231,224,.12)" />
+        <circle cx="525" cy="340" r="2.5" className="fill-hair" />
         <path d="M5 138.5h165v403H5M5 248.5h55v183H5M170 266.9a91.5 91.5 0 0 1 0 146.2" />
         <path d="M1045 138.5H880v403h165M1045 248.5h-55v183h55M880 266.9a91.5 91.5 0 0 0 0 146.2" />
-        <circle cx="115" cy="340" r="2.5" fill="rgba(223,231,224,.12)" />
-        <circle cx="935" cy="340" r="2.5" fill="rgba(223,231,224,.12)" />
+        <circle cx="115" cy="340" r="2.5" className="fill-hair" />
+        <circle cx="935" cy="340" r="2.5" className="fill-hair" />
         <path d="M5 15a10 10 0 0 0 10-10M1035 5a10 10 0 0 0 10 10M5 665a10 10 0 0 1 10 10M1045 665a10 10 0 0 0-10 10" />
       </svg>
     </div>

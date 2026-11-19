@@ -53,7 +53,7 @@ export function AccessDenied({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 0.4 }}
-        className="k-label rounded-full border border-[rgba(223,231,224,.13)] px-6 py-3 text-[hsl(var(--bone-dim))]"
+        className="k-label rounded-full border border-hair px-6 py-3 text-bone-dim"
       >
         {instruction}
       </motion.div>

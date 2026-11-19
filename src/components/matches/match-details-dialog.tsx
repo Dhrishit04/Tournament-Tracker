@@ -263,7 +263,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: Readonly<{ matc
             <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[92vh] flex flex-col p-0 bg-card/40 backdrop-blur-2xl border border-white/5 overflow-hidden gap-0 shadow-2xl">
                 {protocolPhase === 'EXTRA_TIME_CONFIRM' ? (
                     <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center h-full animate-in fade-in zoom-in-95 duration-300">
-                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4 md:mb-6 shadow-[0_0_30px_rgba(255,87,34,0.2)]">
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center mb-4 md:mb-6 shadow-[0_0_30px_hsl(var(--accent)/0.2)]">
                             <Timer className="h-8 w-8 md:h-10 md:w-10 text-accent" />
                         </div>
                         <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase mb-2 md:mb-4">Match <span className="text-accent">Locked</span></h2>
@@ -284,7 +284,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: Readonly<{ matc
                                         <DialogTitle className="text-lg md:text-2xl font-black italic tracking-tighter uppercase whitespace-nowrap">Match <span className="text-accent">Protocol</span></DialogTitle>
                                         <Badge variant="outline" className="text-[8px] md:text-[10px] font-black tracking-widest border-white/10 uppercase bg-white/5">{match.stage?.replaceAll('_', ' ')}</Badge>
                                         {match.isExtraTime && (
-                                            <Badge className="bg-accent text-white border-none text-[8px] md:text-[10px] font-black animate-pulse shadow-[0_0_10px_rgba(255,87,34,0.5)]">EXTRA TIME</Badge>
+                                            <Badge className="bg-accent text-white border-none text-[8px] md:text-[10px] font-black animate-pulse shadow-[0_0_10px_hsl(var(--accent)/0.5)]">EXTRA TIME</Badge>
                                         )}
                                     </div>
                                     <DialogDescription className="font-bold text-[9px] md:text-xs uppercase tracking-widest opacity-50 truncate">{format(new Date(match.date), 'EEEE, MMMM d, yyyy')}</DialogDescription>
@@ -432,7 +432,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: Readonly<{ matc
                                                 </Button>
                                             )}
                                             {match.status === 'FINISHED' && (
-                                                <div className="flex items-center gap-2 md:gap-3 text-accent font-black uppercase text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.3em] bg-accent/10 px-4 md:px-8 py-1.5 md:py-2 rounded-full border border-accent/20 mt-2 md:mt-4 animate-in fade-in zoom-in duration-700 shadow-[0_0_20px_rgba(255,87,34,0.1)]">
+                                                <div className="flex items-center gap-2 md:gap-3 text-accent font-black uppercase text-[7px] md:text-[10px] tracking-[0.15em] md:tracking-[0.3em] bg-accent/10 px-4 md:px-8 py-1.5 md:py-2 rounded-full border border-accent/20 mt-2 md:mt-4 animate-in fade-in zoom-in duration-700 shadow-[0_0_20px_hsl(var(--accent)/0.1)]">
                                                     <CheckCircle2 className="h-3 md:h-4 w-3 md:w-4" /> Official Protocol Complete
                                                 </div>
                                             )}
@@ -611,7 +611,7 @@ export function MatchDetailsDialog({ matchId, isOpen, onClose }: Readonly<{ matc
                                                                                         assisterId: linkedAssist ? linkedAssist.playerId : 'none'
                                                                                     });
                                                                                 }}><Pencil className="h-3 md:h-3.5 w-3 md:w-3.5" /></Button>
-                                                                                <Button variant="ghost" size="icon" className="h-7 md:h-8 w-7 md:w-8 text-destructive hover:bg-destructive/10" onClick={() => deleteMatchEvent(match.id, event.id)}><Trash2 className="h-3 md:h-3.5 w-3 md:w-3.5" /></Button>
+                                                                                <Button variant="ghost" size="icon" className="k-danger h-7 md:h-8 w-7 md:w-8 text-destructive hover:bg-destructive/10" onClick={() => deleteMatchEvent(match.id, event.id)}><Trash2 className="h-3 md:h-3.5 w-3 md:w-3.5" /></Button>
                                                                             </div>
                                                                         )}
                                                                     </motion.div>

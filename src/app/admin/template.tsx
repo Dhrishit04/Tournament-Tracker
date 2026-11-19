@@ -24,7 +24,7 @@ export default function AdminTemplate({ children }: Readonly<{ children: React.R
           <b className="font-medium text-primary">{section?.no ?? '—'}</b> — Command Center / {section?.label ?? 'Admin'}
         </motion.span>
         <motion.span
-          className="h-px flex-1 origin-left bg-[rgba(223,231,224,.12)]"
+          className="h-px flex-1 origin-left bg-hair"
           initial={reduce ? false : { scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 1.1, ease: EASE, delay: 0.05 }}

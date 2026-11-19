@@ -11,7 +11,7 @@ export default function AdminLayout({ children }: Readonly<{ children: React.Rea
   if (loading) {
     return (
       <div className="k-admin flex min-h-screen w-full pt-[var(--nav-h)]">
-        <div className="hidden w-64 space-y-5 border-r border-[rgba(223,231,224,.07)] px-7 pt-6 md:block">
+        <div className="hidden w-64 space-y-5 border-r border-hair-soft px-7 pt-6 md:block">
           <Skeleton className="h-4 w-1/2" />
           <Skeleton className="h-7 w-2/3" />
           <div className="space-y-4 pt-6">

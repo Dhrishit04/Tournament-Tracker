@@ -46,6 +46,21 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        // raw Kage palette (globals.css); `<alpha-value>` enables bone/30, ink/[.82] …
+        ink: 'hsl(var(--ink) / <alpha-value>)',
+        bone: {
+          DEFAULT: 'hsl(var(--bone) / <alpha-value>)',
+          dim: 'hsl(var(--bone-dim) / <alpha-value>)',
+        },
+        vermilion: 'hsl(var(--vermilion) / <alpha-value>)',
+        ember: 'hsl(var(--ember) / <alpha-value>)',
+        gold: 'hsl(var(--gold) / <alpha-value>)',
+        // hairlines (kage-ui.css .k-ui vars)
+        hair: {
+          DEFAULT: 'var(--hair)',
+          soft: 'var(--hair-soft)',
+          hi: 'var(--hair-hi)',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

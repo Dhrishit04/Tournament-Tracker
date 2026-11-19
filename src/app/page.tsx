@@ -22,7 +22,7 @@ function AnnouncementBanner() {
         <div className="flex animate-marquee items-center gap-12 whitespace-nowrap">
           {Array.from({ length: 10 }, (_, i) => i).map((i) => (
             <div key={i} className="flex items-center gap-12">
-              <p className="k-label text-[hsl(var(--bone-dim))]">{globalAnnouncement.message}</p>
+              <p className="k-label text-bone-dim">{globalAnnouncement.message}</p>
               <span className="text-primary">·</span>
             </div>
           ))}

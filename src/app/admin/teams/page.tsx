@@ -257,7 +257,7 @@ function GroupManager({ teams, updateTeam }: Readonly<{ teams: Team[], updateTea
     if (!currentSeason) return null;
 
     return (
-        <Card className="mb-6 border-primary/20 bg-primary/5">
+        <Card className="k-danger mb-6 border-primary/20 bg-primary/5">
             <CardHeader>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
@@ -504,7 +504,7 @@ export default function AdminTeamsPage() {
                                                 </Button>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setTeamToDelete(team)}>
+                                                        <Button variant="ghost" size="icon" className="k-danger h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => setTeamToDelete(team)}>
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
                                                     </AlertDialogTrigger>

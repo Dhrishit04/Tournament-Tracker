@@ -32,7 +32,7 @@ const itemVariants = {
 };
 
 const CATEGORY_DOT: Record<string, string> = {
-  A: "bg-accent shadow-[0_0_10px_rgba(255,87,34,0.5)]",
+  A: "bg-accent shadow-[0_0_10px_hsl(var(--accent)/0.5)]",
   B: "bg-blue-500",
 };
 

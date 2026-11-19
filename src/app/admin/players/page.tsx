@@ -56,7 +56,7 @@ const playerSchema = z.object({
 });
 
 const CATEGORY_DOT: Record<string, string> = {
-  A: "bg-accent shadow-[0_0_10px_rgba(255,87,34,0.5)]",
+  A: "bg-accent shadow-[0_0_10px_hsl(var(--accent)/0.5)]",
   B: "bg-blue-500",
 };
 
@@ -400,7 +400,7 @@ export default function AdminPlayersPage() {
                         </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(player)}>
+                            <Button variant="ghost" size="icon" className="k-danger text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(player)}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>

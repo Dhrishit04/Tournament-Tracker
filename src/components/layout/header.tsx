@@ -92,12 +92,12 @@ export function Header() {
             <SheetTrigger asChild>
               <button type="button" className={cn('k-burger ml-2 lg:hidden', mobileMenuOpen && 'active')} aria-label="Menu"><i /><i /></button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[min(84vw,360px)] border-l border-[rgba(223,231,224,.07)] bg-[rgba(3,6,9,.98)] px-[var(--pad)] pt-[calc(var(--nav-h)+28px)]">
+            <SheetContent side="right" className="w-[min(84vw,360px)] border-l border-hair-soft bg-ink/[.98] px-[var(--pad)] pt-[calc(var(--nav-h)+28px)]">
               <SheetHeader className="sr-only"><SheetTitle>Navigate</SheetTitle><SheetDescription>Explore the tournament record.</SheetDescription></SheetHeader>
               <nav className="flex flex-col">
                 {navLinks.map((link) => (
                   <Link key={link.href} href={link.href} onClick={() => setMobileMenuOpen(false)}
-                    className={cn('border-b border-[rgba(223,231,224,.07)] py-[17px] text-[17px] font-medium uppercase leading-tight tracking-[.2em] text-[hsl(var(--bone-dim))]', isOn(link.href) && 'text-foreground')}>
+                    className={cn('border-b border-hair-soft py-[17px] text-[17px] font-medium uppercase leading-tight tracking-[.2em] text-bone-dim', isOn(link.href) && 'text-foreground')}>
                     {link.label}
                     <span className="k-label mt-1.5 block text-muted-foreground">{link.alt}</span>
                   </Link>

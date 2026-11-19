@@ -363,7 +363,7 @@ export default function AdminSettingsPage() {
                 </div>
 
                 <div className="space-y-8">
-                    <Card className="glass-card border-destructive/20 bg-destructive/5 overflow-hidden h-fit">
+                    <Card className="k-danger glass-card border-destructive/20 bg-destructive/5 overflow-hidden h-fit">
                         <CardHeader className="bg-destructive/10 border-b border-destructive/10">
                         <CardTitle className="flex items-center gap-3 text-destructive uppercase tracking-tighter font-black italic">
                             <AlertTriangle className="h-5 w-5" /> Critical Zones
@@ -437,7 +437,7 @@ export default function AdminSettingsPage() {
                                     </div>
                                     <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                                         <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" disabled={seasons.length <= 1} className="text-destructive hover:bg-destructive/20 hover:text-destructive h-10 w-fit px-6 rounded-full font-bold">
+                                            <Button variant="ghost" disabled={seasons.length <= 1} className="k-danger text-destructive hover:bg-destructive/20 hover:text-destructive h-10 w-fit px-6 rounded-full font-bold">
                                                 Terminate Season Timeline
                                             </Button>
                                         </AlertDialogTrigger>

@@ -40,7 +40,7 @@ function useVisibleSections() {
 function Heartbeat() {
   return (
     <svg viewBox="0 0 120 24" className="h-5 w-full" aria-hidden>
-      <path d="M0 12h38l4-7 5 15 5-19 5 17 3-6h60" fill="none" stroke="rgba(223,231,224,.12)" strokeWidth="1" />
+      <path d="M0 12h38l4-7 5 15 5-19 5 17 3-6h60" fill="none" className="stroke-hair" strokeWidth="1" />
       <path
         d="M0 12h38l4-7 5 15 5-19 5 17 3-6h60"
         fill="none"
@@ -74,7 +74,7 @@ export function AdminSidebar() {
   const active = sectionFor(pathname)?.href;
 
   return (
-    <aside className="sticky top-[var(--nav-h)] hidden h-[calc(100vh-var(--nav-h))] w-64 shrink-0 flex-col border-r border-[rgba(223,231,224,.07)] px-7 pb-8 pt-6 md:flex">
+    <aside className="sticky top-[var(--nav-h)] hidden h-[calc(100vh-var(--nav-h))] w-64 shrink-0 flex-col border-r border-hair-soft px-7 pb-8 pt-6 md:flex">
       <div className="mb-10">
         <div className="k-eyebrow !mt-0">Command Center</div>
         <p className="mt-3 text-[22px] font-normal uppercase leading-none tracking-[-.012em]">Admin</p>
@@ -87,7 +87,7 @@ export function AdminSidebar() {
         {sections.map((s) => {
           const on = s.href === active;
           return (
-            <Link key={s.href} href={s.href} className="group relative flex items-center gap-4 border-b border-[rgba(223,231,224,.05)] py-3.5">
+            <Link key={s.href} href={s.href} className="group relative flex items-center gap-4 border-b border-bone/5 py-3.5">
               {on && (
                 <motion.span
                   layoutId="k-admin-active"
@@ -101,19 +101,19 @@ export function AdminSidebar() {
               <span className={cn('k-link', on && '!text-foreground')}>
                 <span>{s.label}</span><span className="alt">{s.alt}</span>
               </span>
-              <span className="absolute bottom-[-1px] left-0 h-px w-full origin-left scale-x-0 bg-[rgba(223,231,224,.3)] transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-x-100" />
+              <span className="absolute bottom-[-1px] left-0 h-px w-full origin-left scale-x-0 bg-bone/30 transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-x-100" />
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-auto border-t border-[rgba(223,231,224,.07)] pt-5">
+      <div className="mt-auto border-t border-hair-soft pt-5">
         <div className="k-label flex items-center justify-between text-muted-foreground">
           <span>System</span>
           <Clock />
         </div>
         <Heartbeat />
-        <p className="k-label mt-1 text-[hsl(var(--bone-dim))]">Core online</p>
+        <p className="k-label mt-1 text-bone-dim">Core online</p>
       </div>
     </aside>
   );
@@ -126,7 +126,7 @@ export function AdminMobileNav() {
   const active = sectionFor(pathname)?.href;
 
   return (
-    <nav className="custom-scrollbar sticky top-[var(--nav-h)] z-30 -mx-4 mb-6 flex gap-1 overflow-x-auto border-b border-[rgba(223,231,224,.07)] bg-[rgba(5,7,10,.82)] px-4 backdrop-blur-xl md:hidden">
+    <nav className="custom-scrollbar sticky top-[var(--nav-h)] z-30 -mx-4 mb-6 flex gap-1 overflow-x-auto border-b border-hair-soft bg-ink/[.82] px-4 backdrop-blur-xl md:hidden">
       {sections.map((s) => {
         const on = s.href === active;
         return (

@@ -120,7 +120,7 @@ export default function AdminLogsPage() {
       </motion.div>
 
       <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
-        <Card className="glass-card border-accent/20 bg-accent/5 overflow-hidden">
+        <Card className="k-danger glass-card border-accent/20 bg-accent/5 overflow-hidden">
           <CardHeader className="bg-accent/10 border-b border-accent/10 flex flex-row items-center justify-between py-4">
             <div className="flex items-center gap-3">
               <div className="relative">

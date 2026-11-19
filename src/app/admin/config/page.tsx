@@ -168,7 +168,7 @@ export default function AdminConfigPage() {
         <p className="text-muted-foreground font-medium">Manage root authority and staff credentials directly.</p>
       </div>
 
-      <Card className="glass-card border-accent/20 bg-accent/5 overflow-hidden">
+      <Card className="k-danger glass-card border-accent/20 bg-accent/5 overflow-hidden">
         <CardHeader className="bg-accent/10 border-b border-accent/10">
           <div className="flex items-center gap-3">
             <ShieldAlert className="h-6 w-6 text-accent" />

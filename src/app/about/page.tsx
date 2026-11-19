@@ -75,7 +75,7 @@ function MemberCard({ member }: Readonly<{ member: TeamMember }>) {
   return (
     <motion.article variants={fadeUp} className="group flex flex-col">
       {/* template .card-fr: a hairline frame with the name set on the image */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-card outline outline-1 -outline-offset-1 outline-[rgba(223,231,224,.07)] transition-[outline-color] duration-500 group-hover:outline-[rgba(223,231,224,.3)]">
+      <div className="relative aspect-[4/5] overflow-hidden bg-card outline outline-1 -outline-offset-1 outline-hair-soft transition-[outline-color] duration-500 group-hover:outline-bone/30">
         {member.photoUrl ? (
           <Image
             src={member.photoUrl}
@@ -91,7 +91,7 @@ function MemberCard({ member }: Readonly<{ member: TeamMember }>) {
             <Users className="h-14 w-14 text-muted-foreground/30" />
           </div>
         )}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,6,9,.04)_40%,rgba(3,6,9,.8)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,hsl(var(--ink)/.04)_40%,hsl(var(--ink)/.8)_100%)]" />
         <h3 className="absolute inset-x-4 bottom-3.5 text-[clamp(14px,1.2vw,18px)] uppercase leading-tight tracking-[.02em] text-foreground">
           {member.name}
         </h3>
@@ -115,7 +115,7 @@ function MemberCard({ member }: Readonly<{ member: TeamMember }>) {
                 rel="noopener noreferrer"
                 title={label}
                 aria-label={label}
-                className="grid h-[34px] w-[34px] place-items-center rounded-full border border-[rgba(223,231,224,.13)] text-[hsl(var(--bone-dim))] transition-colors duration-500 hover:border-foreground hover:bg-foreground hover:text-background"
+                className="grid h-[34px] w-[34px] place-items-center rounded-full border border-hair text-bone-dim transition-colors duration-500 hover:border-foreground hover:bg-foreground hover:text-background"
               >
                 <Icon className="h-3.5 w-3.5" />
               </a>
@@ -186,7 +186,7 @@ export default function AboutPage() {
                       <h2 className="k-label shrink-0 tracking-[.24em] text-muted-foreground">
                         <b className="font-medium text-primary">{no}</b> — {position.title}
                       </h2>
-                      <span className="h-px flex-1 bg-[rgba(223,231,224,.07)]" />
+                      <span className="h-px flex-1 bg-hair-soft" />
                     </motion.div>
 
                     <div className={`grid gap-[clamp(14px,1.6vw,26px)] ${gridColsFor(posMembers.length)}`}>

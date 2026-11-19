@@ -29,7 +29,7 @@ export function SessionGuard({ children }: Readonly<{ children: React.ReactNode 
   if (!isSessionActive && !isAdmin && !isAuthRoute && !isExceptionRoute) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-6 bg-background relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,87,34,0.05)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,hsl(var(--accent)/0.05)_0%,transparent_70%)] pointer-events-none" />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -38,7 +38,7 @@ export function SessionGuard({ children }: Readonly<{ children: React.ReactNode 
         >
           <div className="relative inline-block">
             <div className="absolute inset-0 bg-accent/20 blur-3xl rounded-full scale-150 animate-pulse" />
-            <div className="relative p-8 bg-accent/10 rounded-full border-2 border-accent/20 shadow-[0_0_50px_rgba(255,87,34,0.2)]">
+            <div className="relative p-8 bg-accent/10 rounded-full border-2 border-accent/20 shadow-[0_0_50px_hsl(var(--accent)/0.2)]">
               <ShieldAlert className="h-16 w-16 text-accent" />
             </div>
           </div>

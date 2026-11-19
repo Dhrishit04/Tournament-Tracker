@@ -17,7 +17,7 @@ interface AthleteCardDialogProps {
 }
 
 const CLASS_FRAME: Record<string, string> = {
-  A: "border-accent/40 shadow-[0_0_80px_rgba(255,87,34,0.2)]",
+  A: "border-accent/40 shadow-[0_0_80px_hsl(var(--accent)/0.2)]",
   B: "border-blue-500/40 shadow-[0_0_80px_rgba(59,130,246,0.2)]",
 };
 
@@ -55,7 +55,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: Readonly<At
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
-        "w-[92vw] sm:max-w-md p-0 bg-card/40 backdrop-blur-2xl border-2 flex flex-col max-h-[92vh] gap-0 overflow-hidden shadow-2xl",
+        "w-[92vw] sm:max-w-md p-0 bg-card/40 backdrop-blur-2xl border-2 k-keep-border flex flex-col max-h-[92vh] gap-0 overflow-hidden shadow-2xl",
         CLASS_FRAME[player.category] ?? "border-white/10"
       )}>
         <DialogHeader className="sr-only">
@@ -138,7 +138,7 @@ export function AthleteCardDialog({ player, team, isOpen, onClose }: Readonly<At
                       value={player.goals || 0}
                       max={20}
                       icon={Goal}
-                      colorClass="bg-accent shadow-[0_0_10px_rgba(255,87,34,0.5)]"
+                      colorClass="bg-accent shadow-[0_0_10px_hsl(var(--accent)/0.5)]"
                     />
                     <StatBar
                       label="Assists Logged"

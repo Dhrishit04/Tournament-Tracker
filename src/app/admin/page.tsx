@@ -133,7 +133,7 @@ export default function AdminDashboardPage() {
         </div>
         <div className={cn(
           'k-label flex items-center gap-3 justify-self-start rounded-full border px-5 py-3 transition-colors duration-500',
-          isSessionActive ? 'border-primary/40 text-foreground' : 'border-[rgba(223,231,224,.13)] text-muted-foreground'
+          isSessionActive ? 'border-primary/40 text-foreground' : 'border-hair text-muted-foreground'
         )}>
           <span className="relative flex h-2 w-2">
             {isSessionActive && <span className="absolute inset-0 animate-ping rounded-full bg-primary" />}
@@ -144,7 +144,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* ---------------------------------------------------------------- figures (template .gate-stats) */}
-      <div className="grid grid-cols-3 gap-[clamp(16px,4vw,62px)] border-t border-[rgba(223,231,224,.07)] pt-6">
+      <div className="grid grid-cols-3 gap-[clamp(16px,4vw,62px)] border-t border-hair-soft pt-6">
         {stats.map((s) => (
           <div key={s.label}>
             {loading ? <Skeleton className="h-12 w-20" /> : (
@@ -166,20 +166,20 @@ export default function AdminDashboardPage() {
           >
             {/* the step lives on the link: framer owns the wrapper's transform */}
             <Link href={card.href} className="group block lg:translate-y-[calc(var(--i)*22px)]" style={{ '--i': idx } as React.CSSProperties}>
-              <div className="relative aspect-[4/5] overflow-hidden outline outline-1 -outline-offset-1 outline-[rgba(223,231,224,.07)] transition-[outline-color] duration-500 group-hover:outline-[rgba(223,231,224,.3)] sm:aspect-[4/5] max-sm:aspect-[16/10]">
+              <div className="relative aspect-[4/5] overflow-hidden outline outline-1 -outline-offset-1 outline-hair-soft transition-[outline-color] duration-500 group-hover:outline-bone/30 sm:aspect-[4/5] max-sm:aspect-[16/10]">
                 <div
                   className="absolute inset-0 scale-[1.06] bg-cover bg-center brightness-[.55] saturate-[.85] transition-[transform,filter] duration-[1.4s] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-100 group-hover:brightness-[.8]"
                   style={{ backgroundImage: `url(${STILLS[idx % STILLS.length]})` }}
                 />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,6,9,.1)_30%,rgba(3,6,9,.86)_100%)]" />
-                <span className="absolute left-4 top-4 text-[10px] tracking-[.18em] text-[hsl(var(--bone-dim))]">0{idx + 1}</span>
-                <span className="absolute right-4 top-4 grid h-[34px] w-[34px] translate-x-[-4px] translate-y-[4px] place-items-center rounded-full border border-[rgba(223,231,224,.3)] opacity-0 transition-all duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,hsl(var(--ink)/.1)_30%,hsl(var(--ink)/.86)_100%)]" />
+                <span className="absolute left-4 top-4 text-[10px] tracking-[.18em] text-bone-dim">0{idx + 1}</span>
+                <span className="absolute right-4 top-4 grid h-[34px] w-[34px] translate-x-[-4px] translate-y-[4px] place-items-center rounded-full border border-bone/30 opacity-0 transition-all duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100">
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </span>
                 <div className="absolute inset-x-4 bottom-4">
                   <span className="mb-3 block text-primary [&_svg]:h-4 [&_svg]:w-4">{card.icon}</span>
                   <p className="text-[clamp(15px,1.2vw,19px)] uppercase leading-tight tracking-[.02em]">{card.title}</p>
-                  <p className="mt-2 text-xs font-light leading-relaxed text-[hsl(var(--bone-dim))]">{card.description}</p>
+                  <p className="mt-2 text-xs font-light leading-relaxed text-bone-dim">{card.description}</p>
                 </div>
               </div>
             </Link>
@@ -208,15 +208,15 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* live preview of the homepage ticker */}
-              <div className="flex h-10 items-center overflow-hidden border border-[rgba(223,231,224,.07)]">
-                <span className="k-label flex h-full shrink-0 items-center gap-2.5 border-r border-[rgba(223,231,224,.07)] px-4">
+              <div className="flex h-10 items-center overflow-hidden border border-hair-soft">
+                <span className="k-label flex h-full shrink-0 items-center gap-2.5 border-r border-hair-soft px-4">
                   <span className={cn('h-[5px] w-[5px] rounded-full transition-colors', isBroadcastActive ? 'animate-pulse bg-primary shadow-[0_0_10px_hsl(var(--primary))]' : 'bg-muted-foreground')} />
                   {isBroadcastActive ? 'On air' : 'Off air'}
                 </span>
                 <div className="flex flex-1 overflow-hidden">
                   <div className={cn('flex animate-marquee items-center gap-12 whitespace-nowrap', !isBroadcastActive && 'opacity-40')}>
                     {Array.from({ length: 8 }, (_, i) => i).map((i) => (
-                      <span key={i} className="k-label text-[hsl(var(--bone-dim))]">
+                      <span key={i} className="k-label text-bone-dim">
                         {announcementText || 'Your announcement preview'}<span className="ml-12 text-primary">·</span>
                       </span>
                     ))}
@@ -259,7 +259,7 @@ export default function AdminDashboardPage() {
                     <div className="border-l border-primary pl-5">
                       <TypeIn text={`"${aiReport.summary}"`} />
                     </div>
-                    <div className="grid grid-cols-1 gap-6 border-t border-[rgba(223,231,224,.07)] pt-5 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-6 border-t border-hair-soft pt-5 sm:grid-cols-2">
                       <div className="space-y-2">
                         <p className="k-label text-muted-foreground">Dominant Force</p>
                         <p className="text-lg font-light uppercase tracking-[.02em]">{aiReport.topTeam}</p>
@@ -276,7 +276,7 @@ export default function AdminDashboardPage() {
                   </motion.div>
                 ) : (
                   <motion.div key="idle" exit={{ opacity: 0 }} className="flex flex-col items-center justify-center py-8 text-center">
-                    <div className="relative mb-5 grid h-14 w-14 place-items-center rounded-full border border-[rgba(223,231,224,.13)]">
+                    <div className="relative mb-5 grid h-14 w-14 place-items-center rounded-full border border-hair">
                       {isAnalyzing && <span className="absolute inset-0 animate-ping rounded-full border border-primary/50" />}
                       <Sparkles className="h-5 w-5 text-primary" strokeWidth={1.25} />
                     </div>
@@ -291,7 +291,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="space-y-8">
-          <Card className="overflow-hidden border-accent/20 bg-accent/5">
+          <Card className="k-danger overflow-hidden border-accent/20 bg-accent/5">
             <CardHeader>
               <CardTitle>Admin Protocol</CardTitle>
             </CardHeader>
@@ -299,7 +299,7 @@ export default function AdminDashboardPage() {
               <p className="text-sm font-light leading-relaxed text-[#c2cdc5]">
                 {protocolMessage(teams.length, players.length)}
               </p>
-              <div className="k-label border-t border-[rgba(223,231,224,.07)] pt-4 text-muted-foreground">
+              <div className="k-label border-t border-hair-soft pt-4 text-muted-foreground">
                 Persistent Data Policy Enabled
               </div>
             </CardContent>

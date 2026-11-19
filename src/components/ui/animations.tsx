@@ -96,7 +96,7 @@ interface TiltCardProps extends HTMLMotionProps<"div"> {
 export function TiltCard({
     children,
     className,
-    borderGlowColor = "rgba(224,35,28, 0.4)", // Default Accent
+    borderGlowColor = "hsl(var(--vermilion)/0.4)", // Default Accent
     ...props
 }: Readonly<TiltCardProps>) {
     const ref = useRef<HTMLDivElement>(null);

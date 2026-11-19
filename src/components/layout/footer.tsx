@@ -28,7 +28,7 @@ export function Footer() {
           </div>
         ))}
       </div>
-      <div className="k-label mt-[clamp(38px,6vh,74px)] flex flex-wrap items-center justify-between gap-5 border-t border-[rgba(223,231,224,.07)] pt-5 tracking-[.16em] text-muted-foreground">
+      <div className="k-label mt-[clamp(38px,6vh,74px)] flex flex-wrap items-center justify-between gap-5 border-t border-hair-soft pt-5 tracking-[.16em] text-muted-foreground">
         <span>© {new Date().getFullYear()} Dongre Football Premier League</span>
         <span>Built for a clearer season</span>
         <span>Tournament Tracker</span>

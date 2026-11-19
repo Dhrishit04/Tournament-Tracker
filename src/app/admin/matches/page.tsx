@@ -139,7 +139,7 @@ function StageSettings() {
                 </CardContent>
             </Card>
 
-            <Card className="glass-card border-accent/20 bg-accent/5">
+            <Card className="k-danger glass-card border-accent/20 bg-accent/5">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-black uppercase tracking-widest text-accent flex items-center gap-2">
                         <Clock className="h-4 w-4" /> Match Timing
@@ -598,9 +598,9 @@ export default function AdminMatchesPage() {
                                                         <TableCell>
                                                             {(match.status === 'FINISHED' || match.status === 'LIVE') ? (
                                                                 <div className="flex items-center gap-2 font-mono font-black text-sm bg-black/40 px-2 py-0.5 rounded-md border border-white/10 w-fit shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
-                                                                    <span className={cn(match.homeScore! > match.awayScore! ? "text-accent drop-shadow-[0_0_8px_rgba(224,35,28,0.6)]" : "text-white/80")}>{match.homeScore ?? '0'}</span>
+                                                                    <span className={cn(match.homeScore! > match.awayScore! ? "text-accent drop-shadow-[0_0_8px_hsl(var(--vermilion)/0.6)]" : "text-white/80")}>{match.homeScore ?? '0'}</span>
                                                                     <span className="opacity-20">-</span>
-                                                                    <span className={cn(match.awayScore! > match.homeScore! ? "text-accent drop-shadow-[0_0_8px_rgba(224,35,28,0.6)]" : "text-white/80")}>{match.awayScore ?? '0'}</span>
+                                                                    <span className={cn(match.awayScore! > match.homeScore! ? "text-accent drop-shadow-[0_0_8px_hsl(var(--vermilion)/0.6)]" : "text-white/80")}>{match.awayScore ?? '0'}</span>
                                                                 </div>
                                                             ) : (
                                                                 <span className="text-[10px] font-mono font-black opacity-20">—</span>
@@ -611,7 +611,7 @@ export default function AdminMatchesPage() {
                                                                 <Button variant="ghost" size="icon" onClick={() => handleOpenDialog('edit', match)} className="h-8 w-8 hover:bg-white/10"><Edit className="h-4 w-4" /></Button>
                                                                 <AlertDialog>
                                                                     <AlertDialogTrigger asChild>
-                                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button>
+                                                                        <Button variant="ghost" size="icon" className="k-danger h-8 w-8 text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button>
                                                                     </AlertDialogTrigger>
                                                                     <AlertDialogContent className="bg-card/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
                                                                         <AlertDialogHeader>
@@ -657,7 +657,7 @@ export default function AdminMatchesPage() {
                                                 <TableCell className="px-8"><Badge variant="outline" className="text-[9px] font-black tracking-tighter border-white/10">{match.stage}</Badge></TableCell>
                                                 <TableCell className="font-bold text-sm">{getTeamName(match.homeTeamId)} vs {getTeamName(match.awayTeamId)}</TableCell>
                                                 <TableCell className="px-8 text-right">
-                                                    <Button variant="ghost" size="icon" className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => { void deleteMatch(match.id); toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)} has been removed.` }); }}>
+                                                    <Button variant="ghost" size="icon" className="k-danger text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => { void deleteMatch(match.id); toast({ variant: 'destructive', title: 'Fixture Deleted', description: `${getTeamName(match.homeTeamId)} vs ${getTeamName(match.awayTeamId)} has been removed.` }); }}>
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
                                                 </TableCell>

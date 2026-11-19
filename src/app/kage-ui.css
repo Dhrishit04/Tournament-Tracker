@@ -40,9 +40,7 @@
 }
 
 /* danger / highlight panels keep their meaning as a vermilion wash */
-.k-ui .k-card[class*="destructive"],
-.k-ui .k-card[class*="accent/5"],
-.k-ui .k-card[class*="primary/5"] {
+.k-ui .k-card.k-danger {
   border-color: rgba(224, 35, 28, .22);
   background-color: rgba(40, 6, 5, .42);
 }
@@ -233,7 +231,7 @@
 }
 
 /* round icon buttons keep their own colour (e.g. delete stays red) */
-.k-ui .k-btn[data-variant="ghost"][class*="text-destructive"] {
+.k-ui .k-btn[data-variant="ghost"].k-danger {
   color: hsl(var(--ember));
 }
 
@@ -411,8 +409,8 @@
   -webkit-backdrop-filter: blur(6px);
 }
 
-/* the athlete card's border-2 colour encodes the player's class, so it keeps it */
-.k-ui .k-dialog:not([class*="border-2"]) {
+/* .k-keep-border: the athlete card's border colour encodes the player's class */
+.k-ui .k-dialog:not(.k-keep-border) {
   border: 1px solid var(--hair);
 }
 

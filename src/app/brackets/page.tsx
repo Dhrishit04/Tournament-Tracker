@@ -98,10 +98,10 @@ export default function BracketPage() {
           <div className="relative grid h-44 w-44 place-items-center">
             <div className="absolute inset-0 rounded-full bg-accent/15 blur-[80px]" />
             <svg viewBox="0 0 100 100" className="absolute inset-0 animate-[spin_28s_linear_infinite]" aria-hidden>
-              <circle cx="50" cy="50" r="49" fill="none" stroke="rgba(224,35,28,.55)" strokeWidth=".5" strokeDasharray=".6 2.4" />
+              <circle cx="50" cy="50" r="49" fill="none" className="stroke-vermilion/[.55]" strokeWidth=".5" strokeDasharray=".6 2.4" />
             </svg>
             <span className="absolute inset-5 animate-ping rounded-full border border-primary/40 [animation-duration:2.8s]" />
-            <span className="absolute inset-5 rounded-full border border-primary/70 bg-background shadow-[0_0_40px_rgba(224,35,28,.35)]" />
+            <span className="absolute inset-5 rounded-full border border-primary/70 bg-background shadow-[0_0_40px_hsl(var(--vermilion)/.35)]" />
             <Trophy className="relative h-14 w-14 text-accent" strokeWidth={1.25} />
           </div>
           <div className="w-full max-w-sm">
