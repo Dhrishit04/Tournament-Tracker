@@ -562,4 +562,4 @@ export default function AdminTeamsPage() {
             </AlertDialog>
         </div>
     );
-}
+} 
